@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Curated Closet | AI Vision & Zero-Repeat Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Cinzel', 'serif']
+          },
+          colors: {
+            brand: {
+              cream: '#FAF8F5',
+              stone: '#F2EFEB',
+              border: '#E2DCD4',
+              navy: '#131D2D',
+              slate: '#334155',
+              forest: '#1E3527',
+              terracotta: '#9E4B38',
+              espresso: '#362822',
+              olive: '#47533E',
+              khaki: '#C5B294'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #FAF8F5; color: #1A2434; font-family: 'Inter', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #F2EFEB; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #D4CCC2; border-radius: 9999px; }
+    .flatlay-card:hover .swap-overlay { opacity: 1; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased text-stone-800">
+
+  <!-- TOP HEADER -->
+  <header class="bg-white/95 backdrop-blur-md border-b border-brand-border sticky top-0 z-40">
+    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-3.5">
+        <div class="w-10 h-10 rounded-xl bg-brand-navy flex items-center justify-center text-brand-cream font-serif text-sm font-extrabold tracking-widest shadow-md">
+          CW
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="font-serif text-lg sm:text-xl tracking-wider text-brand-navy font-bold uppercase">The Curated Closet</h1>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">AI Vision Studio</span>
+          </div>
+          <p class="text-xs text-stone-500 font-medium">Weather-Synced Planning, Zero-Repeat Rotation & 1-Click AI Recognition</p>
+        </div>
+      </div>
+      
+      <!-- Navigation Tabs -->
+      <nav class="flex space-x-1.5 bg-brand-stone p-1 rounded-xl border border-brand-border text-xs sm:text-sm font-medium">
+        <button id="tab-btn-planner" onclick="switchView('planner')" class="px-3.5 py-1.5 rounded-lg bg-white text-brand-navy shadow-sm font-semibold flex items-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span>7-Day Flat-Lay Board</span>
+        </button>
+        <button id="tab-btn-matcher" onclick="switchView('matcher')" class="px-3.5 py-1.5 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5">
+          <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          <span>Visual Photo Linker</span>
+        </button>
+        <button id="tab-btn-wardrobe" onclick="switchView('wardrobe')" class="px-3.5 py-1.5 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span>Vault & Photo Rotation</span>
+        </button>
+        <button id="tab-btn-compass" onclick="switchView('compass')" class="px-3.5 py-1.5 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5">
+          <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>Style Compass & Settings</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- NOTIFICATION TOAST -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-brand-navy text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 border border-stone-700">
+      <span id="toast-icon">✓</span>
+      <span id="toast-msg" class="text-xs sm:text-sm font-medium"></span>
+    </div>
+  </div>
+
+  <main class="flex-grow max-w-[1700px] mx-auto w-full px-3 sm:px-6 py-6">
+
+    <!-- VIEW 1: 7-DAY FLAT-LAY BOARD -->
+    <section id="view-planner" class="space-y-6">
+      <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center space-x-2">
+            <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Zero-Repeat 7-Day Flat-Lay Board</h2>
+            <span id="weekly-diversity-badge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold">100% Unique Pieces</span>
+          </div>
+          <p class="text-xs text-stone-500 mt-0.5">Strict non-repetition rule enforced. Generates a fresh look for all 7 days without reusing tops, layers, or pants.</p>
+        </div>
+        <div class="flex items-center space-x-3 w-full lg:w-auto">
+          <button onclick="smartGenerateWeek()" class="flex-1 lg:flex-none px-4 py-2 bg-brand-navy hover:bg-stone-900 text-brand-cream text-xs font-semibold rounded-xl shadow-sm transition-colors flex items-center justify-center space-x-2">
+            <svg class="w-4 h-4 text-amber-300" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <span>Auto-Curate (Zero Repeats)</span>
+          </button>
+          <button onclick="clearWeekPlan()" class="px-3 py-2 border border-brand-border hover:bg-brand-stone text-stone-600 text-xs font-medium rounded-xl transition-colors">
+            Reset Week
+          </button>
+        </div>
+      </div>
+
+      <div id="seven-day-flatlay-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4"></div>
+    </section>
+
+    <!-- VIEW 2: SPLIT-SCREEN VISUAL PHOTO LINKER -->
+    <section id="view-matcher" class="space-y-6 hidden">
+      <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Split-Screen Visual Photo Linker</h2>
+          <p class="text-xs text-stone-500">Drop your converted JPG/PNG wardrobe photos on the left, click a photo, then click any item on the right to lock them permanently.</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <label class="px-4 py-2 bg-brand-navy hover:bg-stone-900 text-white rounded-xl text-xs font-semibold cursor-pointer shadow-sm">
+            <span>+ Load Photos</span>
+            <input type="file" multiple accept="image/*" class="hidden" onchange="handleRawPhotoBatch(event)">
+          </label>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[600px]">
+        <div class="lg:col-span-5 bg-white border border-brand-border rounded-2xl p-4 flex flex-col space-y-3">
+          <div class="flex items-center justify-between border-b border-brand-border pb-2.5">
+            <span class="text-xs font-bold uppercase tracking-wider text-stone-700">1. Select Photo</span>
+            <span id="unlinked-photo-count" class="text-[11px] font-mono text-stone-500">0 Photos Loaded</span>
+          </div>
+          
+          <div id="dropzone-matcher" class="border-2 border-dashed border-stone-300 rounded-xl p-4 text-center bg-brand-stone/40 hover:bg-brand-stone transition cursor-pointer">
+            <span class="text-xs font-semibold text-stone-700">Drop your wardrobe photos folder here</span>
+            <span class="text-[10px] text-stone-400 block mt-0.5">JPG / PNG optimized instantly</span>
+          </div>
+
+          <div id="photo-pool-grid" class="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-3 gap-2 max-h-[500px] p-1"></div>
+        </div>
+
+        <div class="lg:col-span-7 bg-white border border-brand-border rounded-2xl p-4 flex flex-col space-y-3">
+          <div class="flex items-center justify-between border-b border-brand-border pb-2.5">
+            <span class="text-xs font-bold uppercase tracking-wider text-stone-700">2. Click Target Garment to Bind</span>
+            <input type="text" id="matcher-search" oninput="renderMatcherItemList()" placeholder="Search items (#ID, name, ref)..." class="text-xs p-1.5 border border-brand-border rounded-lg w-52 bg-brand-stone/60">
+          </div>
+
+          <div id="active-selected-photo-banner" class="hidden p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+              <span>Photo selected: <strong id="selected-photo-label">IMG_xxxx</strong>. Click an item below to lock link.</span>
+            </div>
+            <button onclick="clearSelectedPhoto()" class="text-stone-400 hover:text-stone-700 font-bold">&times;</button>
+          </div>
+
+          <div id="matcher-item-list" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 max-h-[500px]"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: VAULT & 1-CLICK AI AUTO-RECOGNITION -->
+    <section id="view-wardrobe" class="space-y-6 hidden">
+      <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center space-x-2">
+              <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Curated Vault & 1-Click AI Ingestion</h2>
+              <span id="photo-coverage-badge" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-brand-stone text-stone-700 border border-brand-border font-semibold">0 / 0 Photographed</span>
+            </div>
+            <p class="text-xs text-stone-500">Drop a new photo below. Gemini Vision automatically analyzes the garment and catalogs it into your wardrobe.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="toggleModal('add-item-modal', true)" class="px-4 py-2 border border-brand-border hover:bg-brand-stone text-brand-navy text-xs font-semibold rounded-xl transition-colors">
+              Manual Form
+            </button>
+          </div>
+        </div>
+
+        <!-- 1-CLICK AI VISION DROPZONE -->
+        <div id="ai-vision-dropzone" class="border-2 border-dashed border-amber-300 rounded-2xl p-6 text-center bg-amber-50/40 hover:bg-amber-50/80 transition cursor-pointer relative group">
+          <div class="space-y-2">
+            <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-800 mx-auto flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform">⚡</div>
+            <div class="text-xs font-bold text-brand-navy">
+              Drop Photo to Auto-Catalog (AI Vision)
+            </div>
+            <p class="text-[11px] text-stone-500 max-w-md mx-auto">
+              Snaps from your camera roll automatically extract category, brand/type, color palette, texture, and weight with no manual typing.
+            </p>
+          </div>
+          <input type="file" id="ai-photo-input" accept="image/*" class="hidden" onchange="handleAiGarmentScan(event)">
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 pt-3 border-t border-brand-border">
+          <div>
+            <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1">Category</label>
+            <select id="filter-category" onchange="renderWardrobeList()" class="w-full text-xs rounded-lg border-brand-border bg-brand-stone p-2 font-medium">
+              <option value="ALL">All Categories</option>
+              <option value="Woven">Shirts & Wovens</option>
+              <option value="Knitwear">Knits & Sweaters</option>
+              <option value="Tee">Tees & Base Layers</option>
+              <option value="Polo">Polos & Casual Knits</option>
+              <option value="Pants">Pants & Bottoms</option>
+              <option value="Shorts">Shorts</option>
+              <option value="Layer">Jackets & Third Layers</option>
+              <option value="Athletic">Athleisure & Sport</option>
+              <option value="Footwear">Footwear Anchors</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1">Curation Tier</label>
+            <select id="filter-tier" onchange="renderWardrobeList()" class="w-full text-xs rounded-lg border-brand-border bg-brand-stone p-2 font-medium">
+              <option value="ALL">All Tiers</option>
+              <option value="Anchor">Anchor (Core Wear)</option>
+              <option value="Potential">Potential (Secondary)</option>
+              <option value="Active">Matchday / Sport Only</option>
+              <option value="Pending">Target / Pending</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1">Photo Status</label>
+            <select id="filter-photo" onchange="renderWardrobeList()" class="w-full text-xs rounded-lg border-brand-border bg-brand-stone p-2 font-medium">
+              <option value="ALL">All Pieces</option>
+              <option value="HAS_PHOTO">Has Photo (✓)</option>
+              <option value="NO_PHOTO">Needs Photo (📷)</option>
+            </select>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1">Search Vault</label>
+            <input type="text" id="search-query" oninput="renderWardrobeList()" placeholder="e.g. Madewell, OCBD..." class="w-full text-xs rounded-lg border border-brand-border bg-brand-stone p-2 font-medium">
+          </div>
+        </div>
+      </div>
+
+      <div id="wardrobe-grid-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+    </section>
+
+    <!-- VIEW 4: STYLE COMPASS & API KEY SETTINGS -->
+    <section id="view-compass" class="space-y-6 hidden">
+      <div class="bg-white border border-brand-border rounded-2xl p-6 shadow-sm space-y-6">
+        <div>
+          <h2 class="font-serif text-xl font-bold text-brand-navy tracking-tight mb-1">Style Compass & AI Vision Settings</h2>
+          <p class="text-xs sm:text-sm text-stone-600">Enter your Gemini API key below to unlock 1-click photo garment recognition.</p>
+        </div>
+
+        <!-- API KEY SETTING CARD -->
+        <div class="p-5 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-900">Google Gemini API Key</span>
+            <span id="api-status-badge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-stone-200 text-stone-700 font-bold">Not Configured</span>
+          </div>
+          <div class="flex gap-2">
+            <input type="password" id="gemini-api-key-input" placeholder="Paste your API key here" class="flex-1 p-2 rounded-xl border border-brand-border bg-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-brand-navy">
+            <button onclick="saveApiKey()" class="px-5 py-2 bg-brand-navy text-white text-xs font-semibold rounded-xl hover:bg-stone-900 transition">Save Key</button>
+          </div>
+          <p class="text-[11px] text-stone-500">Your key is stored securely in your browser's private local storage and is never sent to external servers.</p>
+        </div>
+
+        <!-- Calibration Dials -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 rounded-2xl bg-brand-stone border border-brand-border">
+          <div class="space-y-2">
+            <div class="flex justify-between items-center text-xs font-semibold">
+              <span class="text-stone-700">Formality Target</span>
+              <span id="dial-formality-val" class="text-brand-navy font-bold">Smart Casual</span>
+            </div>
+            <input type="range" id="dial-formality" min="1" max="5" value="3" oninput="updateCompassDials()" class="w-full h-1.5 bg-stone-300 rounded-lg appearance-none cursor-pointer accent-brand-navy">
+          </div>
+          <div class="space-y-2">
+            <div class="flex justify-between items-center text-xs font-semibold">
+              <span class="text-stone-700">Aesthetic Split</span>
+              <span id="dial-aesthetic-val" class="text-brand-navy font-bold">60% Classic / 40% Athletic</span>
+            </div>
+            <input type="range" id="dial-aesthetic" min="1" max="5" value="3" oninput="updateCompassDials()" class="w-full h-1.5 bg-stone-300 rounded-lg appearance-none cursor-pointer accent-brand-navy">
+          </div>
+          <div class="space-y-2">
+            <div class="flex justify-between items-center text-xs font-semibold">
+              <span class="text-stone-700">Palette Discipline</span>
+              <span id="dial-palette-val" class="text-brand-navy font-bold">Balanced Earth</span>
+            </div>
+            <input type="range" id="dial-palette" min="1" max="3" value="2" oninput="updateCompassDials()" class="w-full h-1.5 bg-stone-300 rounded-lg appearance-none cursor-pointer accent-brand-navy">
+          </div>
+        </div>
+
+        <!-- Palette Equilibrium Diagnostic -->
+        <div class="p-5 rounded-2xl bg-brand-stone border border-brand-border space-y-3">
+          <div class="flex items-center justify-between text-xs font-semibold">
+            <span class="text-stone-700">Live Palette Equilibrium</span>
+            <span id="palette-ratio-text" class="text-brand-navy font-mono">Calculating...</span>
+          </div>
+          <div class="w-full h-4 bg-stone-200 rounded-full flex overflow-hidden shadow-inner" id="palette-progress-bar"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: MANUAL ADD GARMENT -->
+  <div id="add-item-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-brand-border">
+      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+        <h3 class="font-serif font-bold text-brand-navy text-base">Register Garment into Vault</h3>
+        <button onclick="toggleModal('add-item-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
+      </div>
+      <form id="add-item-form" onsubmit="handleManualAddItem(event)" class="space-y-3.5 pt-3 text-xs">
+        <div>
+          <label class="block font-semibold text-stone-700 mb-1">Item Title & Brand</label>
+          <input type="text" id="new-item-name" required placeholder="e.g. Todd Snyder Olive Hopsack Blazer" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-stone-700 mb-1">Category</label>
+            <select id="new-item-category" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy">
+              <option value="Woven">Shirts & Wovens</option>
+              <option value="Knitwear">Knits & Sweaters</option>
+              <option value="Tee">Tees & Base Layers</option>
+              <option value="Polo">Polos & Casual Knits</option>
+              <option value="Pants">Pants & Bottoms</option>
+              <option value="Shorts">Shorts</option>
+              <option value="Layer">Jackets & 3rd Layers</option>
+              <option value="Athletic">Athleisure & Sport</option>
+              <option value="Footwear">Footwear Anchors</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-stone-700 mb-1">Curation Tier</label>
+            <select id="new-item-tier" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy">
+              <option value="Anchor">Anchor (Core Wear)</option>
+              <option value="Potential">Potential (Secondary)</option>
+              <option value="Active">Matchday / Sport</option>
+              <option value="Pending">Target / Pending</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-stone-700 mb-1">Color Palette</label>
+            <select id="new-item-palette" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy">
+              <option value="earth">Earth Tone (Olive, Espresso, Tan)</option>
+              <option value="neutral">Warm Neutral (Cream, Stone, Grey)</option>
+              <option value="blue">Blue Spectrum (Navy, Slate)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-stone-700 mb-1">Weight</label>
+            <select id="new-item-weight" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy">
+              <option value="mid">Midweight</option>
+              <option value="heavy">Heavy / Cold</option>
+              <option value="light">Lightweight / Warm</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-stone-700 mb-1">Camera Filename Reference (Optional)</label>
+          <input type="text" id="new-item-ref" placeholder="e.g. IMG_6360" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy font-mono">
+        </div>
+        <div class="pt-2 flex items-center justify-end space-x-2">
+          <button type="button" onclick="toggleModal('add-item-modal', false)" class="px-4 py-2 text-stone-600 hover:text-stone-800">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-brand-navy hover:bg-stone-900 text-white rounded-xl font-semibold transition-colors">Save to Vault</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: SWAP PIECE CAROUSEL -->
+  <div id="swap-modal" class="fixed inset-0 bg-stone-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-brand-border space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+        <div>
+          <span id="swap-slot-label" class="text-[10px] font-bold uppercase tracking-wider text-stone-400">Swap Item</span>
+          <h3 id="swap-day-title" class="font-serif font-bold text-brand-navy text-base">Select Alternative</h3>
+        </div>
+        <button onclick="toggleModal('swap-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
+      </div>
+      <div id="swap-carousel-list" class="max-h-[60vh] overflow-y-auto custom-scrollbar space-y-2 p-1"></div>
+    </div>
+  </div>
+
+  <!-- APPLICATION LOGIC -->
+  <script>
+    const DB_NAME = "CuratedWardrobeDB_v8";
+    const DB_VERSION = 1;
+    const PHOTO_STORE = "item_photos";
+    let dbInstance = null;
+
+    function openPhotoDB() {
+      return new Promise((resolve) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(PHOTO_STORE)) {
+            db.createObjectStore(PHOTO_STORE, { keyPath: "id" });
+          }
+        };
+        req.onsuccess = (e) => {
+          dbInstance = e.target.result;
+          resolve(dbInstance);
+        };
+        req.onerror = () => resolve(null);
+      });
+    }
+
+    function savePhotoToDB(itemId, dataUrl) {
+      return new Promise((resolve) => {
+        if (!dbInstance) {
+          try { localStorage.setItem("photo_" + itemId, dataUrl); } catch(e){}
+          return resolve();
+        }
+        const tx = dbInstance.transaction(PHOTO_STORE, "readwrite");
+        const store = tx.objectStore(PHOTO_STORE);
+        store.put({ id: String(itemId), dataUrl: dataUrl });
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
+      });
+    }
+
+    function getPhotoFromDB(itemId) {
+      return new Promise((resolve) => {
+        if (!dbInstance) return resolve(localStorage.getItem("photo_" + itemId) || null);
+        const tx = dbInstance.transaction(PHOTO_STORE, "readonly");
+        const store = tx.objectStore(PHOTO_STORE);
+        const req = store.get(String(itemId));
+        req.onsuccess = () => resolve(req.result ? req.result.dataUrl : null);
+        req.onerror = () => resolve(null);
+      });
+    }
+
+    function fastCompress(file, maxDim = 800, quality = 0.8) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            let w = img.width, h = img.height;
+            if (w > h) {
+              if (w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
+            } else {
+              if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+            }
+            const canvas = document.createElement("canvas");
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL("image/jpeg", quality));
+          };
+          img.onerror = () => resolve(e.target.result);
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function rotateDataUrl90Deg(srcDataUrl) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.height;
+          canvas.height = img.width;
+          const ctx = canvas.getContext("2d");
+          ctx.translate(canvas.width / 2, canvas.height / 2);
+          ctx.rotate(90 * Math.PI / 180);
+          ctx.drawImage(img, -img.width / 2, -img.height / 2);
+          resolve(canvas.toDataURL("image/jpeg", 0.85));
+        };
+        img.src = srcDataUrl;
+      });
+    }
+
+    /* Core Wardrobe Catalog */
+    const DEFAULT_WARDROBE = [
+      { id: 88, fileRef: "IMG_6330", name: "BR Crisp White Structured Button-Down", category: "Woven", tier: "Anchor", palette: "neutral", texture: "Poplin", weight: "mid", wearCount: 0 },
+      { id: 3, fileRef: "IMG_6332", name: "BR Blue/White Striped OCBD", category: "Woven", tier: "Anchor", palette: "blue", texture: "Oxford", weight: "mid", wearCount: 0 },
+      { id: 11, fileRef: "IMG_6341", name: "BR Dusty Rose / Terracotta Woven", category: "Woven", tier: "Anchor", palette: "earth", texture: "Twill", weight: "mid", wearCount: 0 },
+      { id: 102, fileRef: "IMG_6337", name: "BR Heather Grey Chambray / Oxford", category: "Woven", tier: "Anchor", palette: "neutral", texture: "Heather", weight: "mid", wearCount: 0 },
+      { id: 96, fileRef: "IMG_6325", name: "Heather Blue Classic OCBD", category: "Woven", tier: "Anchor", palette: "blue", texture: "Oxford", weight: "heavy", wearCount: 0 },
+      { id: 100, fileRef: "IMG_6329", name: "BR Blue/White Micro-Gingham Shirt", category: "Woven", tier: "Anchor", palette: "blue", texture: "Gingham", weight: "mid", wearCount: 0 },
+      { id: 98, fileRef: "IMG_6338", name: "Navy, Brown & Ecru Plaid Flannel", category: "Woven", tier: "Anchor", palette: "earth", texture: "Flannel", weight: "heavy", wearCount: 0 },
+      { id: 103, fileRef: "IMG_6334", name: "BR Navy/White Seersucker Short-Sleeve", category: "Woven", tier: "Anchor", palette: "blue", texture: "Seersucker", weight: "light", wearCount: 0 },
+      { id: 2, fileRef: "IMG_6340", name: "BR Double-Pocket Blue Chambray Shirt", category: "Woven", tier: "Potential", palette: "blue", texture: "Chambray", weight: "heavy", wearCount: 0 },
+      { id: 94, fileRef: "IMG_6336", name: "Madewell Washed Sky Blue Shirt", category: "Woven", tier: "Potential", palette: "blue", texture: "Cotton", weight: "mid", wearCount: 0 },
+      { id: 52, fileRef: "IMG_6287", name: "Espresso Brown Merino Crewneck", category: "Knitwear", tier: "Anchor", palette: "earth", texture: "Merino", weight: "heavy", wearCount: 0 },
+      { id: 54, fileRef: "IMG_6285", name: "J.Crew Micro-Houndstooth Knit (Navy/Tan)", category: "Knitwear", tier: "Anchor", palette: "earth", texture: "Jacquard", weight: "heavy", wearCount: 0 },
+      { id: 19, fileRef: "IMG_6291", name: "Forest Green Heritage Crewneck", category: "Knitwear", tier: "Anchor", palette: "earth", texture: "Ribbed Wool", weight: "heavy", wearCount: 0 },
+      { id: 72, fileRef: "IMG_6286", name: "Oatmeal Chunky Button Cardigan", category: "Layer", tier: "Anchor", palette: "neutral", texture: "Rib Knit", weight: "heavy", wearCount: 0 },
+      { id: 67, fileRef: "IMG_6289", name: "Camel Textured Waffle Long-Sleeve", category: "Knitwear", tier: "Anchor", palette: "earth", texture: "Waffle", weight: "heavy", wearCount: 0 },
+      { id: 9, fileRef: "IMG_6284", name: "J.Crew Ribbed Slate Blue Crewneck", category: "Knitwear", tier: "Potential", palette: "blue", texture: "Ribbed", weight: "heavy", wearCount: 0 },
+      { id: 17, fileRef: "IMG_6288", name: "Navy & Cream Bar-Stripe Crew", category: "Knitwear", tier: "Anchor", palette: "blue", texture: "Heavy Cotton", weight: "heavy", wearCount: 0 },
+      { id: 97, fileRef: "IMG_6351", name: "Heather Tan Full-Button Knit Polo", category: "Polo", tier: "Anchor", palette: "earth", texture: "Knit", weight: "mid", wearCount: 0 },
+      { id: 91, fileRef: "IMG_6343", name: "Ecru / Natural Tipped Tennis Polo", category: "Polo", tier: "Anchor", palette: "neutral", texture: "Pique", weight: "mid", wearCount: 0 },
+      { id: 85, fileRef: "IMG_6354", name: "J.Crew White Classic Pique Polo", category: "Polo", tier: "Anchor", palette: "neutral", texture: "Pique", weight: "mid", wearCount: 0 },
+      { id: 95, fileRef: "IMG_6346", name: "J.Crew Terracotta Garment-Dyed Polo", category: "Polo", tier: "Anchor", palette: "earth", texture: "Garment Dyed", weight: "mid", wearCount: 0 },
+      { id: 39, fileRef: "IMG_6228", name: "Madewell Natural Ecru Base Tee", category: "Tee", tier: "Anchor", palette: "neutral", texture: "Combed Cotton", weight: "light", wearCount: 0 },
+      { id: 66, fileRef: "IMG_6226", name: "Madewell Washed Charcoal Base Tee", category: "Tee", tier: "Anchor", palette: "neutral", texture: "Garment Wash", weight: "light", wearCount: 0 },
+      { id: 70, fileRef: "IMG_6224", name: "Madewell Faded Olive Green Tee", category: "Tee", tier: "Anchor", palette: "earth", texture: "Garment Wash", weight: "light", wearCount: 0 },
+      { id: 13, fileRef: "IMG_6219", name: "Buck Mason Slate Blue Combed Tee", category: "Tee", tier: "Anchor", palette: "blue", texture: "Heavy Jersey", weight: "mid", wearCount: 0 },
+      { id: 44, fileRef: "IMG_6242", name: "Faded Taupe / Olive Slub Henley", category: "Tee", tier: "Anchor", palette: "earth", texture: "Slub Knit", weight: "mid", wearCount: 0 },
+      { id: 64, fileRef: "IMG_6223", name: "Heather Grey Mallard Embroidered Tee", category: "Tee", tier: "Anchor", palette: "neutral", texture: "Heather", weight: "light", wearCount: 0 },
+      { id: 101, fileRef: "IMG_6342", name: "J.Crew Olive Twill Workshirt Jacket", category: "Layer", tier: "Anchor", palette: "earth", texture: "Heavy Twill", weight: "heavy", wearCount: 0 },
+      { id: 93, fileRef: "IMG_6357", name: "Sand Snap-Front Fleece Overshirt", category: "Layer", tier: "Anchor", palette: "neutral", texture: "Fleece", weight: "heavy", wearCount: 0 },
+      { id: 32, fileRef: "IMG_6283", name: "Navy Minimalist Technical Bomber", category: "Layer", tier: "Anchor", palette: "blue", texture: "Matte Shell", weight: "mid", wearCount: 0 },
+      { id: 81, fileRef: "IMG_6295", name: "Oatmeal Fine-Gauge Knit Hoodie", category: "Athletic", tier: "Anchor", palette: "neutral", texture: "Fine Knit", weight: "mid", wearCount: 0 },
+      { id: 38, fileRef: "IMG_6282", name: "Cream Heritage V-Stitch Sweatshirt", category: "Athletic", tier: "Anchor", palette: "neutral", texture: "French Terry", weight: "heavy", wearCount: 0 },
+      { id: 12, fileRef: "IMG_6358", name: "J.Crew Natural Ecru Solid Rugby Shirt", category: "Athletic", tier: "Anchor", palette: "neutral", texture: "Heavy Jersey", weight: "heavy", wearCount: 0 },
+      { id: 5, fileRef: "IMG_6356", name: "Forest Green & Grey Bar-Stripe Rugby", category: "Athletic", tier: "Anchor", palette: "earth", texture: "Heavy Jersey", weight: "heavy", wearCount: 0 },
+      { id: 56, fileRef: "IMG_6275", name: "Hill City Heather Grey Tech Hoodie", category: "Athletic", tier: "Anchor", palette: "neutral", texture: "Fleece", weight: "heavy", wearCount: 0 },
+      { id: 18, fileRef: "IMG_6255", name: "BR Charcoal Slate Garment-Dyed Chinos", category: "Pants", tier: "Anchor", palette: "neutral", texture: "Chino", weight: "mid", wearCount: 0 },
+      { id: 45, fileRef: "IMG_6262", name: "Olive Green Flat-Front Chinos", category: "Pants", tier: "Anchor", palette: "earth", texture: "Twill", weight: "mid", wearCount: 0 },
+      { id: 58, fileRef: "IMG_6261", name: "Stone / Light Sand Flat-Front Chinos", category: "Pants", tier: "Anchor", palette: "neutral", texture: "Cotton", weight: "mid", wearCount: 0 },
+      { id: 10, fileRef: "IMG_6257", name: "British Khaki Classic Chinos", category: "Pants", tier: "Anchor", palette: "earth", texture: "Twill", weight: "mid", wearCount: 0 },
+      { id: 28, fileRef: "IMG_6260", name: "BR Slim Traveler Pants (Washed Black)", category: "Pants", tier: "Anchor", palette: "neutral", texture: "Stretch Weave", weight: "mid", wearCount: 0 },
+      { id: 6, fileRef: "IMG_6256", name: "Madewell Athletic-Fit Medium Denim", category: "Pants", tier: "Anchor", palette: "blue", texture: "Denim", weight: "heavy", wearCount: 0 },
+      { id: 7, fileRef: "IMG_6268", name: "Charcoal Washed Straight Denim", category: "Pants", tier: "Anchor", palette: "neutral", texture: "Denim", weight: "heavy", wearCount: 0 },
+      { id: 68, fileRef: "IMG_6254", name: "Muted Olive-Grey 5-Pocket Pants", category: "Pants", tier: "Anchor", palette: "earth", texture: "Twill", weight: "mid", wearCount: 0 },
+      { id: 74, fileRef: "IMG_6269", name: "Heather Grey Articulated Tech Joggers", category: "Pants", tier: "Anchor", palette: "neutral", texture: "Tech Knit", weight: "mid", wearCount: 0 },
+      { id: 62, fileRef: "IMG_6265", name: "Taupe / Mushroom Brown Tech Joggers", category: "Pants", tier: "Anchor", palette: "earth", texture: "Tech Knit", weight: "mid", wearCount: 0 },
+      { id: 22, fileRef: "IMG_6264", name: "Charcoal Slate Technical Joggers", category: "Pants", tier: "Anchor", palette: "neutral", texture: "Matte Tech", weight: "mid", wearCount: 0 },
+      { id: 61, fileRef: "IMG_6238", name: "J.Crew 7\" Charcoal Chino Shorts", category: "Shorts", tier: "Anchor", palette: "neutral", texture: "7\" Chino", weight: "light", wearCount: 0 },
+      { id: 33, fileRef: "IMG_6232", name: "British Khaki Tailored Chino Shorts", category: "Shorts", tier: "Anchor", palette: "earth", texture: "Chino", weight: "light", wearCount: 0 },
+      { id: 31, fileRef: "IMG_6234", name: "Navy Technical Commuter Shorts", category: "Shorts", tier: "Anchor", palette: "blue", texture: "Tech", weight: "light", wearCount: 0 },
+      { id: 63, fileRef: "IMG_6233", name: "Olive Green Technical Active Shorts", category: "Shorts", tier: "Anchor", palette: "earth", texture: "Stretch", weight: "light", wearCount: 0 },
+      { id: 201, fileRef: "SHOE_WHITE_SNEAKER", name: "Minimal White Leather Sneaker", category: "Footwear", tier: "Pending", palette: "neutral", texture: "Leather", weight: "mid", wearCount: 0 },
+      { id: 202, fileRef: "SHOE_BROWN_CHUKKA", name: "Chocolate Brown Suede Chukka / Chelsea", category: "Footwear", tier: "Pending", palette: "earth", texture: "Suede", weight: "heavy", wearCount: 0 },
+      { id: 203, fileRef: "SHOE_DARK_LOAFER", name: "Dark Oak Blucher / Loafer", category: "Footwear", tier: "Pending", palette: "earth", texture: "Calfskin", weight: "mid", wearCount: 0 },
+      { id: 204, fileRef: "SHOE_RETRO_RUNNER", name: "Retro Neutral Runner (Grey / Olive)", category: "Footwear", tier: "Pending", palette: "neutral", texture: "Nylon/Suede", weight: "mid", wearCount: 0 }
+    ];
+
+    const DAYS_CONFIG = [
+      { key: "mon", name: "Monday", defaultTemplate: "Client In-Person" },
+      { key: "tue", name: "Tuesday", defaultTemplate: "WFH Video Calls" },
+      { key: "wed", name: "Wednesday", defaultTemplate: "Client In-Person" },
+      { key: "thu", name: "Thursday", defaultTemplate: "WFH Video Calls" },
+      { key: "fri", name: "Friday", defaultTemplate: "Elevated Casual" },
+      { key: "sat", name: "Saturday", defaultTemplate: "Active Weekend" },
+      { key: "sun", name: "Sunday", defaultTemplate: "Downtime" }
+    ];
+
+    const TEMPLATES = ["Client In-Person", "WFH Video Calls", "Elevated Casual", "Active Weekend", "Downtime"];
+
+    let wardrobe = [];
+    let photoCache = {};
+    let weeklyPlan = {};
+    let unassignedPhotos = [];
+    let selectedPhotoObj = null;
+    let activeSwapTarget = null;
+    let weeklyWeather = {};
+
+    const LAT_MINNETONKA = 44.9212;
+    const LON_MINNETONKA = -93.4687;
+
+    async function initApp() {
+      await openPhotoDB();
+      wardrobe = JSON.parse(localStorage.getItem("curated_wardrobe_items_v8")) || [...DEFAULT_WARDROBE];
+      
+      for (let item of wardrobe) {
+        const photo = await getPhotoFromDB(item.id);
+        if (photo) photoCache[item.id] = photo;
+      }
+
+      weeklyPlan = JSON.parse(localStorage.getItem("curated_weekly_outfits_v8")) || {};
+      
+      const aiDropzone = document.getElementById('ai-vision-dropzone');
+      if (aiDropzone) {
+        aiDropzone.addEventListener('click', () => {
+          document.getElementById('ai-photo-input').click();
+        });
+      }
+
+      // Load Key & Update UI
+      const savedKey = localStorage.getItem('gemini_api_key') || '';
+      document.getElementById('gemini-api-key-input').value = savedKey;
+      updateApiStatusBadge(savedKey);
+
+      await fetchLiveWeather(false);
+
+      if (Object.keys(weeklyPlan).length === 0) {
+        smartGenerateWeek(false);
+      } else {
+        render7DayBoard();
+      }
+
+      renderWardrobeList();
+      renderMatcherItemList();
+      updateGapScorecard();
+      updatePhotoCoverageMetric();
+    }
+
+    function saveApiKey() {
+      const key = document.getElementById('gemini-api-key-input').value.trim();
+      localStorage.setItem('gemini_api_key', key);
+      updateApiStatusBadge(key);
+      showToast(key ? "API key saved locally!" : "API key cleared.");
+    }
+
+    /* Accepts any valid key format (including AQ...) */
+    function updateApiStatusBadge(key) {
+      const badge = document.getElementById('api-status-badge');
+      if (key && key.trim().length >= 20) {
+        badge.innerText = "✓ Active & Configured";
+        badge.className = "text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold";
+      } else {
+        badge.innerText = "Not Configured";
+        badge.className = "text-[10px] font-mono px-2 py-0.5 rounded-full bg-stone-200 text-stone-700 font-bold";
+      }
+    }
+
+    /* 1-Click AI Recognition Execution */
+    async function handleAiGarmentScan(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const apiKey = localStorage.getItem('gemini_api_key');
+      if (!apiKey || apiKey.trim().length < 20) {
+        showToast("Enter your Gemini API key in Style Compass & Settings first!", true);
+        switchView('compass');
+        return;
+      }
+
+      showToast("Scanning garment with Gemini Vision...");
+      const compressedDataUrl = await fastCompress(file, 800, 0.82);
+      const base64Data = compressedDataUrl.split(',')[1];
+
+      try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey.trim()}`;
+        const prompt = "Analyze this men's garment photograph. Return valid JSON only with keys: name (brand and specific garment type, e.g. 'Todd Snyder Olive Hopsack Blazer'), category (exactly one of: 'Woven', 'Knitwear', 'Tee', 'Polo', 'Pants', 'Shorts', 'Layer', 'Athletic', 'Footwear'), tier ('Anchor' or 'Potential'), palette ('earth', 'neutral', or 'blue'), texture (e.g. 'Hopsack Wool', 'Oxford', 'Merino'), weight ('light', 'mid', or 'heavy'). Do not include markdown wraps.";
+
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: prompt },
+                { inline_data: { mime_type: "image/jpeg", data: base64Data } }
+              ]
+            }]
+          })
+        });
+
+        const resData = await response.json();
+        if (resData.error) {
+          throw new Error(resData.error.message || "API Error");
+        }
+
+        const rawText = resData.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
+        const parsed = JSON.parse(rawText);
+
+        const newId = Date.now();
+        const newGarment = {
+          id: newId,
+          fileRef: "AI_SCAN_" + newId,
+          name: parsed.name || "Curated Garment",
+          category: parsed.category || "Layer",
+          tier: parsed.tier || "Anchor",
+          palette: parsed.palette || "earth",
+          texture: parsed.texture || "Tailored",
+          weight: parsed.weight || "mid",
+          notes: "Auto-recognized via Gemini Vision.",
+          wearCount: 0
+        };
+
+        wardrobe.unshift(newGarment);
+        photoCache[newId] = compressedDataUrl;
+        await savePhotoToDB(newId, compressedDataUrl);
+
+        localStorage.setItem("curated_wardrobe_items_v8", JSON.stringify(wardrobe));
+
+        renderWardrobeList();
+        renderMatcherItemList();
+        render7DayBoard();
+        updateGapScorecard();
+        updatePhotoCoverageMetric();
+
+        showToast(`Auto-recognized: "${newGarment.name}"!`);
+      } catch (err) {
+        console.error("Vision scan failed", err);
+        showToast("AI Recognition failed: " + err.message, true);
+      }
+    }
+
+    async function fetchLiveWeather(showAlert = true) {
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT_MINNETONKA}&longitude=${LON_MINNETONKA}&daily=temperature_2m_max,temperature_2m_min,weathercode&temperature_unit=fahrenheit&timezone=America%2FChicago`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data && data.daily) {
+          DAYS_CONFIG.forEach((d, idx) => {
+            const max = Math.round(data.daily.temperature_2m_max[idx] || 56);
+            const min = Math.round(data.daily.temperature_2m_min[idx] || 40);
+            const code = data.daily.weathercode[idx] || 0;
+            weeklyWeather[d.key] = { max, min, code };
+          });
+          if (showAlert) showToast("Live Minnetonka forecast updated!");
+        }
+      } catch (e) {
+        DAYS_CONFIG.forEach((d) => { weeklyWeather[d.key] = { max: 55, min: 38, code: 1 }; });
+      }
+      render7DayBoard();
+    }
+
+    function getWeatherIcon(code) {
+      if (code === 0) return "☀️ Sunny";
+      if (code <= 3) return "⛅ Partly Cloudy";
+      if (code <= 48) return "🌫️ Fog";
+      if (code <= 67) return "🌧️ Rain";
+      return "🌦️ Showers";
+    }
+
+    async function rotateItemPhoto(itemId, e) {
+      if (e) e.stopPropagation();
+      const currentDataUrl = photoCache[itemId];
+      if (!currentDataUrl) {
+        showToast("No photo attached to rotate", true);
+        return;
+      }
+
+      showToast("Rotating 90°...");
+      const rotated = await rotateDataUrl90Deg(currentDataUrl);
+      photoCache[itemId] = rotated;
+      await savePhotoToDB(itemId, rotated);
+
+      renderWardrobeList();
+      render7DayBoard();
+      renderMatcherItemList();
+      showToast("Photo rotated and saved!");
+    }
+
+    function handleManualAddItem(event) {
+      event.preventDefault();
+      const name = document.getElementById('new-item-name').value.trim();
+      const category = document.getElementById('new-item-category').value;
+      const tier = document.getElementById('new-item-tier').value;
+      const palette = document.getElementById('new-item-palette').value;
+      const weight = document.getElementById('new-item-weight').value || 'mid';
+      const fileRef = document.getElementById('new-item-ref').value.trim() || `ITEM_${Date.now()}`;
+
+      if (!name) return;
+      const newId = Date.now();
+
+      const newItem = {
+        id: newId,
+        fileRef: fileRef,
+        name: name,
+        category: category,
+        tier: tier,
+        palette: palette,
+        weight: weight,
+        notes: "Registered wardrobe entry.",
+        wearCount: 0
+      };
+
+      wardrobe.unshift(newItem);
+      localStorage.setItem("curated_wardrobe_items_v8", JSON.stringify(wardrobe));
+
+      renderWardrobeList();
+      renderMatcherItemList();
+      render7DayBoard();
+      updateGapScorecard();
+      updatePhotoCoverageMetric();
+
+      toggleModal('add-item-modal', false);
+      document.getElementById('add-item-form').reset();
+      showToast(`Registered "${name}" into Vault`);
+    }
+
+    /* Zero-Repeat Scheduling Engine */
+    function smartGenerateWeek(showAlert = true) {
+      const usedItemIds = new Set();
+      const newPlan = {};
+
+      DAYS_CONFIG.forEach(day => {
+        const template = weeklyPlan[day.key]?.template || day.defaultTemplate;
+        const weather = weeklyWeather[day.key] || { max: 55, min: 40 };
+        const temp = weather.max;
+
+        const availablePool = wardrobe.filter(i => i.tier !== 'Exit' && !usedItemIds.has(i.id));
+
+        const pickCandidate = (categories, paletteConstraint = null) => {
+          let matches = availablePool.filter(i => categories.includes(i.category));
+          if (paletteConstraint === 'non-blue') matches = matches.filter(i => i.palette !== 'blue');
+          matches.sort((a, b) => (a.wearCount || 0) - (b.wearCount || 0));
+          return matches[0] || null;
+        };
+
+        let top = null, layer = null, bottom = null, shoes = null;
+
+        if (temp < 48) {
+          if (template === "Client In-Person") {
+            top = pickCandidate(['Woven']);
+            layer = pickCandidate(['Knitwear', 'Layer'], top?.palette === 'blue' ? 'non-blue' : null);
+            bottom = pickCandidate(['Pants'], top?.palette === 'blue' ? 'non-blue' : null);
+            shoes = availablePool.find(i => i.id == 202) || availablePool.find(i => i.id == 203);
+          } else if (template === "WFH Video Calls") {
+            layer = pickCandidate(['Layer', 'Knitwear']);
+            top = pickCandidate(['Woven', 'Polo', 'Tee']);
+            bottom = pickCandidate(['Pants']);
+            shoes = availablePool.find(i => i.id == 201) || availablePool.find(i => i.id == 204);
+          } else {
+            layer = pickCandidate(['Layer', 'Athletic']);
+            top = pickCandidate(['Tee', 'Woven']);
+            bottom = pickCandidate(['Pants']);
+            shoes = availablePool.find(i => i.id == 204) || availablePool.find(i => i.id == 202);
+          }
+        } else if (temp >= 48 && temp < 65) {
+          if (template === "Client In-Person") {
+            top = pickCandidate(['Woven']);
+            layer = pickCandidate(['Knitwear', 'Layer'], top?.palette === 'blue' ? 'non-blue' : null);
+            bottom = pickCandidate(['Pants']);
+            shoes = availablePool.find(i => i.id == 203) || availablePool.find(i => i.id == 202);
+          } else if (template === "WFH Video Calls") {
+            layer = pickCandidate(['Layer', 'Knitwear']);
+            top = pickCandidate(['Polo', 'Woven', 'Tee']);
+            bottom = pickCandidate(['Pants']);
+            shoes = availablePool.find(i => i.id == 201);
+          } else {
+            layer = pickCandidate(['Layer', 'Athletic']);
+            top = pickCandidate(['Woven', 'Tee', 'Polo']);
+            bottom = pickCandidate(['Pants', 'Shorts']);
+            shoes = availablePool.find(i => i.id == 201) || availablePool.find(i => i.id == 204);
+          }
+        } else {
+          layer = null;
+          top = pickCandidate(['Woven', 'Polo', 'Tee']);
+          bottom = pickCandidate(['Shorts', 'Pants']);
+          shoes = availablePool.find(i => i.id == 201);
+        }
+
+        if (layer) usedItemIds.add(layer.id);
+        if (top) usedItemIds.add(top.id);
+        if (bottom) usedItemIds.add(bottom.id);
+        if (shoes) usedItemIds.add(shoes.id);
+
+        newPlan[day.key] = {
+          template,
+          layerId: layer ? layer.id : "",
+          shirtId: top ? top.id : "",
+          bottomId: bottom ? bottom.id : "",
+          footwearId: shoes ? shoes.id : ""
+        };
+      });
+
+      weeklyPlan = newPlan;
+      localStorage.setItem("curated_weekly_outfits_v8", JSON.stringify(weeklyPlan));
+      render7DayBoard();
+      if (showAlert) showToast("Zero-Repeat 7-day capsule curated!");
+    }
+
+    function checkWeeklyDuplicates() {
+      const counts = {};
+      DAYS_CONFIG.forEach(d => {
+        const plan = weeklyPlan[d.key] || {};
+        [plan.layerId, plan.shirtId, plan.bottomId].forEach(id => {
+          if (id) counts[id] = (counts[id] || 0) + 1;
+        });
+      });
+      return counts;
+    }
+
+    function render7DayBoard() {
+      const container = document.getElementById('seven-day-flatlay-grid');
+      container.innerHTML = '';
+      const dupCounts = checkWeeklyDuplicates();
+
+      DAYS_CONFIG.forEach(day => {
+        const plan = weeklyPlan[day.key] || { template: day.defaultTemplate, layerId: "", shirtId: "", bottomId: "", footwearId: "" };
+        const weather = weeklyWeather[day.key] || { max: 55, min: 40, code: 1 };
+        
+        const layer = wardrobe.find(i => i.id == plan.layerId);
+        const top = wardrobe.find(i => i.id == plan.shirtId);
+        const bottom = wardrobe.find(i => i.id == plan.bottomId);
+        const shoes = wardrobe.find(i => i.id == plan.footwearId);
+
+        const selected = [layer, top, bottom].filter(Boolean);
+        const blueCount = selected.filter(i => i.palette === 'blue').length;
+        const isSaturated = blueCount >= 2;
+        const hasDuplicate = selected.some(i => dupCounts[i.id] > 1);
+
+        const col = document.createElement('div');
+        col.className = `bg-white rounded-2xl border p-3.5 shadow-sm flex flex-col justify-between space-y-3 transition-all ${
+          hasDuplicate ? 'border-amber-400 bg-amber-50/20' : 'border-brand-border'
+        }`;
+
+        col.innerHTML = `
+          <div class="border-b border-brand-border pb-2.5 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-serif font-bold text-brand-navy text-sm">${day.name}</span>
+              <div class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 font-bold border border-stone-200">
+                ${weather.max}° / ${weather.min}°F
+              </div>
+            </div>
+            
+            <div class="flex items-center justify-between text-[10px] text-stone-500 font-medium">
+              <span>${getWeatherIcon(weather.code)}</span>
+              ${hasDuplicate ? '<span class="text-amber-800 bg-amber-100 px-1 rounded font-bold">⚠️ Re-Wear</span>' : isSaturated ? '<span class="text-blue-800 bg-blue-100 px-1 rounded font-bold">2+ Blue</span>' : '<span class="text-emerald-700">✓ Unique</span>'}
+            </div>
+
+            <div>
+              <select onchange="changeDayTemplate('${day.key}', this.value)" class="w-full text-[11px] font-semibold bg-brand-stone/80 border border-brand-border rounded-lg px-2 py-1 text-stone-800 focus:outline-none">
+                ${TEMPLATES.map(t => `<option value="${t}" ${plan.template === t ? 'selected' : ''}>${t}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+
+          <div class="space-y-1.5 bg-brand-stone/40 p-2 rounded-xl border border-brand-border/60">
+            ${renderFlatLaySlot(day.key, 'layerId', layer, '3rd Layer / Outerwear', 'h-24')}
+            ${renderFlatLaySlot(day.key, 'shirtId', top, 'Core Shirt / Knit', 'h-28')}
+            ${renderFlatLaySlot(day.key, 'bottomId', bottom, 'Trousers / Denim', 'h-32')}
+            ${renderFlatLaySlot(day.key, 'footwearId', shoes, 'Footwear Anchor', 'h-16')}
+          </div>
+
+          <div class="space-y-1.5 pt-1 text-[11px]">
+            <div>
+              <label class="block text-[9px] font-bold text-stone-500 uppercase tracking-wider mb-0.5">3rd Layer</label>
+              <select onchange="updateOutfitSlot('${day.key}', 'layerId', this.value)" class="w-full text-[11px] p-1 rounded-lg border border-brand-border bg-brand-stone/60 font-medium text-stone-800 truncate">
+                <option value="">None / Solo</option>
+                ${getCategoryOptions(['Layer', 'Knitwear', 'Athletic'], plan.layerId)}
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[9px] font-bold text-stone-500 uppercase tracking-wider mb-0.5">Top / Knit</label>
+              <select onchange="updateOutfitSlot('${day.key}', 'shirtId', this.value)" class="w-full text-[11px] p-1 rounded-lg border border-brand-border bg-brand-stone/60 font-medium text-stone-800 truncate">
+                <option value="">Select Top...</option>
+                ${getCategoryOptions(['Woven', 'Polo', 'Knitwear', 'Tee', 'Athletic'], plan.shirtId)}
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[9px] font-bold text-stone-500 uppercase tracking-wider mb-0.5">Bottom</label>
+              <select onchange="updateOutfitSlot('${day.key}', 'bottomId', this.value)" class="w-full text-[11px] p-1 rounded-lg border border-brand-border bg-brand-stone/60 font-medium text-stone-800 truncate">
+                <option value="">Select Bottom...</option>
+                ${getCategoryOptions(['Pants', 'Shorts'], plan.bottomId)}
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[9px] font-bold text-stone-500 uppercase tracking-wider mb-0.5">Footwear</label>
+              <select onchange="updateOutfitSlot('${day.key}', 'footwearId', this.value)" class="w-full text-[11px] p-1 rounded-lg border border-brand-border bg-brand-stone/60 font-medium text-stone-800 truncate">
+                <option value="">Select Shoes...</option>
+                ${getCategoryOptions(['Footwear'], plan.footwearId)}
+              </select>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-brand-border flex items-center justify-between text-[11px]">
+            <button onclick="smartPickDay('${day.key}')" class="text-brand-navy hover:underline font-semibold">
+              ↻ Shuffle Day
+            </button>
+            <button onclick="clearSingleDay('${day.key}')" class="text-stone-400 hover:text-stone-700">
+              Clear
+            </button>
+          </div>
+        `;
+        container.appendChild(col);
+      });
+
+      const uniqueCount = Object.keys(dupCounts).length;
+      document.getElementById('weekly-diversity-badge').innerText = `${uniqueCount} Unique Pieces Scheduled`;
+    }
+
+    function renderFlatLaySlot(dayKey, slot, item, slotTitle, heightClass) {
+      if (!item) {
+        return `
+          <div onclick="openSwapModal('${dayKey}', '${slot}')" class="${heightClass} w-full rounded-lg border border-dashed border-stone-300 bg-white flex flex-col items-center justify-center text-stone-400 hover:border-brand-navy transition cursor-pointer p-1 text-center">
+            <span class="text-[9px] font-semibold uppercase leading-tight">+ ${slotTitle.split(' ')[0]}</span>
+          </div>
+        `;
+      }
+
+      const photoUrl = photoCache[item.id];
+      const toneBadge = item.palette === 'blue' ? 'bg-blue-100 text-blue-900' : item.palette === 'earth' ? 'bg-amber-100 text-amber-900' : 'bg-stone-200 text-stone-800';
+
+      return `
+        <div onclick="openSwapModal('${dayKey}', '${slot}')" class="flatlay-card relative ${heightClass} w-full rounded-lg overflow-hidden border border-brand-border bg-white shadow-2xs group cursor-pointer">
+          ${photoUrl ? `
+            <img src="${photoUrl}" class="w-full h-full object-cover">
+          ` : `
+            <div class="w-full h-full ${toneBadge} flex flex-col items-center justify-center p-2 text-center">
+              <span class="text-[9px] font-mono font-bold">#${item.id}</span>
+              <span class="text-[9px] font-semibold mt-0.5 line-clamp-1">${item.name}</span>
+            </div>
+          `}
+          <div class="swap-overlay absolute inset-0 bg-stone-900/60 opacity-0 transition-opacity flex flex-col items-center justify-center text-white p-1 text-center">
+            <span class="text-[9px] font-bold">Swap Piece</span>
+            <span class="text-[8px] opacity-80 truncate w-full">${item.name}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function getCategoryOptions(categories, selectedId) {
+      const vaultMatches = wardrobe.filter(i => categories.includes(i.category) && i.tier !== 'Exit');
+      return vaultMatches.map(item => {
+        const isSelected = item.id == selectedId ? 'selected' : '';
+        const hasPhoto = photoCache[item.id] ? '📸' : '';
+        const toneIndicator = item.palette === 'blue' ? '🔵' : item.palette === 'earth' ? '🟤' : '⚪';
+        return `<option value="${item.id}" ${isSelected}>${hasPhoto} ${toneIndicator} ${item.name}</option>`;
+      }).join('');
+    }
+
+    function updateOutfitSlot(dayKey, slotKey, value) {
+      if (!weeklyPlan[dayKey]) weeklyPlan[dayKey] = {};
+      weeklyPlan[dayKey][slotKey] = value ? parseInt(value) : "";
+      localStorage.setItem("curated_weekly_outfits_v8", JSON.stringify(weeklyPlan));
+      render7DayBoard();
+    }
+
+    function changeDayTemplate(dayKey, newTemplate) {
+      if (!weeklyPlan[dayKey]) weeklyPlan[dayKey] = {};
+      weeklyPlan[dayKey].template = newTemplate;
+      smartPickDay(dayKey, newTemplate);
+    }
+
+    function smartPickDay(dayKey, forcedTemplate = null) {
+      const template = forcedTemplate || (weeklyPlan[dayKey]?.template) || "Elevated Casual";
+      const pool = wardrobe.filter(i => i.tier === 'Anchor');
+      let layer = pool.find(i => i.id == 72) || pool[0];
+      let top = pool.find(i => i.id == 11) || pool[1];
+      let bottom = pool.find(i => i.id == 18) || pool[2];
+      let shoes = pool.find(i => i.id == 201) || pool[3];
+
+      weeklyPlan[dayKey] = {
+        template,
+        layerId: layer ? layer.id : "",
+        shirtId: top ? top.id : "",
+        bottomId: bottom ? bottom.id : "",
+        footwearId: shoes ? shoes.id : ""
+      };
+      localStorage.setItem("curated_weekly_outfits_v8", JSON.stringify(weeklyPlan));
+      render7DayBoard();
+    }
+
+    function clearSingleDay(dayKey) {
+      const template = weeklyPlan[dayKey]?.template || "Elevated Casual";
+      weeklyPlan[dayKey] = { template, layerId: "", shirtId: "", bottomId: "", footwearId: "" };
+      localStorage.setItem("curated_weekly_outfits_v8", JSON.stringify(weeklyPlan));
+      render7DayBoard();
+    }
+
+    function clearWeekPlan() {
+      DAYS_CONFIG.forEach(d => {
+        weeklyPlan[d.key] = { template: d.defaultTemplate, layerId: "", shirtId: "", bottomId: "", footwearId: "" };
+      });
+      localStorage.setItem("curated_weekly_outfits_v8", JSON.stringify(weeklyPlan));
+      render7DayBoard();
+      showToast("Cleared 7-day board");
+    }
+
+    function renderWardrobeList() {
+      const grid = document.getElementById('wardrobe-grid-container');
+      const cat = document.getElementById('filter-category').value;
+      const tier = document.getElementById('filter-tier').value;
+      const photo = document.getElementById('filter-photo').value;
+      const search = (document.getElementById('search-query')?.value || '').toLowerCase();
+
+      grid.innerHTML = '';
+      const filtered = wardrobe.filter(i => {
+        if (cat !== 'ALL' && i.category !== cat) return false;
+        if (tier !== 'ALL' && i.tier !== tier) return false;
+        if (photo === 'HAS_PHOTO' && !photoCache[i.id]) return false;
+        if (photo === 'NO_PHOTO' && !!photoCache[i.id]) return false;
+        if (search && !i.name.toLowerCase().includes(search) && !(i.fileRef && i.fileRef.toLowerCase().includes(search))) return false;
+        return true;
+      });
+
+      filtered.forEach(item => {
+        const photoUrl = photoCache[item.id];
+        const card = document.createElement('div');
+        card.className = "bg-white border border-brand-border rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between";
+        card.innerHTML = `
+          <div>
+            <div class="aspect-4/3 bg-stone-100 relative overflow-hidden flex items-center justify-center">
+              ${photoUrl ? `<img src="${photoUrl}" class="w-full h-full object-cover">` : `<span class="text-xs font-mono font-bold text-stone-400">${item.fileRef || 'NO_PHOTO'}</span>`}
+              <span class="absolute top-2 left-2 text-[9px] font-mono px-1.5 py-0.5 rounded bg-stone-900/80 text-white font-bold">#${item.id}</span>
+              ${photoUrl ? `
+                <button onclick="rotateItemPhoto(${item.id}, event)" title="Rotate 90° Clockwise" class="absolute bottom-2 right-2 px-2 py-1 bg-white/90 hover:bg-white text-brand-navy rounded-lg text-[10px] font-bold shadow-md flex items-center space-x-1 backdrop-blur-xs">
+                  <span>⟳ Rotate 90°</span>
+                </button>
+              ` : ''}
+            </div>
+            <div class="p-3.5 space-y-1">
+              <span class="text-[10px] font-bold text-stone-500 uppercase tracking-wider">${item.category} &bull; ${item.palette}</span>
+              <h4 class="font-serif font-bold text-xs text-brand-navy leading-snug">${item.name}</h4>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    async function handleRawPhotoBatch(e) {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+
+      showToast(`Loading & optimizing ${files.length} photos...`);
+      for (let file of files) {
+        const dataUrl = await fastCompress(file, 600, 0.82);
+        const refName = file.name.split('.')[0].toUpperCase();
+        
+        const autoMatch = wardrobe.find(i => i.fileRef && i.fileRef.toUpperCase() === refName);
+        if (autoMatch) {
+          photoCache[autoMatch.id] = dataUrl;
+          await savePhotoToDB(autoMatch.id, dataUrl);
+        } else {
+          unassignedPhotos.push({ refName, dataUrl });
+        }
+      }
+
+      renderPhotoPool();
+      renderMatcherItemList();
+      updatePhotoCoverageMetric();
+      render7DayBoard();
+      showToast(`Photos ready!`);
+    }
+
+    function renderPhotoPool() {
+      const container = document.getElementById('photo-pool-grid');
+      container.innerHTML = '';
+      document.getElementById('unlinked-photo-count').innerText = `${unassignedPhotos.length} Unbound Photos`;
+
+      unassignedPhotos.forEach(photoObj => {
+        const thumb = document.createElement('div');
+        const isSelected = selectedPhotoObj && selectedPhotoObj.dataUrl === photoObj.dataUrl;
+        thumb.className = `aspect-square rounded-xl overflow-hidden border-2 relative cursor-pointer group bg-stone-100 ${
+          isSelected ? 'border-amber-600 shadow-md ring-2 ring-amber-400' : 'border-brand-border'
+        }`;
+        thumb.onclick = () => selectPhotoForBinding(photoObj);
+        thumb.innerHTML = `
+          <img src="${photoObj.dataUrl}" class="w-full h-full object-cover">
+          <span class="absolute bottom-0 inset-x-0 bg-stone-900/80 text-[8px] text-white text-center py-0.5 truncate px-1 font-mono">${photoObj.refName}</span>
+        `;
+        container.appendChild(thumb);
+      });
+    }
+
+    function selectPhotoForBinding(photoObj) {
+      selectedPhotoObj = photoObj;
+      renderPhotoPool();
+      const banner = document.getElementById('active-selected-photo-banner');
+      banner.classList.remove('hidden');
+      document.getElementById('selected-photo-label').innerText = photoObj.refName;
+    }
+
+    function clearSelectedPhoto() {
+      selectedPhotoObj = null;
+      document.getElementById('active-selected-photo-banner').classList.add('hidden');
+      renderPhotoPool();
+    }
+
+    function renderMatcherItemList() {
+      const list = document.getElementById('matcher-item-list');
+      const query = (document.getElementById('matcher-search')?.value || '').toLowerCase().trim();
+      list.innerHTML = '';
+
+      const filtered = wardrobe.filter(i => {
+        if (!query) return true;
+        return i.name.toLowerCase().includes(query) || (i.fileRef && i.fileRef.toLowerCase().includes(query)) || String(i.id).includes(query);
+      });
+
+      filtered.forEach(item => {
+        const hasPhoto = Boolean(photoCache[item.id]);
+        const card = document.createElement('div');
+        card.className = "p-2.5 rounded-xl border border-brand-border bg-white hover:border-brand-navy flex items-center justify-between cursor-pointer transition shadow-2xs";
+        card.onclick = () => bindSelectedPhotoToItem(item.id);
+
+        card.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 rounded-lg bg-stone-100 overflow-hidden border border-brand-border flex-shrink-0 flex items-center justify-center">
+              ${hasPhoto ? `<img src="${photoCache[item.id]}" class="w-full h-full object-cover">` : `<span class="text-[9px] font-mono text-stone-400">#${item.id}</span>`}
+            </div>
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="text-[9px] font-mono text-stone-500">${item.fileRef || 'NO_REF'}</span>
+                ${hasPhoto ? '<span class="text-[9px] text-emerald-800 bg-emerald-50 px-1 rounded font-bold">✓ Bound</span>' : '<span class="text-[9px] text-amber-800 bg-amber-50 px-1 rounded font-bold">Empty</span>'}
+              </div>
+              <h4 class="font-serif font-bold text-xs text-brand-navy leading-snug">${item.name}</h4>
+            </div>
+          </div>
+          <button class="px-2.5 py-1 bg-stone-100 hover:bg-brand-navy hover:text-white rounded-lg text-[10px] font-bold text-stone-700 transition">
+            Bind Photo
+          </button>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    async function bindSelectedPhotoToItem(itemId) {
+      if (!selectedPhotoObj) {
+        showToast("Click a photo on the left tray first!", true);
+        return;
+      }
+      const item = wardrobe.find(i => i.id === itemId);
+      if (!item) return;
+
+      photoCache[itemId] = selectedPhotoObj.dataUrl;
+      await savePhotoToDB(itemId, selectedPhotoObj.dataUrl);
+
+      unassignedPhotos = unassignedPhotos.filter(p => p.dataUrl !== selectedPhotoObj.dataUrl);
+      const linkedRef = selectedPhotoObj.refName;
+      clearSelectedPhoto();
+
+      renderPhotoPool();
+      renderMatcherItemList();
+      render7DayBoard();
+      updatePhotoCoverageMetric();
+      showToast(`Linked ${linkedRef} to ${item.name}!`);
+    }
+
+    function switchView(viewName) {
+      document.getElementById('view-planner').classList.add('hidden');
+      document.getElementById('view-matcher').classList.add('hidden');
+      document.getElementById('view-wardrobe').classList.add('hidden');
+      document.getElementById('view-compass').classList.add('hidden');
+
+      ['planner', 'matcher', 'wardrobe', 'compass'].forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (btn) btn.className = "px-3.5 py-1.5 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5";
+      });
+
+      document.getElementById(`view-${viewName}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-btn-${viewName}`);
+      if (activeBtn) activeBtn.className = "px-3.5 py-1.5 rounded-lg bg-white text-brand-navy shadow-sm font-semibold flex items-center space-x-1.5";
+      
+      if (viewName === 'planner') render7DayBoard();
+      if (viewName === 'matcher') renderMatcherItemList();
+      if (viewName === 'wardrobe') renderWardrobeList();
+    }
+
+    function showToast(msg, isAlert = false) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      document.getElementById('toast-icon').innerText = isAlert ? "⚠️" : "✓";
+      toast.classList.remove('opacity-0', 'translate-y-20', 'pointer-events-none');
+      setTimeout(() => toast.classList.add('opacity-0', 'translate-y-20', 'pointer-events-none'), 3000);
+    }
+
+    function toggleModal(id, open) {
+      document.getElementById(id).classList.toggle('hidden', !open);
+    }
+
+    function updatePhotoCoverageMetric() {
+      const total = wardrobe.length;
+      const count = wardrobe.filter(i => !!photoCache[i.id]).length;
+      const badge = document.getElementById('photo-coverage-badge');
+      if (badge) badge.innerText = `${count} / ${total} Photographed`;
+    }
+
+    function updateCompassDials() {
+      const f = document.getElementById('dial-formality').value;
+      const a = document.getElementById('dial-aesthetic').value;
+      const p = document.getElementById('dial-palette').value;
+      document.getElementById('dial-formality-val').innerText = ["Rugged", "Casual Active", "Smart Casual", "Presentation", "Executive"][f-1];
+      document.getElementById('dial-aesthetic-val').innerText = ["80% Athletic", "60% Athletic", "Balanced", "60% Tailored", "80% Tailored"][a-1];
+      document.getElementById('dial-palette-val').innerText = ["Blue Heavy", "Balanced Earth", "Earth Rich"][p-1];
+    }
+
+    function updateGapScorecard() {
+      const blue = wardrobe.filter(i => i.palette === 'blue').length;
+      const earth = wardrobe.filter(i => i.palette === 'earth').length;
+      const neutral = wardrobe.filter(i => i.palette === 'neutral').length;
+      const tot = wardrobe.length || 1;
+      const bPct = Math.round((blue/tot)*100), ePct = Math.round((earth/tot)*100), nPct = Math.round((neutral/tot)*100);
+
+      document.getElementById('palette-ratio-text').innerText = `${bPct}% Blue / ${ePct}% Earth / ${nPct}% Neutral`;
+      document.getElementById('palette-progress-bar').innerHTML = `
+        <div style="width: ${bPct}%" class="bg-blue-800 h-full"></div>
+        <div style="width: ${ePct}%" class="bg-amber-800 h-full"></div>
+        <div style="width: ${nPct}%" class="bg-stone-400 h-full"></div>
+      `;
+    }
+
+    function openSwapModal(dayKey, slot) {
+      activeSwapTarget = { dayKey, slot };
+      const day = DAYS_CONFIG.find(d => d.key === dayKey);
+      document.getElementById('swap-day-title').innerText = `${day.name} Alternative`;
+
+      let categories = [];
+      if (slot === 'layerId') categories = ['Layer', 'Knitwear', 'Athletic'];
+      if (slot === 'shirtId') categories = ['Woven', 'Polo', 'Knitwear', 'Tee', 'Athletic'];
+      if (slot === 'bottomId') categories = ['Pants', 'Shorts'];
+      if (slot === 'footwearId') categories = ['Footwear'];
+
+      document.getElementById('swap-slot-label').innerText = `Select ${categories.join('/')}`;
+
+      const list = document.getElementById('swap-carousel-list');
+      const filtered = wardrobe.filter(i => categories.includes(i.category) && i.tier !== 'Exit');
+
+      list.innerHTML = `
+        <div onclick="selectSwapPiece(null)" class="p-2.5 rounded-xl border border-dashed border-stone-300 text-stone-500 text-xs font-semibold hover:bg-stone-50 cursor-pointer">
+          None / Clear this slot
+        </div>
+      `;
+
+      filtered.forEach(item => {
+        const photo = photoCache[item.id];
+        const card = document.createElement('div');
+        card.className = "p-2.5 rounded-xl border border-brand-border bg-white hover:border-brand-navy flex items-center space-x-3 cursor-pointer transition shadow-2xs";
+        card.onclick = () => selectSwapPiece(item.id);
+        card.innerHTML = `
+          <div class="w-12 h-12 rounded-lg bg-stone-100 overflow-hidden border border-brand-border flex-shrink-0 flex items-center justify-center">
+            ${photo ? `<img src="${photo}" class="w-full h-full object-cover">` : `<span class="text-[10px] font-mono">#${item.id}</span>`}
+          </div>
+          <div class="flex-grow">
+            <h4 class="font-serif font-bold text-xs text-brand-navy leading-snug">${item.name}</h4>
+            <span class="text-[10px] text-stone-500 font-medium">${item.category} &bull; ${item.palette} &bull; ${item.tier}</span>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+
+      toggleModal('swap-modal', true);
+    }
+
+    function selectSwapPiece(itemId) {
+      if (!activeSwapTarget) return;
+      const { dayKey, slot } = activeSwapTarget;
+      updateOutfitSlot(dayKey, slot, itemId);
+      toggleModal('swap-modal', false);
+    }
+
+    window.onload = initApp;
+  </script>
+</body>
+</html>
