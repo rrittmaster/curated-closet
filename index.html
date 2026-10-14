@@ -40,7 +40,6 @@
     .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #F2EFEB; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #D4CCC2; border-radius: 9999px; }
-    .flatlay-card:hover .swap-overlay { opacity: 1; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased text-stone-800">
@@ -55,9 +54,9 @@
         <div>
           <div class="flex items-center space-x-2">
             <h1 class="font-serif text-lg sm:text-xl tracking-wider text-brand-navy font-bold uppercase">The Curated Closet</h1>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">Optimized Token Engine</span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Dual-Engine Routing</span>
           </div>
-          <p class="text-xs text-stone-500 font-medium">Auto-Compressed Vision Analysis &bull; Zero-Repeat Rotation &bull; Weather-Synced Flat-Lays</p>
+          <p class="text-xs text-stone-500 font-medium">Auto-Balancing Models &bull; Dynamic Queue &bull; Token-Optimized Intake</p>
         </div>
       </div>
       
@@ -71,7 +70,7 @@
         <nav class="flex space-x-1.5 bg-brand-stone p-1 rounded-xl border border-brand-border text-xs sm:text-sm font-medium">
           <button id="tab-btn-build" onclick="switchView('build')" class="px-4 py-2 rounded-lg bg-white text-brand-navy shadow-sm font-semibold flex items-center space-x-1.5 transition">
             <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-            <span>Intake Studio</span>
+            <span>Intake Studio (<span id="nav-pending-count">0</span>)</span>
           </button>
           <button id="tab-btn-wardrobe" onclick="switchView('wardrobe')" class="px-4 py-2 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5 transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -96,46 +95,53 @@
 
   <main class="flex-grow max-w-[1700px] mx-auto w-full px-3 sm:px-6 py-6">
 
-    <!-- VIEW 1: BUILD MY WARDROBE (INTAKE STUDIO + COMPRESSED VISION AI) -->
+    <!-- VIEW 1: BUILD MY WARDROBE -->
     <section id="view-build" class="space-y-6">
       
-      <!-- Progress Bar & Subheader -->
       <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-3">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Vision-Powered Intake Studio</h2>
-            <p class="text-xs text-stone-500">Auto-compressed image analysis minimizes quota consumption while preserving garment accuracy.</p>
+            <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Pending Intake Studio</h2>
+            <p class="text-xs text-stone-500">Dual-engine failover automatically routes requests between Gemini 3.8 Flash and 3.1 Flash-Lite to avoid quota blocks.</p>
           </div>
           <div class="flex items-center space-x-3">
-            <label class="flex items-center space-x-1.5 text-xs text-stone-600 cursor-pointer select-none">
-              <input type="checkbox" id="chk-auto-ai" class="rounded text-brand-navy focus:ring-0">
-              <span class="font-medium">Auto-Run AI on Navigation</span>
-            </label>
-            <span class="text-xs font-mono font-bold text-brand-navy" id="intake-progress-label">Photo 1 of 126</span>
+            <span class="text-xs font-mono font-bold text-brand-navy" id="intake-progress-label">0 Pending</span>
             <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold" id="vault-total-badge">0 Pieces Confirmed</span>
           </div>
         </div>
         <div class="w-full bg-stone-100 h-2 rounded-full overflow-hidden border border-brand-border">
-          <div id="intake-progress-bar" class="bg-brand-navy h-full transition-all duration-300" style="width: 1%;"></div>
+          <div id="intake-progress-bar" class="bg-brand-navy h-full transition-all duration-300" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- COMPLETION SCREEN -->
+      <div id="intake-complete-banner" class="hidden bg-white border border-brand-border rounded-3xl p-12 text-center space-y-4 shadow-sm">
+        <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto text-2xl font-bold">✓</div>
+        <h3 class="font-serif text-2xl font-bold text-brand-navy">Intake Queue Complete!</h3>
+        <p class="text-sm text-stone-500 max-w-md mx-auto">Every photo in your collection has been confirmed into your Closet Vault and is ready for weekly curation.</p>
+        <div class="pt-2 flex justify-center space-x-3">
+          <button onclick="switchView('wardrobe')" class="px-5 py-2.5 bg-brand-navy text-white text-xs font-semibold rounded-xl hover:bg-stone-900 transition">
+            View Closet Vault (<span id="complete-vault-count">0</span>)
+          </button>
+          <button onclick="switchView('planner')" class="px-5 py-2.5 border border-brand-border text-brand-navy text-xs font-semibold rounded-xl hover:bg-brand-stone transition">
+            Go to 7-Day Board
+          </button>
         </div>
       </div>
 
       <!-- Main Intake Workbench -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div id="intake-workbench" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         <!-- Left Stage: Image & Action Bar -->
         <div class="lg:col-span-5 bg-white border border-brand-border rounded-3xl p-5 shadow-sm flex flex-col items-center space-y-4">
           <div class="w-full aspect-4/5 rounded-2xl overflow-hidden bg-stone-100 border border-brand-border relative flex items-center justify-center">
             <img id="intake-photo-img" src="" class="w-full h-full object-cover">
-            <div id="intake-confirmed-watermark" class="absolute top-3 left-3 bg-emerald-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow hidden">
-              ✓ IN CLOSET VAULT
-            </div>
             <div class="absolute bottom-3 right-3 bg-stone-900/80 backdrop-blur-md text-white font-mono text-xs px-2.5 py-1 rounded-lg" id="intake-filename-badge">
               IMG_6219.jpg
             </div>
           </div>
 
-          <!-- PRIMARY AI TRIGGER BUTTON WITH RETRY & BACKOFF STATUS -->
+          <!-- PRIMARY AI TRIGGER BUTTON -->
           <button id="btn-trigger-ai" onclick="runGeminiVisionAnalysis()" class="w-full py-3 px-4 bg-gradient-to-r from-indigo-900 via-brand-navy to-indigo-950 hover:opacity-95 text-white rounded-xl shadow-md font-semibold text-xs flex items-center justify-center space-x-2 transition">
             <svg id="ai-icon-sparkle" class="w-4 h-4 text-amber-300 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
             <span id="ai-btn-text">✨ Auto-Draft Details with Vision AI</span>
@@ -155,14 +161,13 @@
           </div>
         </div>
 
-        <!-- Right Stage: Card Details Form & Quick Presets -->
+        <!-- Right Stage: Card Details Form & Presets -->
         <div class="lg:col-span-7 space-y-5">
           
-          <!-- Preset Chips -->
           <div class="bg-white border border-brand-border rounded-3xl p-5 shadow-sm space-y-3">
             <div class="flex items-center justify-between border-b border-brand-border pb-2">
-              <span class="text-xs font-bold text-brand-navy uppercase tracking-wider">Quick Presets (Brand Overrides)</span>
-              <span class="text-[10px] text-stone-400">Click to bypass API for signature items</span>
+              <span class="text-xs font-bold text-brand-navy uppercase tracking-wider">Quick Presets (1-Click Fill)</span>
+              <span class="text-[10px] text-stone-400">Click to bypass API for signature pieces</span>
             </div>
             <div id="intake-preset-chips" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar p-1"></div>
           </div>
@@ -234,15 +239,10 @@
                 <input type="text" id="intake-notes" placeholder="e.g. Pairs under chore jackets with dark wash denim and retro court sneakers." class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
               </div>
 
-              <div class="pt-3 border-t border-brand-border flex items-center justify-between">
-                <button type="button" onclick="removeFromVaultCurrent()" id="btn-intake-delete" class="text-rose-600 hover:text-rose-800 font-semibold text-xs hidden">
-                  Remove from Vault
+              <div class="pt-3 border-t border-brand-border flex items-center justify-end">
+                <button type="submit" class="px-6 py-3 bg-brand-navy hover:bg-stone-900 text-white font-bold rounded-xl shadow-md transition text-xs">
+                  ✓ Confirm & Add to Vault (Exits Queue)
                 </button>
-                <div class="flex items-center space-x-2 ml-auto">
-                  <button type="submit" class="px-6 py-3 bg-brand-navy hover:bg-stone-900 text-white font-bold rounded-xl shadow-md transition text-xs">
-                    ✓ Confirm & Put in Closet Vault
-                  </button>
-                </div>
               </div>
             </form>
 
@@ -263,12 +263,12 @@
               <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Closet Vault Inventory</h2>
               <span id="vault-count-badge" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold">0 Confirmed</span>
             </div>
-            <p class="text-xs text-stone-500 mt-0.5">Click any card to inspect or adjust details.</p>
+            <p class="text-xs text-stone-500 mt-0.5">Click any card to inspect or send it back to the intake studio.</p>
           </div>
           
           <div class="flex flex-wrap items-center gap-2">
             <button onclick="switchView('build')" class="px-3.5 py-2 bg-brand-navy hover:bg-stone-900 text-white text-xs font-semibold rounded-xl shadow-sm transition">
-              + Add More in Studio
+              + Return to Intake (<span id="btn-pending-subcount">0</span> left)
             </button>
             <button onclick="exportFullWardrobeBackup()" class="px-3 py-2 border border-brand-border hover:bg-brand-stone text-brand-navy text-xs font-semibold rounded-xl transition">
               💾 Export Backup
@@ -385,7 +385,7 @@
       { name: "Solid Washed Vintage Navy Crew Tee", category: "Tee", tier: "Anchor", palette: "blue", weight: "light", texture: "Washed Cotton", notes: "Everyday solid navy tee." }
     ];
 
-    let currentIntakeIndex = 0;
+    let currentPendingIndex = 0;
     let wardrobe = [];
     let weeklyPlan = {};
     let isAnalyzing = false;
@@ -400,6 +400,14 @@
       { key: "sun", name: "Sunday", defaultTemplate: "Downtime" }
     ];
 
+    function getPendingFiles() {
+      const confirmedRefs = new Set(wardrobe.map(w => w.fileRef));
+      return VERIFIED_FILES.filter(filename => {
+        const cleanRef = filename.replace(/\.(jpe?g|png)$/i, '');
+        return !confirmedRefs.has(cleanRef) && !confirmedRefs.has(filename);
+      });
+    }
+
     function initApp() {
       const savedVault = localStorage.getItem(STORAGE_KEY_ITEMS);
       if (savedVault) {
@@ -409,8 +417,8 @@
 
       checkApiKeyStatus();
       renderPresetChips();
-      loadIntakePhoto(0);
       updateVaultCounts();
+      loadIntakePhoto(0);
       renderWardrobeList();
       render7DayBoard();
     }
@@ -470,13 +478,12 @@
       showToast(`Applied: ${p.name}`);
     }
 
-    // Client-side downscaler: resizes high-res images to max 1000px, reducing tokens by ~90%
     async function getOptimizedBase64(imageUrl) {
       return new Promise((resolve, reject) => {
         const img = new Image();
         img.crossOrigin = "anonymous";
         img.onload = () => {
-          const maxDim = 1000;
+          const maxDim = 850;
           let width = img.naturalWidth || img.width;
           let height = img.naturalHeight || img.height;
 
@@ -496,7 +503,7 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
           
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.80);
           resolve(dataUrl.split(',')[1]);
         };
         img.onerror = () => reject(new Error("Failed to load image for compression"));
@@ -520,15 +527,18 @@
         return;
       }
 
+      const pending = getPendingFiles();
+      if (pending.length === 0) return;
+
       if (isAnalyzing) return;
       isAnalyzing = true;
 
       const btn = document.getElementById('btn-trigger-ai');
       const btnText = document.getElementById('ai-btn-text');
-      const filename = VERIFIED_FILES[currentIntakeIndex];
+      const filename = pending[currentPendingIndex];
 
       btn.disabled = true;
-      btnText.innerText = "Compressing photo bytes...";
+      btnText.innerText = "Optimizing photo...";
 
       try {
         const base64Data = await getOptimizedBase64(filename);
@@ -564,16 +574,14 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
           }
         };
 
-        const maxRetries = 3;
+        // Dual-Engine Fallback Chain: balances requests across distinct free quota pools
+        const modelChain = ["gemini-3.8-flash", "gemini-3.1-flash-lite"];
         let successfulData = null;
         let lastError = null;
 
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-          btnText.innerText = attempt === 1 
-            ? "Analyzing photo with Vision AI..." 
-            : `Rate limit hit; waiting ${attempt * 2}s (attempt ${attempt}/${maxRetries})...`;
-
-          const response = await callGeminiEndpoint("gemini-3.8-flash", apiKey, requestBody);
+        for (const model of modelChain) {
+          btnText.innerText = `Analyzing with ${model}...`;
+          const response = await callGeminiEndpoint(model, apiKey, requestBody);
 
           if (response.ok) {
             successfulData = await response.json();
@@ -584,19 +592,18 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
           const errMsg = errData.error?.message || `HTTP ${response.status}`;
           lastError = new Error(errMsg);
 
-          if (response.status === 429 || response.status === 503 || errMsg.toLowerCase().includes("quota") || errMsg.toLowerCase().includes("resource has been exhausted") || errMsg.toLowerCase().includes("high demand")) {
-            if (attempt < maxRetries) {
-              const waitMs = attempt * 2000;
-              await new Promise(r => setTimeout(r, waitMs));
-              continue;
-            }
+          // If rate limited or busy on primary, immediately switch to secondary model
+          if (response.status === 429 || response.status === 503 || errMsg.toLowerCase().includes("quota") || errMsg.toLowerCase().includes("exhausted")) {
+            btnText.innerText = `Primary busy, routing to ${modelChain[1]}...`;
+            await new Promise(r => setTimeout(r, 1000));
+            continue;
           } else {
             break;
           }
         }
 
         if (!successfulData) {
-          throw lastError || new Error("Free tier quota limit reached. Please wait 60 seconds.");
+          throw lastError || new Error("All quota limits reached. Please pause 30 seconds.");
         }
 
         const textResponse = successfulData.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -612,7 +619,7 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
 
         showToast("AI drafted card details successfully!");
       } catch (err) {
-        showToast(`AI error: ${err.message}`, true);
+        showToast(`AI Notice: ${err.message}`, true);
       } finally {
         isAnalyzing = false;
         btn.disabled = false;
@@ -621,11 +628,27 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
     }
 
     function loadIntakePhoto(index) {
-      if (index < 0) index = 0;
-      if (index >= VERIFIED_FILES.length) index = VERIFIED_FILES.length - 1;
-      currentIntakeIndex = index;
+      const pending = getPendingFiles();
+      const workbench = document.getElementById('intake-workbench');
+      const completeBanner = document.getElementById('intake-complete-banner');
 
-      const filename = VERIFIED_FILES[currentIntakeIndex];
+      if (pending.length === 0) {
+        workbench.classList.add('hidden');
+        completeBanner.classList.remove('hidden');
+        document.getElementById('complete-vault-count').innerText = wardrobe.length;
+        document.getElementById('intake-progress-label').innerText = `100% Complete`;
+        document.getElementById('intake-progress-bar').style.width = `100%`;
+        return;
+      }
+
+      workbench.classList.remove('hidden');
+      completeBanner.classList.add('hidden');
+
+      if (index < 0) index = 0;
+      if (index >= pending.length) index = pending.length - 1;
+      currentPendingIndex = index;
+
+      const filename = pending[currentPendingIndex];
       const cleanRef = filename.replace('.jpg', '');
 
       const img = document.getElementById('intake-photo-img');
@@ -633,46 +656,25 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
       img.onerror = () => { img.src = `${cleanRef}.JPG`; };
 
       document.getElementById('intake-filename-badge').innerText = filename;
-      document.getElementById('intake-progress-label').innerText = `Photo ${currentIntakeIndex + 1} of ${VERIFIED_FILES.length}`;
-      const pct = Math.round(((currentIntakeIndex + 1) / VERIFIED_FILES.length) * 100);
+      document.getElementById('intake-progress-label').innerText = `Item ${currentPendingIndex + 1} of ${pending.length} Remaining`;
+      
+      const confirmedCount = wardrobe.length;
+      const totalCount = VERIFIED_FILES.length;
+      const pct = Math.round((confirmedCount / totalCount) * 100);
       document.getElementById('intake-progress-bar').style.width = `${pct}%`;
 
-      const existing = wardrobe.find(w => w.fileRef === cleanRef || w.fileRef === filename);
-      const watermark = document.getElementById('intake-confirmed-watermark');
-      const statusTag = document.getElementById('intake-status-tag');
-      const deleteBtn = document.getElementById('btn-intake-delete');
-
-      if (existing) {
-        watermark.classList.remove('hidden');
-        statusTag.innerText = "Confirmed in Vault";
-        statusTag.className = "text-xs font-mono font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-lg";
-        deleteBtn.classList.remove('hidden');
-
-        document.getElementById('intake-name').value = existing.name;
-        document.getElementById('intake-category').value = existing.category;
-        document.getElementById('intake-tier').value = existing.tier;
-        document.getElementById('intake-palette').value = existing.palette;
-        document.getElementById('intake-weight').value = existing.weight;
-        document.getElementById('intake-texture').value = existing.texture || "";
-        document.getElementById('intake-notes').value = existing.notes || "";
-      } else {
-        watermark.classList.add('hidden');
-        statusTag.innerText = "Pending Confirmation";
-        statusTag.className = "text-xs font-mono font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-lg";
-        deleteBtn.classList.add('hidden');
-
-        document.getElementById('intake-name').value = "";
-        document.getElementById('intake-texture').value = "";
-        document.getElementById('intake-notes').value = "";
-
-        if (document.getElementById('chk-auto-ai').checked && localStorage.getItem(STORAGE_KEY_API)) {
-          runGeminiVisionAnalysis();
-        }
-      }
+      document.getElementById('intake-name').value = "";
+      document.getElementById('intake-texture').value = "";
+      document.getElementById('intake-notes').value = "";
     }
 
     function navigateIntake(delta) {
-      loadIntakePhoto(currentIntakeIndex + delta);
+      const pending = getPendingFiles();
+      if (pending.length === 0) return;
+      let next = currentPendingIndex + delta;
+      if (next < 0) next = pending.length - 1;
+      if (next >= pending.length) next = 0;
+      loadIntakePhoto(next);
     }
 
     function skipPhoto() {
@@ -681,7 +683,10 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
 
     function handleConfirmGarment(e) {
       e.preventDefault();
-      const filename = VERIFIED_FILES[currentIntakeIndex];
+      const pending = getPendingFiles();
+      if (pending.length === 0) return;
+
+      const filename = pending[currentPendingIndex];
       const cleanRef = filename.replace('.jpg', '');
 
       const name = document.getElementById('intake-name').value.trim();
@@ -692,11 +697,8 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
       const texture = document.getElementById('intake-texture').value.trim();
       const notes = document.getElementById('intake-notes').value.trim();
 
-      const existingIndex = wardrobe.findIndex(w => w.fileRef === cleanRef || w.fileRef === filename);
-      const garmentId = existingIndex !== -1 ? wardrobe[existingIndex].id : Date.now();
-
       const garmentObj = {
-        id: garmentId,
+        id: Date.now(),
         fileRef: cleanRef,
         filename: filename,
         name,
@@ -709,34 +711,37 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
         confirmedAt: new Date().toISOString()
       };
 
-      if (existingIndex !== -1) {
-        wardrobe[existingIndex] = garmentObj;
-      } else {
-        wardrobe.push(garmentObj);
-      }
-
+      wardrobe.push(garmentObj);
       localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
+
       updateVaultCounts();
       renderWardrobeList();
       showToast(`Confirmed: "${name}" added to Vault!`);
-      navigateIntake(1);
+
+      const newPending = getPendingFiles();
+      if (currentPendingIndex >= newPending.length) {
+        currentPendingIndex = Math.max(0, newPending.length - 1);
+      }
+      loadIntakePhoto(currentPendingIndex);
     }
 
-    function removeFromVaultCurrent() {
-      const filename = VERIFIED_FILES[currentIntakeIndex];
-      const cleanRef = filename.replace('.jpg', '');
-      wardrobe = wardrobe.filter(w => w.fileRef !== cleanRef && w.fileRef !== filename);
+    function returnToPending(garmentId) {
+      wardrobe = wardrobe.filter(w => w.id !== garmentId);
       localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
       updateVaultCounts();
       renderWardrobeList();
-      loadIntakePhoto(currentIntakeIndex);
-      showToast("Removed piece from Vault.");
+      render7DayBoard();
+      loadIntakePhoto(currentPendingIndex);
+      showToast("Returned piece back to Intake Studio!");
     }
 
     function updateVaultCounts() {
       const count = wardrobe.length;
+      const pending = getPendingFiles();
       document.getElementById('nav-vault-count').innerText = count;
-      document.getElementById('vault-total-badge').innerText = `${count} Pieces Confirmed`;
+      document.getElementById('nav-pending-count').innerText = pending.length;
+      document.getElementById('btn-pending-subcount').innerText = pending.length;
+      document.getElementById('vault-total-badge').innerText = `${count} Confirmed (${pending.length} Left)`;
       document.getElementById('vault-count-badge').innerText = `${count} Confirmed`;
     }
 
@@ -777,6 +782,11 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
                 <p class="text-[10px] text-stone-500 leading-relaxed line-clamp-2 mt-1">${item.notes || item.texture || ''}</p>
               </div>
             </div>
+            <div class="p-3 pt-0 border-t border-brand-border/40 mt-3 flex justify-end">
+              <button onclick="returnToPending(${item.id})" class="text-[10px] text-rose-600 hover:text-rose-800 font-semibold transition">
+                &larr; Return to Intake
+              </button>
+            </div>
           </div>
         `;
         grid.appendChild(card);
@@ -784,14 +794,14 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
     }
 
     function clearVaultConfirm() {
-      if (!confirm("Clear your confirmed Closet Vault? You can re-confirm items in the Studio at any time.")) return;
+      if (!confirm("Clear your confirmed Closet Vault? All items will return to the Intake Studio queue.")) return;
       wardrobe = [];
       localStorage.removeItem(STORAGE_KEY_ITEMS);
       updateVaultCounts();
       renderWardrobeList();
       render7DayBoard();
-      loadIntakePhoto(currentIntakeIndex);
-      showToast("Closet Vault cleared.");
+      loadIntakePhoto(0);
+      showToast("Closet Vault cleared. All items returned to Intake.");
     }
 
     function smartGenerateWeek() {
@@ -896,6 +906,7 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
       document.getElementById(`tab-btn-${viewName}`).className = "px-4 py-2 rounded-lg bg-white text-brand-navy shadow-sm font-semibold flex items-center space-x-1.5 transition";
       if (viewName === 'wardrobe') renderWardrobeList();
       if (viewName === 'planner') render7DayBoard();
+      if (viewName === 'build') loadIntakePhoto(currentPendingIndex);
     }
 
     function exportFullWardrobeBackup() {
