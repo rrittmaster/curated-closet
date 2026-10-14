@@ -40,6 +40,7 @@
     .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #F2EFEB; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #D4CCC2; border-radius: 9999px; }
+    .flatlay-card:hover .swap-overlay { opacity: 1; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased text-stone-800">
@@ -56,11 +57,11 @@
             <h1 class="font-serif text-lg sm:text-xl tracking-wider text-brand-navy font-bold uppercase">The Curated Closet</h1>
             <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">Vision AI Enabled</span>
           </div>
-          <p class="text-xs text-stone-500 font-medium">Multimodal Garment Analysis &bull; Weather-Synced Flat-Lays &bull; Zero-Repeat Rotation</p>
+          <p class="text-xs text-stone-500 font-medium">Auto-Retrying Vision Engine &bull; Zero-Repeat Rotation &bull; Weather-Synced Flat-Lays</p>
         </div>
       </div>
       
-      <!-- Navigation & API Key -->
+      <!-- Key Management & Navigation -->
       <div class="flex items-center space-x-2">
         <button onclick="toggleModal('api-key-modal', true)" class="px-3 py-1.5 rounded-xl border border-brand-border bg-brand-stone hover:bg-stone-200 text-brand-navy text-xs font-semibold flex items-center space-x-1.5 transition">
           <span id="api-key-indicator" class="w-2 h-2 rounded-full bg-rose-500"></span>
@@ -95,7 +96,7 @@
 
   <main class="flex-grow max-w-[1700px] mx-auto w-full px-3 sm:px-6 py-6">
 
-    <!-- VIEW 1: INTAKE STUDIO -->
+    <!-- VIEW 1: BUILD MY WARDROBE (INTAKE STUDIO + RESILIENT VISION AI) -->
     <section id="view-build" class="space-y-6">
       
       <!-- Progress Bar & Subheader -->
@@ -103,7 +104,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Vision-Powered Intake Studio</h2>
-            <p class="text-xs text-stone-500">Analyze images with Gemini Vision AI to draft attributes, or apply quick-match presets.</p>
+            <p class="text-xs text-stone-500">Auto-draft garment attributes with Gemini 3.8 Flash, or use 1-click catalog presets.</p>
           </div>
           <div class="flex items-center space-x-3">
             <label class="flex items-center space-x-1.5 text-xs text-stone-600 cursor-pointer select-none">
@@ -122,7 +123,7 @@
       <!-- Main Intake Workbench -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        <!-- Left Stage: Image & AI Action Bar -->
+        <!-- Left Stage: Image & Action Bar -->
         <div class="lg:col-span-5 bg-white border border-brand-border rounded-3xl p-5 shadow-sm flex flex-col items-center space-y-4">
           <div class="w-full aspect-4/5 rounded-2xl overflow-hidden bg-stone-100 border border-brand-border relative flex items-center justify-center">
             <img id="intake-photo-img" src="" class="w-full h-full object-cover">
@@ -134,7 +135,7 @@
             </div>
           </div>
 
-          <!-- PRIMARY AI TRIGGER BUTTON -->
+          <!-- PRIMARY AI TRIGGER BUTTON WITH BACKOFF STATUS -->
           <button id="btn-trigger-ai" onclick="runGeminiVisionAnalysis()" class="w-full py-3 px-4 bg-gradient-to-r from-indigo-900 via-brand-navy to-indigo-950 hover:opacity-95 text-white rounded-xl shadow-md font-semibold text-xs flex items-center justify-center space-x-2 transition">
             <svg id="ai-icon-sparkle" class="w-4 h-4 text-amber-300 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
             <span id="ai-btn-text">✨ Auto-Draft Details with Vision AI</span>
@@ -157,6 +158,7 @@
         <!-- Right Stage: Card Details Form & Quick Presets -->
         <div class="lg:col-span-7 space-y-5">
           
+          <!-- Preset Chips -->
           <div class="bg-white border border-brand-border rounded-3xl p-5 shadow-sm space-y-3">
             <div class="flex items-center justify-between border-b border-brand-border pb-2">
               <span class="text-xs font-bold text-brand-navy uppercase tracking-wider">Quick Presets (Brand Overrides)</span>
@@ -372,8 +374,10 @@
       { name: "Puma Retro Light Grey Suede Gum-Sole", category: "Footwear", tier: "Active", palette: "neutral", weight: "mid", texture: "Suede / Gum Sole", notes: "Retro terrace low sneaker." },
       { name: "Nike Air Max 1 Grey Corduroy & Suede", category: "Footwear", tier: "Active", palette: "neutral", weight: "mid", texture: "Corduroy / Suede", notes: "Textured travel runner." },
       { name: "Air Jordan 1 Low Sanddrift / Linen", category: "Footwear", tier: "Active", palette: "earth", weight: "mid", texture: "Tumbled Leather", notes: "Elevated warm neutral court low." },
+      { name: "Adidas Muted Yellow & Burgundy Suede", category: "Footwear", tier: "Active", palette: "earth", weight: "light", texture: "Soft Suede", notes: "Retro color pop sneaker." },
       { name: "Khaki Utility Field Chore Jacket", category: "Layer", tier: "Anchor", palette: "earth", weight: "heavy", texture: "Cotton Canvas", notes: "Structured utility workwear jacket." },
       { name: "Washed Denim Workwear Overshirt", category: "Layer", tier: "Anchor", palette: "blue", weight: "heavy", texture: "Washed Denim", notes: "Rugged casual overshirt." },
+      { name: "Tan Technical Hooded Windbreaker", category: "Layer", tier: "Active", palette: "earth", weight: "light", texture: "Ripstop Shell", notes: "Outdoor running shell." },
       { name: "Classic Khaki 7\" Flat-Front Chino Shorts", category: "Shorts", tier: "Anchor", palette: "earth", weight: "light", texture: "Stretch Chino Twill", notes: "Tailored summer short anchor." },
       { name: "Olive Green 7\" Flat-Front Chino Shorts", category: "Shorts", tier: "Anchor", palette: "earth", weight: "light", texture: "Stretch Chino Twill", notes: "Earth tone tailored shorts." },
       { name: "Heritage Red & White Striped Crew Tee", category: "Tee", tier: "Anchor", palette: "earth", weight: "mid", texture: "Jersey Cotton", notes: "Nautical graphic pop." },
@@ -478,6 +482,15 @@
       });
     }
 
+    async function callGeminiEndpoint(modelName, apiKey, requestBody) {
+      const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+      return await fetch(apiEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody)
+      });
+    }
+
     async function runGeminiVisionAnalysis() {
       const apiKey = localStorage.getItem(STORAGE_KEY_API);
       if (!apiKey) {
@@ -493,7 +506,7 @@
       const filename = VERIFIED_FILES[currentIntakeIndex];
 
       btn.disabled = true;
-      btnText.innerText = "Analyzing photo with Vision AI...";
+      btnText.innerText = "Reading photo bytes...";
 
       try {
         const imageRes = await fetch(filename);
@@ -532,20 +545,44 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
           }
         };
 
-        const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
-        const response = await fetch(apiEndpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(requestBody)
-        });
+        const maxRetries = 4;
+        let successfulData = null;
+        let lastError = null;
 
-        if (!response.ok) {
-          const errData = await response.json();
-          throw new Error(errData.error?.message || "Gemini API error");
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+          btnText.innerText = attempt === 1 
+            ? "Analyzing photo with Vision AI..." 
+            : `Demand spike on Gemini; retrying (${attempt}/${maxRetries})...`;
+
+          const response = await callGeminiEndpoint("gemini-3.8-flash", apiKey, requestBody);
+
+          if (response.ok) {
+            successfulData = await response.json();
+            break;
+          }
+
+          const errData = await response.json().catch(() => ({}));
+          const errMsg = errData.error?.message || `HTTP ${response.status}`;
+          lastError = new Error(errMsg);
+
+          // Exponential backoff on transient capacity / rate limit spikes
+          if (response.status === 503 || response.status === 429 || errMsg.toLowerCase().includes("high demand") || errMsg.toLowerCase().includes("resource has been exhausted")) {
+            if (attempt < maxRetries) {
+              const waitMs = attempt * 1500;
+              await new Promise(r => setTimeout(r, waitMs));
+              continue;
+            }
+          } else {
+            // Unrecoverable client error
+            break;
+          }
         }
 
-        const data = await response.json();
-        const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!successfulData) {
+          throw lastError || new Error("Gemini server busy. Please wait a few seconds and try again.");
+        }
+
+        const textResponse = successfulData.candidates?.[0]?.content?.parts?.[0]?.text;
         const parsed = JSON.parse(textResponse);
 
         if (parsed.name) document.getElementById('intake-name').value = parsed.name;
