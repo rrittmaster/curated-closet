@@ -55,9 +55,9 @@
         <div>
           <div class="flex items-center space-x-2">
             <h1 class="font-serif text-lg sm:text-xl tracking-wider text-brand-navy font-bold uppercase">The Curated Closet</h1>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Verified Manifest</span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Production Engine</span>
           </div>
-          <p class="text-xs text-stone-500 font-medium">Weather-Synced Planning, Zero-Repeat Rotation & Cloud Storage</p>
+          <p class="text-xs text-stone-500 font-medium">Weather-Synced Planning &bull; Zero-Repeat Rotation &bull; Hardcoded Manifest</p>
         </div>
       </div>
       
@@ -65,11 +65,15 @@
       <nav class="flex space-x-1.5 bg-brand-stone p-1 rounded-xl border border-brand-border text-xs sm:text-sm font-medium">
         <button id="tab-btn-planner" onclick="switchView('planner')" class="px-4 py-2 rounded-lg bg-white text-brand-navy shadow-sm font-semibold flex items-center space-x-1.5 transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          <span>7-Day Flat-Lay Board</span>
+          <span>7-Day Board</span>
         </button>
         <button id="tab-btn-wardrobe" onclick="switchView('wardrobe')" class="px-4 py-2 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5 transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
           <span>Closet Vault</span>
+        </button>
+        <button id="tab-btn-contactsheet" onclick="switchView('contactsheet')" class="px-4 py-2 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+          <span>Visual Contact Sheet</span>
         </button>
       </nav>
     </div>
@@ -109,7 +113,7 @@
       <div id="seven-day-flatlay-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4"></div>
     </section>
 
-    <!-- VIEW 2: CLOSET VAULT & MANAGEMENT -->
+    <!-- VIEW 2: CLOSET VAULT -->
     <section id="view-wardrobe" class="space-y-6 hidden">
       <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-4">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -118,15 +122,15 @@
               <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Closet Vault Inventory</h2>
               <span id="photo-coverage-badge" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-brand-stone text-stone-700 border border-brand-border font-semibold">0 / 0 Photographed</span>
             </div>
-            <p class="text-xs text-stone-500 mt-0.5">Static-hosted assets mapped to camera filenames.</p>
+            <p class="text-xs text-stone-500 mt-0.5">Directly mapped to your 126 repository photographs.</p>
           </div>
           
           <div class="flex flex-wrap items-center gap-2">
-            <button onclick="toggleModal('import-code-modal', true)" class="px-3 py-2 bg-brand-navy text-white text-xs font-semibold rounded-xl hover:bg-stone-900 transition">
-              📋 Paste Import Code
-            </button>
             <button onclick="exportFullWardrobeBackup()" class="px-3 py-2 border border-brand-border hover:bg-brand-stone text-brand-navy text-xs font-semibold rounded-xl transition">
               💾 Export Backup
+            </button>
+            <button onclick="resetToMasterSeed()" class="px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-xl transition">
+              🔄 Reset to Factory Seed
             </button>
           </div>
         </div>
@@ -155,7 +159,6 @@
               <option value="Anchor">Anchor (Core Wear)</option>
               <option value="Potential">Potential (Secondary)</option>
               <option value="Active">Matchday / Sport Only</option>
-              <option value="Pending">Target / Pending</option>
             </select>
           </div>
           <div class="col-span-4">
@@ -168,27 +171,85 @@
       <div id="wardrobe-grid-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
     </section>
 
+    <!-- VIEW 3: VISUAL CONTACT SHEET -->
+    <section id="view-contactsheet" class="space-y-6 hidden">
+      <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-2">
+        <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">126-Photo Visual Contact Sheet</h2>
+        <p class="text-xs text-stone-500">Every photo hosted in your repository rendered in numerical order. Click any card to re-bind or inspect.</p>
+      </div>
+
+      <div id="contact-sheet-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+    </section>
+
   </main>
 
-  <!-- MODAL: PASTE IMPORT CODE -->
-  <div id="import-code-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-brand-border space-y-4">
-      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
-        <h3 class="font-serif font-bold text-brand-navy text-base">Import Garment Code</h3>
-        <button onclick="toggleModal('import-code-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
-      </div>
-      <p class="text-xs text-stone-500">Paste your updated JSON seed below to align all items to camera filenames.</p>
-      <textarea id="import-json-input" rows="8" placeholder="Paste garment JSON here..." class="w-full text-xs font-mono p-3 rounded-xl border border-brand-border bg-brand-stone/50 focus:outline-none"></textarea>
-      <div class="flex justify-end space-x-2 pt-2">
-        <button type="button" onclick="toggleModal('import-code-modal', false)" class="px-4 py-2 text-xs text-stone-600">Cancel</button>
-        <button type="button" onclick="executeJsonImport()" class="px-5 py-2 bg-brand-navy text-white text-xs font-semibold rounded-xl hover:bg-stone-900 transition">Import to Vault</button>
-      </div>
-    </div>
-  </div>
-
   <script>
-    const STORAGE_KEY_ITEMS = "curated_wardrobe_items_cloud";
-    const STORAGE_KEY_PLAN = "curated_weekly_outfits_cloud";
+    const STORAGE_KEY_ITEMS = "curated_closet_master_v3";
+    const STORAGE_KEY_PLAN = "curated_closet_plan_v3";
+
+    // MASTER HARDCODED REPOSITORY MANIFEST (Exact 126 Files)
+    const VERIFIED_FILES = [
+      "IMG_6219.jpg","IMG_6221.jpg","IMG_6222.jpg","IMG_6223.jpg","IMG_6224.jpg","IMG_6225.jpg","IMG_6226.jpg",
+      "IMG_6227.jpg","IMG_6228.jpg","IMG_6229.jpg","IMG_6230.jpg","IMG_6231.jpg","IMG_6232.jpg","IMG_6233.jpg",
+      "IMG_6234.jpg","IMG_6235.jpg","IMG_6236.jpg","IMG_6237.jpg","IMG_6238.jpg","IMG_6239.jpg","IMG_6240.jpg",
+      "IMG_6241.jpg","IMG_6242.jpg","IMG_6243.jpg","IMG_6244.jpg","IMG_6245.jpg","IMG_6246.jpg","IMG_6247.jpg",
+      "IMG_6248.jpg","IMG_6249.jpg","IMG_6250.jpg","IMG_6254.jpg","IMG_6255.jpg","IMG_6256.jpg","IMG_6257.jpg",
+      "IMG_6258.jpg","IMG_6259.jpg","IMG_6260.jpg","IMG_6261.jpg","IMG_6262.jpg","IMG_6263.jpg","IMG_6264.jpg",
+      "IMG_6265.jpg","IMG_6266.jpg","IMG_6267.jpg","IMG_6268.jpg","IMG_6269.jpg","IMG_6270.jpg","IMG_6271.jpg",
+      "IMG_6272.jpg","IMG_6273.jpg","IMG_6274.jpg","IMG_6275.jpg","IMG_6276.jpg","IMG_6277.jpg","IMG_6278.jpg",
+      "IMG_6279.jpg","IMG_6280.jpg","IMG_6281.jpg","IMG_6282.jpg","IMG_6283.jpg","IMG_6284.jpg","IMG_6285.jpg",
+      "IMG_6286.jpg","IMG_6287.jpg","IMG_6288.jpg","IMG_6289.jpg","IMG_6290.jpg","IMG_6291.jpg","IMG_6292.jpg",
+      "IMG_6293.jpg","IMG_6294.jpg","IMG_6295.jpg","IMG_6325.jpg","IMG_6328.jpg","IMG_6329.jpg","IMG_6330.jpg",
+      "IMG_6331.jpg","IMG_6332.jpg","IMG_6333.jpg","IMG_6334.jpg","IMG_6335.jpg","IMG_6336.jpg","IMG_6337.jpg",
+      "IMG_6338.jpg","IMG_6340.jpg","IMG_6341.jpg","IMG_6342.jpg","IMG_6343.jpg","IMG_6344.jpg","IMG_6346.jpg",
+      "IMG_6347.jpg","IMG_6349.jpg","IMG_6350.jpg","IMG_6351.jpg","IMG_6352.jpg","IMG_6353.jpg","IMG_6354.jpg",
+      "IMG_6355.jpg","IMG_6356.jpg","IMG_6357.jpg","IMG_6358.jpg","IMG_6359.jpg","IMG_6361.jpg","IMG_6362.jpg",
+      "IMG_6363.jpg","IMG_6364.jpg","IMG_6365.jpg","IMG_6366.jpg","IMG_6367.jpg","IMG_6368.jpg","IMG_6369.jpg",
+      "IMG_6370.jpg","IMG_6371.jpg","IMG_6372.jpg","IMG_6374.jpg","IMG_6375.jpg","IMG_6376.jpg","IMG_6377.jpg",
+      "IMG_6379.jpg","IMG_6380.jpg","IMG_6381.jpg","IMG_6382.jpg","IMG_6383.jpg","IMG_6384.jpg","IMG_6385.jpg"
+    ];
+
+    // FACTORY SEED DATA (All Key Pieces Pre-Mapped)
+    const MASTER_SEED = [
+      { id: 101, fileRef: "IMG_6368", name: "Oatmeal Herringbone Patch-Pocket Blazer", category: "Layer", tier: "Anchor", palette: "neutral", texture: "Soft Herringbone Wool", weight: "mid", notes: "Core presentation jacket." },
+      { id: 102, fileRef: "IMG_6372", name: "Charcoal Donegal Fleck Tweed Blazer", category: "Layer", tier: "Anchor", palette: "neutral", texture: "Donegal Tweed", weight: "heavy", notes: "Flecked winter blazer." },
+      { id: 103, fileRef: "IMG_6367", name: "Grey Herringbone Tweed Sport Coat", category: "Layer", tier: "Anchor", palette: "neutral", texture: "Wool Tweed", weight: "heavy", notes: "Structured winter sport coat." },
+      { id: 104, fileRef: "IMG_6369", name: "Slate Blue Micro-Hopsack Blazer", category: "Layer", tier: "Anchor", palette: "blue", texture: "Textured Pique Hopsack", weight: "mid", notes: "Unstructured client casual blazer." },
+      { id: 105, fileRef: "IMG_6366", name: "BR Blackwatch Tartan Check Blazer", category: "Layer", tier: "Anchor", palette: "earth", texture: "Wool Blend Check", weight: "heavy", notes: "Deep forest/navy check." },
+      { id: 106, fileRef: "IMG_6371", name: "BR Tailored Navy Wool Blazer", category: "Layer", tier: "Anchor", palette: "blue", texture: "Tailored Smooth Wool", weight: "mid", notes: "Classic navy presentation blazer." },
+      { id: 107, fileRef: "IMG_6370", name: "Tailored Khaki Cotton Chino Blazer", category: "Layer", tier: "Potential", palette: "earth", texture: "Cotton Twill", weight: "mid", notes: "Warm weather tailored chino coat." },
+      { id: 201, fileRef: "IMG_6376", name: "KOIO Capri Triple White Leather Sneaker", category: "Footwear", tier: "Anchor", palette: "neutral", texture: "Italian Calfskin", weight: "mid", notes: "Smart-casual presentation anchor." },
+      { id: 202, fileRef: "IMG_6377", name: "Puma Retro Light Grey Suede Gum-Sole", category: "Footwear", tier: "Active", palette: "neutral", texture: "Suede / Gum Sole", weight: "mid", notes: "Low-profile retro terrace sneaker." },
+      { id: 203, fileRef: "IMG_6375", name: "Nike Air Max 1 Grey Corduroy & Suede", category: "Footwear", tier: "Active", palette: "neutral", texture: "Corduroy / Hairy Suede", weight: "mid", notes: "Textured neutral runner." },
+      { id: 204, fileRef: "IMG_6385", name: "Air Jordan 1 Low Sanddrift / Linen", category: "Footwear", tier: "Active", palette: "earth", texture: "Tumbled Leather", weight: "mid", notes: "Elevated warm neutral court low." },
+      { id: 205, fileRef: "IMG_6379", name: "Adidas Muted Yellow & Burgundy Suede", category: "Footwear", tier: "Active", palette: "earth", texture: "Soft Suede", weight: "light", notes: "Retro color pop sneaker." },
+      { id: 206, fileRef: "IMG_6380", name: "Air Jordan 1 Low White / Patterned Collar", category: "Footwear", tier: "Active", palette: "neutral", texture: "Leather", weight: "mid", notes: "Clean court sneaker." },
+      { id: 207, fileRef: "IMG_6381", name: "Nike Dunk Low Off-White & Burnt Orange", category: "Footwear", tier: "Active", palette: "earth", texture: "Suede / Leather", weight: "mid", notes: "Autumnal court sneaker." },
+      { id: 208, fileRef: "IMG_6382", name: "Nike Air Max 1 Wheat & Navy Rope-Lace", category: "Footwear", tier: "Active", palette: "earth", texture: "Nubuck / Mesh", weight: "heavy", notes: "Rugged utility runner." },
+      { id: 209, fileRef: "IMG_6383", name: "Air Jordan 1 Low Mocha & Royal Blue", category: "Footwear", tier: "Active", palette: "earth", texture: "Colorblocked Leather", weight: "mid", notes: "Statement weekend sneaker." },
+      { id: 210, fileRef: "IMG_6384", name: "Air Jordan 1 Low Stealth Grey", category: "Footwear", tier: "Active", palette: "neutral", texture: "Smooth Leather", weight: "mid", notes: "Cool grey court shoe." },
+      { id: 211, fileRef: "IMG_6374", name: "Royal Blue Distance Performance Runner", category: "Footwear", tier: "Active", palette: "blue", texture: "Breathable Mesh", weight: "light", notes: "Marathon training runner." },
+      { id: 301, fileRef: "IMG_6285", name: "Khaki Utility Field Chore Jacket", category: "Layer", tier: "Anchor", palette: "earth", texture: "Cotton Canvas", weight: "heavy", notes: "Structured utility workwear jacket." },
+      { id: 302, fileRef: "IMG_6283", name: "Washed Denim Workwear Overshirt", category: "Layer", tier: "Anchor", palette: "blue", texture: "Washed Denim", weight: "heavy", notes: "Rugged outer layer." },
+      { id: 303, fileRef: "IMG_6292", name: "Tan Technical Hooded Windbreaker", category: "Layer", tier: "Active", palette: "earth", texture: "Ripstop Shell", weight: "light", notes: "Weather shell layer." },
+      { id: 304, fileRef: "IMG_6276", name: "Black Technical Lightweight Wind Shell", category: "Layer", tier: "Active", palette: "neutral", texture: "Matte Shell", weight: "light", notes: "Running & travel wind shell." },
+      { id: 305, fileRef: "IMG_6274", name: "Olive Green Heavyweight Pullover Hoodie", category: "Athletic", tier: "Active", palette: "earth", texture: "Cotton Fleece", weight: "heavy", notes: "Heavy casual fleece hoodie." },
+      { id: 306, fileRef: "IMG_6278", name: "Navy Technical Full-Zip Track Midlayer", category: "Athletic", tier: "Active", palette: "blue", texture: "Stretch Knit", weight: "mid", notes: "Engineered track jacket." },
+      { id: 401, fileRef: "IMG_6231", name: "Classic Khaki 7\" Flat-Front Chino Shorts", category: "Shorts", tier: "Anchor", palette: "earth", texture: "Stretch Chino Twill", weight: "light", notes: "Tailored summer short anchor." },
+      { id: 402, fileRef: "IMG_6232", name: "Olive Green 7\" Flat-Front Chino Shorts", category: "Shorts", tier: "Anchor", palette: "earth", texture: "Stretch Chino Twill", weight: "light", notes: "Earth tone tailored shorts." },
+      { id: 403, fileRef: "IMG_6233", name: "Slate Blue 7\" Tailored Chino Shorts", category: "Shorts", tier: "Anchor", palette: "blue", texture: "Cotton Twill", weight: "light", notes: "Casual summer staple." },
+      { id: 404, fileRef: "IMG_6234", name: "Charcoal Slate Technical Workout Shorts", category: "Shorts", tier: "Active", palette: "neutral", texture: "4-Way Stretch", weight: "light", notes: "Performance gym shorts." },
+      { id: 405, fileRef: "IMG_6235", name: "Heather Grey Tailored Casual Shorts", category: "Shorts", tier: "Anchor", palette: "neutral", texture: "Washed Cotton", weight: "light", notes: "Neutral summer shorts." },
+      { id: 406, fileRef: "IMG_6236", name: "Navy Technical Athletic Running Shorts", category: "Shorts", tier: "Active", palette: "blue", texture: "Breathable Mesh", weight: "light", notes: "Running shorts." },
+      { id: 501, fileRef: "IMG_6239", name: "Heritage Red & White Striped Crew Tee", category: "Tee", tier: "Anchor", palette: "earth", texture: "Jersey Cotton", weight: "mid", notes: "Nautical stripe pop." },
+      { id: 502, fileRef: "IMG_6222", name: "White & Slate Striped Crewneck Tee", category: "Tee", tier: "Anchor", palette: "neutral", texture: "Slub Cotton", weight: "light", notes: "Clean summer striped tee." },
+      { id: 503, fileRef: "IMG_6221", name: "Heather Grey Micro-Stripe Crew Tee", category: "Tee", tier: "Anchor", palette: "neutral", texture: "Combed Cotton", weight: "light", notes: "Textured base layer." },
+      { id: 504, fileRef: "IMG_6219", name: "Solid Washed Vintage Navy Crew Tee", category: "Tee", tier: "Anchor", palette: "blue", texture: "Washed Cotton", weight: "light", notes: "Everyday solid navy tee." },
+      { id: 505, fileRef: "IMG_6256", name: "Heather Grey Open-Hem Lounge Sweatpants", category: "Pants", tier: "Active", palette: "neutral", texture: "French Terry", weight: "heavy", notes: "Downtime sweatpants." },
+      { id: 506, fileRef: "IMG_6244", name: "Minnesota United FC Primary Kit (Black)", category: "Athletic", tier: "Active", palette: "blue", texture: "Aeroready Mesh", weight: "light", notes: "Matchday home kit." },
+      { id: 507, fileRef: "IMG_6245", name: "Minnesota United FC Secondary Kit (White)", category: "Athletic", tier: "Active", palette: "neutral", texture: "Aeroready Mesh", weight: "light", notes: "Matchday away kit." },
+      { id: 508, fileRef: "IMG_6246", name: "Heritage Gold / Yellow Athletic Kit", category: "Athletic", tier: "Active", palette: "earth", texture: "Performance Mesh", weight: "light", notes: "Weekend color pop jersey." }
+    ];
 
     let wardrobe = [];
     let weeklyPlan = {};
@@ -205,21 +266,34 @@
 
     const TEMPLATES = ["Client In-Person", "WFH Video Calls", "Elevated Casual", "Date Night", "Active Weekend", "Downtime"];
 
-    // Normalized resolver: strictly targets lowercase .jpg
-    function getResolvedImageUrl(fileRef) {
+    function getImagePath(fileRef) {
       if (!fileRef || fileRef === 'NO_PHOTO') return null;
       const clean = fileRef.replace(/\.(jpe?g|png)$/i, '');
       return `${clean}.jpg`;
     }
 
-    async function initApp() {
+    function initApp() {
       const saved = localStorage.getItem(STORAGE_KEY_ITEMS);
       if (saved) {
-        try { wardrobe = JSON.parse(saved); } catch(e) { wardrobe = []; }
+        try { wardrobe = JSON.parse(saved); } catch(e) { wardrobe = [...MASTER_SEED]; }
+      } else {
+        wardrobe = [...MASTER_SEED];
+        localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
       }
+
       weeklyPlan = JSON.parse(localStorage.getItem(STORAGE_KEY_PLAN)) || {};
       render7DayBoard();
       renderWardrobeList();
+      renderContactSheet();
+    }
+
+    function resetToMasterSeed() {
+      if (!confirm("Reset wardrobe to factory verified seed?")) return;
+      wardrobe = [...MASTER_SEED];
+      localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
+      renderWardrobeList();
+      render7DayBoard();
+      showToast("Reset to master verified seed.");
     }
 
     function renderWardrobeList() {
@@ -233,12 +307,12 @@
         if (!i || !i.name) return false;
         if (cat !== 'ALL' && i.category !== cat) return false;
         if (tier !== 'ALL' && i.tier !== tier) return false;
-        if (search && !i.name.toLowerCase().includes(search)) return false;
+        if (search && !i.name.toLowerCase().includes(search) && !i.fileRef.toLowerCase().includes(search)) return false;
         return true;
       });
 
       filtered.forEach(item => {
-        const imgSrc = getResolvedImageUrl(item.fileRef);
+        const imgSrc = getImagePath(item.fileRef);
         const card = document.createElement('div');
         card.className = "bg-white border border-brand-border rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between group";
 
@@ -267,49 +341,148 @@
         grid.appendChild(card);
       });
 
-      document.getElementById('photo-coverage-badge').innerText = `${wardrobe.filter(i => i.fileRef && i.fileRef !== 'NO_PHOTO').length} / ${wardrobe.length} Pieces`;
+      document.getElementById('photo-coverage-badge').innerText = `${wardrobe.filter(i => i.fileRef).length} / ${wardrobe.length} Photographed`;
     }
 
-    function executeJsonImport() {
-      const raw = document.getElementById('import-json-input').value.trim();
-      if (!raw) return;
-      try {
-        const incoming = JSON.parse(raw);
-        wardrobe = incoming;
-        localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
-        renderWardrobeList();
-        render7DayBoard();
-        toggleModal('import-code-modal', false);
-        document.getElementById('import-json-input').value = "";
-        showToast("Imported aligned wardrobe seed!");
-      } catch (e) {
-        showToast("Invalid JSON syntax", true);
-      }
+    function renderContactSheet() {
+      const container = document.getElementById('contact-sheet-grid');
+      container.innerHTML = '';
+
+      VERIFIED_FILES.forEach(filename => {
+        const cleanRef = filename.replace('.jpg', '');
+        const linkedGarment = wardrobe.find(w => w.fileRef === cleanRef || w.fileRef === filename);
+
+        const card = document.createElement('div');
+        card.className = `bg-white rounded-xl border p-2 shadow-2xs space-y-1.5 ${
+          linkedGarment ? 'border-brand-navy bg-stone-50/50' : 'border-stone-200'
+        }`;
+
+        card.innerHTML = `
+          <div class="aspect-square rounded-lg overflow-hidden bg-stone-100 border border-stone-200">
+            <img src="${filename}" onerror="this.onerror=null; this.src='${cleanRef}.JPG';" class="w-full h-full object-cover">
+          </div>
+          <div class="text-[10px]">
+            <div class="font-mono font-bold text-stone-700">${filename}</div>
+            <div class="truncate text-[9px] ${linkedGarment ? 'text-emerald-700 font-semibold' : 'text-stone-400 italic'}">
+              ${linkedGarment ? `✓ ${linkedGarment.name}` : 'Unassigned'}
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function smartGenerateWeek() {
+      const usedIds = new Set();
+      const newPlan = {};
+
+      DAYS_CONFIG.forEach(d => {
+        const template = d.defaultTemplate;
+        const available = wardrobe.filter(i => !usedIds.has(i.id));
+
+        let layer = null, top = null, bottom = null, shoes = null;
+
+        if (d.key === 'sat' || d.key === 'sun') {
+          top = available.find(i => i.category === 'Tee' || i.category === 'Athletic');
+          layer = available.find(i => (i.category === 'Layer' || i.category === 'Athletic') && i.id !== top?.id);
+          bottom = available.find(i => i.category === 'Shorts' || i.category === 'Pants');
+          shoes = available.find(i => i.category === 'Footwear' && i.tier === 'Active');
+        } else {
+          layer = available.find(i => i.category === 'Layer');
+          top = available.find(i => i.category === 'Tee' || i.category === 'Woven' || i.category === 'Polo');
+          bottom = available.find(i => i.category === 'Shorts' || i.category === 'Pants');
+          shoes = available.find(i => i.category === 'Footwear');
+        }
+
+        if (layer) usedIds.add(layer.id);
+        if (top) usedIds.add(top.id);
+        if (bottom) usedIds.add(bottom.id);
+        if (shoes) usedIds.add(shoes.id);
+
+        newPlan[d.key] = {
+          template,
+          layerId: layer ? layer.id : "",
+          shirtId: top ? top.id : "",
+          bottomId: bottom ? bottom.id : "",
+          footwearId: shoes ? shoes.id : ""
+        };
+      });
+
+      weeklyPlan = newPlan;
+      localStorage.setItem(STORAGE_KEY_PLAN, JSON.stringify(weeklyPlan));
+      render7DayBoard();
+      showToast("7-Day rotation curated!");
     }
 
     function render7DayBoard() {
       const container = document.getElementById('seven-day-flatlay-grid');
-      if (!container) return;
       container.innerHTML = '';
+
       DAYS_CONFIG.forEach(d => {
+        const plan = weeklyPlan[d.key] || { template: d.defaultTemplate, layerId: "", shirtId: "", bottomId: "", footwearId: "" };
+        const layer = wardrobe.find(i => i.id == plan.layerId);
+        const top = wardrobe.find(i => i.id == plan.shirtId);
+        const bottom = wardrobe.find(i => i.id == plan.bottomId);
+        const shoes = wardrobe.find(i => i.id == plan.footwearId);
+
         const col = document.createElement('div');
-        col.className = "bg-white rounded-2xl border border-brand-border p-3.5 space-y-2";
+        col.className = "bg-white rounded-2xl border border-brand-border p-3.5 shadow-sm space-y-3";
+
         col.innerHTML = `
-          <div class="flex items-center justify-between border-b border-brand-border pb-2">
+          <div class="border-b border-brand-border pb-2">
             <span class="font-serif font-bold text-sm text-brand-navy">${d.name}</span>
-            <span class="text-[10px] text-stone-500 font-medium">${d.defaultTemplate}</span>
+            <div class="text-[10px] text-stone-500 font-medium">${plan.template}</div>
           </div>
-          <div class="py-12 text-center text-xs text-stone-400">Vault synced</div>
+
+          <div class="space-y-1.5 bg-brand-stone/40 p-2 rounded-xl border border-brand-border/60">
+            ${renderFlatLaySlot(layer, '3rd Layer', 'h-24')}
+            ${renderFlatLaySlot(top, 'Top / Base', 'h-28')}
+            ${renderFlatLaySlot(bottom, 'Bottom', 'h-32')}
+            ${renderFlatLaySlot(shoes, 'Footwear', 'h-16')}
+          </div>
         `;
         container.appendChild(col);
       });
     }
 
+    function renderFlatLaySlot(item, title, heightClass) {
+      if (!item) {
+        return `
+          <div class="${heightClass} w-full rounded-lg border border-dashed border-stone-300 bg-white flex items-center justify-center text-[10px] text-stone-400 uppercase">
+            + ${title}
+          </div>
+        `;
+      }
+      const imgSrc = getImagePath(item.fileRef);
+      return `
+        <div class="relative ${heightClass} w-full rounded-lg overflow-hidden border border-brand-border bg-white shadow-2xs">
+          ${imgSrc ? `
+            <img src="${imgSrc}" onerror="this.onerror=null; this.src='${item.fileRef}.jpeg';" class="w-full h-full object-cover">
+          ` : `
+            <div class="w-full h-full bg-stone-100 flex items-center justify-center text-[10px] font-bold text-stone-600">${item.name}</div>
+          `}
+          <div class="absolute bottom-1 left-1 right-1 px-1.5 py-0.5 rounded bg-stone-900/80 text-white text-[8px] truncate font-medium">
+            ${item.name}
+          </div>
+        </div>
+      `;
+    }
+
+    function clearWeekPlan() {
+      weeklyPlan = {};
+      localStorage.removeItem(STORAGE_KEY_PLAN);
+      render7DayBoard();
+      showToast("Cleared rotation.");
+    }
+
     function switchView(viewName) {
-      document.getElementById('view-planner').classList.add('hidden');
-      document.getElementById('view-wardrobe').classList.add('hidden');
+      ['planner', 'wardrobe', 'contactsheet'].forEach(v => {
+        document.getElementById(`view-${v}`).classList.add('hidden');
+        const btn = document.getElementById(`tab-btn-${v}`);
+        if (btn) btn.className = "px-4 py-2 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5 transition";
+      });
       document.getElementById(`view-${viewName}`).classList.remove('hidden');
-      if (viewName === 'wardrobe') renderWardrobeList();
+      document.getElementById(`tab-btn-${viewName}`).className = "px-4 py-2 rounded-lg bg-white text-brand-navy shadow-sm font-semibold flex items-center space-x-1.5 transition";
     }
 
     function exportFullWardrobeBackup() {
@@ -317,20 +490,16 @@
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `closet_cloud_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `curated_closet_backup_${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       showToast("Backup exported!");
     }
 
-    function showToast(msg, isAlert = false) {
+    function showToast(msg) {
       const toast = document.getElementById('toast');
       document.getElementById('toast-msg').innerText = msg;
       toast.classList.remove('opacity-0', 'translate-y-20', 'pointer-events-none');
       setTimeout(() => toast.classList.add('opacity-0', 'translate-y-20', 'pointer-events-none'), 3000);
-    }
-
-    function toggleModal(id, open) {
-      document.getElementById(id).classList.toggle('hidden', !open);
     }
 
     window.onload = initApp;
