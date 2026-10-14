@@ -55,9 +55,9 @@
         <div>
           <div class="flex items-center space-x-2">
             <h1 class="font-serif text-lg sm:text-xl tracking-wider text-brand-navy font-bold uppercase">The Curated Closet</h1>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Visual Sync</span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Verified Manifest</span>
           </div>
-          <p class="text-xs text-stone-500 font-medium">Weather-Synced Planning, Zero-Repeat Rotation & Direct Asset Binding</p>
+          <p class="text-xs text-stone-500 font-medium">Weather-Synced Planning, Zero-Repeat Rotation & Cloud Storage</p>
         </div>
       </div>
       
@@ -117,19 +117,12 @@
             <div class="flex items-center space-x-2">
               <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Closet Vault Inventory</h2>
               <span id="photo-coverage-badge" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-brand-stone text-stone-700 border border-brand-border font-semibold">0 / 0 Photographed</span>
-              <span id="repo-assets-badge" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 font-semibold">Scanning Repo...</span>
             </div>
-            <p class="text-xs text-stone-500 mt-0.5">Click any card to open the visual photo picker and link the correct photo in one tap.</p>
+            <p class="text-xs text-stone-500 mt-0.5">Static-hosted assets mapped to camera filenames.</p>
           </div>
           
           <div class="flex flex-wrap items-center gap-2">
-            <button onclick="clearAllImageLinks()" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-300 text-xs font-semibold rounded-xl transition" title="Resets file references to clean placeholders">
-              🧹 Reset Photo Links
-            </button>
-            <button onclick="toggleModal('add-item-modal', true)" class="px-3.5 py-2 bg-brand-navy hover:bg-stone-900 text-white text-xs font-semibold rounded-xl shadow-sm transition">
-              + Add Garment
-            </button>
-            <button onclick="toggleModal('import-code-modal', true)" class="px-3 py-2 border border-brand-border hover:bg-brand-stone text-brand-navy text-xs font-semibold rounded-xl transition">
+            <button onclick="toggleModal('import-code-modal', true)" class="px-3 py-2 bg-brand-navy text-white text-xs font-semibold rounded-xl hover:bg-stone-900 transition">
               📋 Paste Import Code
             </button>
             <button onclick="exportFullWardrobeBackup()" class="px-3 py-2 border border-brand-border hover:bg-brand-stone text-brand-navy text-xs font-semibold rounded-xl transition">
@@ -165,7 +158,7 @@
               <option value="Pending">Target / Pending</option>
             </select>
           </div>
-          <div class="col-span-2">
+          <div class="col-span-4">
             <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1">Search Vault</label>
             <input type="text" id="search-query" oninput="renderWardrobeList()" placeholder="Search title, brand, texture, notes..." class="w-full text-xs rounded-lg border border-brand-border bg-brand-stone p-2 font-medium">
           </div>
@@ -177,110 +170,6 @@
 
   </main>
 
-  <!-- MODAL: EDIT GARMENT WITH VISUAL PHOTO GALLERY -->
-  <div id="edit-item-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-3xl w-full p-6 shadow-2xl border border-brand-border space-y-4 max-h-[92vh] overflow-y-auto custom-scrollbar">
-      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
-        <div>
-          <span class="text-[10px] font-mono font-bold text-stone-400 uppercase tracking-wider">Garment Editor &bull; ID #<span id="edit-item-id-label"></span></span>
-          <h3 class="font-serif font-bold text-brand-navy text-base" id="edit-modal-title">Edit Garment & Select Photo</h3>
-        </div>
-        <button onclick="toggleModal('edit-item-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
-      </div>
-
-      <form id="edit-item-form" onsubmit="handleSaveEdit(event)" class="space-y-4 text-xs">
-        <input type="hidden" id="edit-item-id">
-        <input type="hidden" id="edit-item-fileref">
-
-        <!-- Photo Selector Row -->
-        <div class="p-3.5 rounded-2xl bg-brand-stone/60 border border-brand-border space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-stone-700">Assigned Image: <code id="active-fileref-label" class="font-mono text-brand-navy font-bold">None</code></span>
-            <button type="button" onclick="unlinkPhotoFromModal()" class="text-rose-600 hover:underline text-[11px] font-semibold">Unlink Photo</button>
-          </div>
-
-          <!-- Current Photo & Visual Tray -->
-          <div class="flex items-start gap-4">
-            <div class="w-24 h-24 rounded-xl bg-white overflow-hidden border border-brand-border flex-shrink-0 flex items-center justify-center relative">
-              <img id="edit-photo-preview" src="" class="w-full h-full object-cover hidden">
-              <span id="edit-photo-placeholder" class="text-[10px] font-mono text-stone-400">NO PHOTO</span>
-            </div>
-
-            <div class="flex-grow space-y-1.5">
-              <div class="flex items-center justify-between text-[11px] text-stone-600 font-semibold">
-                <span>Select Real Photo from Repository (<span id="repo-photo-count">0</span> images detected):</span>
-              </div>
-              <div id="repo-photo-tray" class="h-28 overflow-y-auto custom-scrollbar p-1.5 bg-white rounded-xl border border-brand-border grid grid-cols-5 sm:grid-cols-7 gap-2">
-                <!-- Injected via GitHub API -->
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div class="sm:col-span-2">
-            <label class="block font-semibold text-stone-700 mb-1">Item Title & Brand</label>
-            <input type="text" id="edit-item-name" required class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-semibold">
-          </div>
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Purchase Month/Year</label>
-            <input type="month" id="edit-item-purchased" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-medium">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Category</label>
-            <select id="edit-item-category" class="w-full p-2 rounded-xl border border-brand-border bg-brand-stone font-medium">
-              <option value="Woven">Shirts & Wovens</option>
-              <option value="Knitwear">Knits & Sweaters</option>
-              <option value="Tee">Tees & Base Layers</option>
-              <option value="Polo">Polos & Casual Knits</option>
-              <option value="Pants">Pants & Bottoms</option>
-              <option value="Shorts">Shorts</option>
-              <option value="Layer">Jackets & 3rd Layers</option>
-              <option value="Athletic">Athleisure & Sport</option>
-              <option value="Footwear">Footwear Anchors</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Curation Tier</label>
-            <select id="edit-item-tier" class="w-full p-2 rounded-xl border border-brand-border bg-brand-stone font-medium">
-              <option value="Anchor">Anchor (Core Wear)</option>
-              <option value="Potential">Potential (Secondary)</option>
-              <option value="Active">Matchday / Sport</option>
-              <option value="Pending">Target / Pending</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Color Palette</label>
-            <select id="edit-item-palette" class="w-full p-2 rounded-xl border border-brand-border bg-brand-stone font-medium">
-              <option value="earth">Earth Tone</option>
-              <option value="neutral">Warm Neutral</option>
-              <option value="blue">Blue Spectrum</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Thermal Weight</label>
-            <select id="edit-item-weight" class="w-full p-2 rounded-xl border border-brand-border bg-brand-stone font-medium">
-              <option value="light">Lightweight</option>
-              <option value="mid">Midweight</option>
-              <option value="heavy">Heavyweight</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="pt-3 border-t border-brand-border flex items-center justify-between">
-          <button type="button" onclick="deleteFromEditModal()" class="text-rose-600 hover:text-rose-800 font-semibold text-xs">Delete Piece</button>
-          <div class="flex items-center space-x-2">
-            <button type="button" onclick="toggleModal('edit-item-modal', false)" class="px-4 py-2 text-stone-600">Cancel</button>
-            <button type="submit" class="px-5 py-2 bg-brand-navy hover:bg-stone-900 text-white rounded-xl font-semibold shadow-sm transition">Save Changes</button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <!-- MODAL: PASTE IMPORT CODE -->
   <div id="import-code-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-brand-border space-y-4">
@@ -288,24 +177,21 @@
         <h3 class="font-serif font-bold text-brand-navy text-base">Import Garment Code</h3>
         <button onclick="toggleModal('import-code-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
       </div>
-      <textarea id="import-json-input" rows="7" placeholder="Paste garment JSON here..." class="w-full text-xs font-mono p-3 rounded-xl border border-brand-border bg-brand-stone/50"></textarea>
+      <p class="text-xs text-stone-500">Paste your updated JSON seed below to align all items to camera filenames.</p>
+      <textarea id="import-json-input" rows="8" placeholder="Paste garment JSON here..." class="w-full text-xs font-mono p-3 rounded-xl border border-brand-border bg-brand-stone/50 focus:outline-none"></textarea>
       <div class="flex justify-end space-x-2 pt-2">
         <button type="button" onclick="toggleModal('import-code-modal', false)" class="px-4 py-2 text-xs text-stone-600">Cancel</button>
-        <button type="button" onclick="executeJsonImport()" class="px-5 py-2 bg-brand-navy text-white text-xs font-semibold rounded-xl hover:bg-stone-900 transition">Import</button>
+        <button type="button" onclick="executeJsonImport()" class="px-5 py-2 bg-brand-navy text-white text-xs font-semibold rounded-xl hover:bg-stone-900 transition">Import to Vault</button>
       </div>
     </div>
   </div>
 
-  <!-- SCRIPT -->
   <script>
     const STORAGE_KEY_ITEMS = "curated_wardrobe_items_cloud";
     const STORAGE_KEY_PLAN = "curated_weekly_outfits_cloud";
-    const REPO_OWNER = "rrittmaster";
-    const REPO_NAME = "curated-closet";
 
     let wardrobe = [];
     let weeklyPlan = {};
-    let repoPhotos = []; // Discovered repository photos
 
     const DAYS_CONFIG = [
       { key: "mon", name: "Monday", defaultTemplate: "Client In-Person" },
@@ -319,30 +205,14 @@
 
     const TEMPLATES = ["Client In-Person", "WFH Video Calls", "Elevated Casual", "Date Night", "Active Weekend", "Downtime"];
 
-    async function scanGitHubRepoForPhotos() {
-      try {
-        const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/`);
-        if (!res.ok) throw new Error("API Limit or error");
-        const files = await res.json();
-        
-        // Match any .JPG, .jpeg, .png file
-        repoPhotos = files
-          .filter(f => f.type === 'file' && /\.(jpe?g|png)$/i.test(f.name))
-          .map(f => f.name);
-
-        document.getElementById('repo-assets-badge').innerText = `${repoPhotos.length} Photos in Repo`;
-      } catch (err) {
-        document.getElementById('repo-assets-badge').innerText = `Direct Asset Mode`;
-      }
-    }
-
-    function getImagePath(fileRef) {
+    // Normalized resolver: strictly targets lowercase .jpg
+    function getResolvedImageUrl(fileRef) {
       if (!fileRef || fileRef === 'NO_PHOTO') return null;
-      return fileRef.includes('.') ? fileRef : `${fileRef}.JPG`;
+      const clean = fileRef.replace(/\.(jpe?g|png)$/i, '');
+      return `${clean}.jpg`;
     }
 
     async function initApp() {
-      await scanGitHubRepoForPhotos();
       const saved = localStorage.getItem(STORAGE_KEY_ITEMS);
       if (saved) {
         try { wardrobe = JSON.parse(saved); } catch(e) { wardrobe = []; }
@@ -368,17 +238,16 @@
       });
 
       filtered.forEach(item => {
-        const imgPath = getImagePath(item.fileRef);
+        const imgSrc = getResolvedImageUrl(item.fileRef);
         const card = document.createElement('div');
-        card.className = "bg-white border border-brand-border rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between group cursor-pointer hover:border-brand-navy hover:shadow-md transition-all";
-        card.onclick = () => openEditModal(item.id);
+        card.className = "bg-white border border-brand-border rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between group";
 
         card.innerHTML = `
           <div class="flex flex-col h-full justify-between">
             <div>
               <div class="aspect-4/3 bg-stone-100 relative overflow-hidden flex items-center justify-center border-b border-brand-border">
-                ${imgPath ? `
-                  <img src="${imgPath}" onerror="this.onerror=null; this.src='${item.fileRef}.jpeg';" class="w-full h-full object-cover">
+                ${imgSrc ? `
+                  <img src="${imgSrc}" onerror="this.onerror=null; this.src='${item.fileRef}.jpeg';" class="w-full h-full object-cover">
                 ` : `
                   <span class="text-xs font-mono font-bold text-stone-400">NO PHOTO</span>
                 `}
@@ -387,15 +256,11 @@
               <div class="p-3.5 space-y-1">
                 <div class="flex items-center justify-between text-[10px] text-stone-500 font-bold uppercase tracking-wider">
                   <span>${item.category}</span>
-                  <span class="font-mono text-stone-400 truncate max-w-[100px]">${item.fileRef || 'None'}</span>
+                  <span class="font-mono text-stone-400">${item.fileRef || 'None'}</span>
                 </div>
                 <h4 class="font-serif font-bold text-xs text-brand-navy leading-snug">${item.name}</h4>
+                <p class="text-[10px] text-stone-500 leading-relaxed line-clamp-2 mt-1">${item.notes || ''}</p>
               </div>
-            </div>
-
-            <div class="px-3.5 py-2.5 bg-brand-stone/40 border-t border-brand-border/60 flex items-center justify-between text-[11px]">
-              <span class="text-[10px] text-brand-navy font-semibold">Change Photo</span>
-              <span class="text-[10px] text-stone-400">&rarr;</span>
             </div>
           </div>
         `;
@@ -403,107 +268,6 @@
       });
 
       document.getElementById('photo-coverage-badge').innerText = `${wardrobe.filter(i => i.fileRef && i.fileRef !== 'NO_PHOTO').length} / ${wardrobe.length} Pieces`;
-    }
-
-    function openEditModal(itemId) {
-      const item = wardrobe.find(i => i && i.id == itemId);
-      if (!item) return;
-
-      document.getElementById('edit-item-id').value = item.id;
-      document.getElementById('edit-item-id-label').innerText = item.id;
-      document.getElementById('edit-modal-title').innerText = item.name;
-      document.getElementById('edit-item-name').value = item.name;
-      document.getElementById('edit-item-fileref').value = item.fileRef || "";
-      document.getElementById('active-fileref-label').innerText = item.fileRef || "None";
-      document.getElementById('edit-item-category').value = item.category || "Woven";
-      document.getElementById('edit-item-tier').value = item.tier || "Anchor";
-      document.getElementById('edit-item-palette').value = item.palette || "neutral";
-      document.getElementById('edit-item-weight').value = item.weight || "mid";
-      document.getElementById('edit-item-purchased').value = item.purchaseDate || "";
-
-      updateModalPreview(item.fileRef);
-      populateRepoPhotoTray(item.fileRef);
-
-      toggleModal('edit-item-modal', true);
-    }
-
-    function populateRepoPhotoTray(currentRef) {
-      const tray = document.getElementById('repo-photo-tray');
-      tray.innerHTML = '';
-      document.getElementById('repo-photo-count').innerText = repoPhotos.length;
-
-      if (repoPhotos.length === 0) {
-        tray.innerHTML = '<span class="col-span-full text-[10px] text-stone-400 p-2">No images auto-detected in repo root. Ensure files are committed to main.</span>';
-        return;
-      }
-
-      repoPhotos.forEach(fileName => {
-        const isSelected = currentRef === fileName || currentRef === fileName.replace(/\.[^/.]+$/, "");
-        const thumb = document.createElement('div');
-        thumb.className = `aspect-square rounded-lg overflow-hidden border-2 cursor-pointer transition relative ${
-          isSelected ? 'border-brand-navy ring-2 ring-brand-navy/30' : 'border-brand-border hover:border-stone-400'
-        }`;
-        thumb.onclick = () => selectPhotoFromTray(fileName);
-        thumb.innerHTML = `<img src="${fileName}" class="w-full h-full object-cover">`;
-        tray.appendChild(thumb);
-      });
-    }
-
-    function selectPhotoFromTray(fileName) {
-      document.getElementById('edit-item-fileref').value = fileName;
-      document.getElementById('active-fileref-label').innerText = fileName;
-      updateModalPreview(fileName);
-      populateRepoPhotoTray(fileName);
-    }
-
-    function updateModalPreview(ref) {
-      const img = document.getElementById('edit-photo-preview');
-      const placeholder = document.getElementById('edit-photo-placeholder');
-      if (ref && ref !== 'NO_PHOTO') {
-        img.src = ref.includes('.') ? ref : `${ref}.JPG`;
-        img.classList.remove('hidden');
-        placeholder.classList.add('hidden');
-      } else {
-        img.classList.add('hidden');
-        placeholder.classList.remove('hidden');
-      }
-    }
-
-    function unlinkPhotoFromModal() {
-      document.getElementById('edit-item-fileref').value = "";
-      document.getElementById('active-fileref-label').innerText = "None";
-      updateModalPreview(null);
-      populateRepoPhotoTray(null);
-    }
-
-    function handleSaveEdit(e) {
-      e.preventDefault();
-      const itemId = Number(document.getElementById('edit-item-id').value);
-      const item = wardrobe.find(i => i.id == itemId);
-      if (!item) return;
-
-      item.name = document.getElementById('edit-item-name').value.trim();
-      item.fileRef = document.getElementById('edit-item-fileref').value.trim();
-      item.category = document.getElementById('edit-item-category').value;
-      item.tier = document.getElementById('edit-item-tier').value;
-      item.palette = document.getElementById('edit-item-palette').value;
-      item.weight = document.getElementById('edit-item-weight').value;
-      item.purchaseDate = document.getElementById('edit-item-purchased').value;
-
-      localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
-      renderWardrobeList();
-      render7DayBoard();
-      toggleModal('edit-item-modal', false);
-      showToast(`Linked photo to "${item.name}"!`);
-    }
-
-    function clearAllImageLinks() {
-      if (!confirm("This will clear photo bindings from all cards so you can cleanly link real photos. Proceed?")) return;
-      wardrobe.forEach(i => i.fileRef = "");
-      localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
-      renderWardrobeList();
-      render7DayBoard();
-      showToast("Cleared photo links.");
     }
 
     function executeJsonImport() {
@@ -516,21 +280,27 @@
         renderWardrobeList();
         render7DayBoard();
         toggleModal('import-code-modal', false);
-        showToast("Imported wardrobe inventory!");
+        document.getElementById('import-json-input').value = "";
+        showToast("Imported aligned wardrobe seed!");
       } catch (e) {
-        showToast("Invalid JSON", true);
+        showToast("Invalid JSON syntax", true);
       }
     }
 
     function render7DayBoard() {
-      // 7-Day Board logic renders synchronously with active image paths
       const container = document.getElementById('seven-day-flatlay-grid');
       if (!container) return;
       container.innerHTML = '';
       DAYS_CONFIG.forEach(d => {
         const col = document.createElement('div');
         col.className = "bg-white rounded-2xl border border-brand-border p-3.5 space-y-2";
-        col.innerHTML = `<span class="font-serif font-bold text-sm text-brand-navy">${d.name}</span>`;
+        col.innerHTML = `
+          <div class="flex items-center justify-between border-b border-brand-border pb-2">
+            <span class="font-serif font-bold text-sm text-brand-navy">${d.name}</span>
+            <span class="text-[10px] text-stone-500 font-medium">${d.defaultTemplate}</span>
+          </div>
+          <div class="py-12 text-center text-xs text-stone-400">Vault synced</div>
+        `;
         container.appendChild(col);
       });
     }
@@ -540,6 +310,16 @@
       document.getElementById('view-wardrobe').classList.add('hidden');
       document.getElementById(`view-${viewName}`).classList.remove('hidden');
       if (viewName === 'wardrobe') renderWardrobeList();
+    }
+
+    function exportFullWardrobeBackup() {
+      const payload = { exportedAt: new Date().toISOString(), wardrobe, weeklyPlan };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `closet_cloud_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      showToast("Backup exported!");
     }
 
     function showToast(msg, isAlert = false) {
