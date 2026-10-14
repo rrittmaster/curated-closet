@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Curated Closet | AI Vision & Zero-Repeat Studio</title>
+  <title>The Curated Closet | Master Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -45,9 +45,9 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased text-stone-800">
 
-  <!-- TOP HEADER -->
+  <!-- HEADER -->
   <header class="bg-white/95 backdrop-blur-md border-b border-brand-border sticky top-0 z-40">
-    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
       <div class="flex items-center space-x-3.5">
         <div class="w-10 h-10 rounded-xl bg-brand-navy flex items-center justify-center text-brand-cream font-serif text-sm font-extrabold tracking-widest shadow-md">
           CW
@@ -55,29 +55,21 @@
         <div>
           <div class="flex items-center space-x-2">
             <h1 class="font-serif text-lg sm:text-xl tracking-wider text-brand-navy font-bold uppercase">The Curated Closet</h1>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">AI Vision Studio</span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Cloud Edition</span>
           </div>
-          <p class="text-xs text-stone-500 font-medium">Weather-Synced Planning, Zero-Repeat Rotation & 1-Click AI Recognition</p>
+          <p class="text-xs text-stone-500 font-medium">Weather-Synced Planning, Zero-Repeat Rotation & Cloud Storage</p>
         </div>
       </div>
       
-      <!-- Navigation Tabs -->
+      <!-- Core Navigation -->
       <nav class="flex space-x-1.5 bg-brand-stone p-1 rounded-xl border border-brand-border text-xs sm:text-sm font-medium">
-        <button id="tab-btn-planner" onclick="switchView('planner')" class="px-3.5 py-1.5 rounded-lg bg-white text-brand-navy shadow-sm font-semibold flex items-center space-x-1.5">
+        <button id="tab-btn-planner" onclick="switchView('planner')" class="px-4 py-2 rounded-lg bg-white text-brand-navy shadow-sm font-semibold flex items-center space-x-1.5 transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
           <span>7-Day Flat-Lay Board</span>
         </button>
-        <button id="tab-btn-matcher" onclick="switchView('matcher')" class="px-3.5 py-1.5 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5">
-          <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-          <span>Visual Photo Linker</span>
-        </button>
-        <button id="tab-btn-wardrobe" onclick="switchView('wardrobe')" class="px-3.5 py-1.5 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5">
+        <button id="tab-btn-wardrobe" onclick="switchView('wardrobe')" class="px-4 py-2 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5 transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          <span>Vault & Photo Rotation</span>
-        </button>
-        <button id="tab-btn-compass" onclick="switchView('compass')" class="px-3.5 py-1.5 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5">
-          <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          <span>Style Compass & Settings</span>
+          <span>Closet Vault</span>
         </button>
       </nav>
     </div>
@@ -101,7 +93,7 @@
             <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Zero-Repeat 7-Day Flat-Lay Board</h2>
             <span id="weekly-diversity-badge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold">100% Unique Pieces</span>
           </div>
-          <p class="text-xs text-stone-500 mt-0.5">Strict non-repetition rule enforced. Generates a fresh look for all 7 days without reusing tops, layers, or pants.</p>
+          <p class="text-xs text-stone-500 mt-0.5">Enforces non-repetition across all 7 days, prioritizes weekend tees, and balances tonal contrast.</p>
         </div>
         <div class="flex items-center space-x-3 w-full lg:w-auto">
           <button onclick="smartGenerateWeek()" class="flex-1 lg:flex-none px-4 py-2 bg-brand-navy hover:bg-stone-900 text-brand-cream text-xs font-semibold rounded-xl shadow-sm transition-colors flex items-center justify-center space-x-2">
@@ -117,89 +109,38 @@
       <div id="seven-day-flatlay-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4"></div>
     </section>
 
-    <!-- VIEW 2: SPLIT-SCREEN VISUAL PHOTO LINKER -->
-    <section id="view-matcher" class="space-y-6 hidden">
-      <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-        <div>
-          <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Split-Screen Visual Photo Linker</h2>
-          <p class="text-xs text-stone-500">Drop your converted JPG/PNG wardrobe photos on the left, click a photo, then click any item on the right to lock them permanently.</p>
-        </div>
-        <div class="flex items-center space-x-2">
-          <label class="px-4 py-2 bg-brand-navy hover:bg-stone-900 text-white rounded-xl text-xs font-semibold cursor-pointer shadow-sm">
-            <span>+ Load Photos</span>
-            <input type="file" multiple accept="image/*" class="hidden" onchange="handleRawPhotoBatch(event)">
-          </label>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[600px]">
-        <div class="lg:col-span-5 bg-white border border-brand-border rounded-2xl p-4 flex flex-col space-y-3">
-          <div class="flex items-center justify-between border-b border-brand-border pb-2.5">
-            <span class="text-xs font-bold uppercase tracking-wider text-stone-700">1. Select Photo</span>
-            <span id="unlinked-photo-count" class="text-[11px] font-mono text-stone-500">0 Photos Loaded</span>
-          </div>
-          
-          <div id="dropzone-matcher" class="border-2 border-dashed border-stone-300 rounded-xl p-4 text-center bg-brand-stone/40 hover:bg-brand-stone transition cursor-pointer">
-            <span class="text-xs font-semibold text-stone-700">Drop your wardrobe photos folder here</span>
-            <span class="text-[10px] text-stone-400 block mt-0.5">JPG / PNG optimized instantly</span>
-          </div>
-
-          <div id="photo-pool-grid" class="flex-1 overflow-y-auto custom-scrollbar grid grid-cols-3 gap-2 max-h-[500px] p-1"></div>
-        </div>
-
-        <div class="lg:col-span-7 bg-white border border-brand-border rounded-2xl p-4 flex flex-col space-y-3">
-          <div class="flex items-center justify-between border-b border-brand-border pb-2.5">
-            <span class="text-xs font-bold uppercase tracking-wider text-stone-700">2. Click Target Garment to Bind</span>
-            <input type="text" id="matcher-search" oninput="renderMatcherItemList()" placeholder="Search items (#ID, name, ref)..." class="text-xs p-1.5 border border-brand-border rounded-lg w-52 bg-brand-stone/60">
-          </div>
-
-          <div id="active-selected-photo-banner" class="hidden p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
-              <span>Photo selected: <strong id="selected-photo-label">IMG_xxxx</strong>. Click an item below to lock link.</span>
-            </div>
-            <button onclick="clearSelectedPhoto()" class="text-stone-400 hover:text-stone-700 font-bold">&times;</button>
-          </div>
-
-          <div id="matcher-item-list" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 max-h-[500px]"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- VIEW 3: VAULT & 1-CLICK AI AUTO-RECOGNITION -->
+    <!-- VIEW 2: CLOSET VAULT & MANAGEMENT -->
     <section id="view-wardrobe" class="space-y-6 hidden">
       <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-4">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div class="flex items-center space-x-2">
-              <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Curated Vault & 1-Click AI Ingestion</h2>
+              <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Closet Vault Inventory</h2>
               <span id="photo-coverage-badge" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-brand-stone text-stone-700 border border-brand-border font-semibold">0 / 0 Photographed</span>
+              <span id="aging-count-badge" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-semibold">0 Audit Alerts</span>
             </div>
-            <p class="text-xs text-stone-500">Drop a new photo below. Gemini Vision automatically analyzes the garment and catalogs it into your wardrobe.</p>
+            <p class="text-xs text-stone-500 mt-0.5">Static-hosted from repository root. Click any piece to inspect or adjust details.</p>
           </div>
-          <div class="flex items-center space-x-2">
-            <button onclick="toggleModal('add-item-modal', true)" class="px-4 py-2 border border-brand-border hover:bg-brand-stone text-brand-navy text-xs font-semibold rounded-xl transition-colors">
-              Manual Form
+          
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="toggleModal('add-item-modal', true)" class="px-3.5 py-2 bg-brand-navy hover:bg-stone-900 text-white text-xs font-semibold rounded-xl shadow-sm transition">
+              + Add Garment
             </button>
+            <button onclick="toggleModal('import-code-modal', true)" class="px-3 py-2 border border-brand-border hover:bg-brand-stone text-brand-navy text-xs font-semibold rounded-xl transition">
+              📋 Paste Import Code
+            </button>
+            <button onclick="exportFullWardrobeBackup()" class="px-3 py-2 border border-brand-border hover:bg-brand-stone text-brand-navy text-xs font-semibold rounded-xl transition">
+              💾 Export Backup
+            </button>
+            <label class="px-3 py-2 border border-brand-border hover:bg-brand-stone text-brand-navy text-xs font-semibold rounded-xl cursor-pointer transition">
+              <span>📥 Restore Backup</span>
+              <input type="file" accept=".json" class="hidden" onchange="importFullWardrobeBackup(event)">
+            </label>
           </div>
         </div>
 
-        <!-- 1-CLICK AI VISION DROPZONE -->
-        <div id="ai-vision-dropzone" class="border-2 border-dashed border-amber-300 rounded-2xl p-6 text-center bg-amber-50/40 hover:bg-amber-50/80 transition cursor-pointer relative group">
-          <div class="space-y-2">
-            <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-800 mx-auto flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform">⚡</div>
-            <div class="text-xs font-bold text-brand-navy">
-              Drop Photo to Auto-Catalog (AI Vision)
-            </div>
-            <p class="text-[11px] text-stone-500 max-w-md mx-auto">
-              Snaps from your camera roll automatically extract category, brand/type, color palette, texture, and weight with no manual typing.
-            </p>
-          </div>
-          <input type="file" id="ai-photo-input" accept="image/*" class="hidden" onchange="handleAiGarmentScan(event)">
-        </div>
-
-        <!-- Filter Controls -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 pt-3 border-t border-brand-border">
+        <!-- Filters -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 pt-3 border-t border-brand-border">
           <div>
             <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1">Category</label>
             <select id="filter-category" onchange="renderWardrobeList()" class="w-full text-xs rounded-lg border-brand-border bg-brand-stone p-2 font-medium">
@@ -233,9 +174,17 @@
               <option value="NO_PHOTO">Needs Photo (📷)</option>
             </select>
           </div>
+          <div>
+            <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1">Style Audit (Age)</label>
+            <select id="filter-age" onchange="renderWardrobeList()" class="w-full text-xs rounded-lg border-brand-border bg-brand-stone p-2 font-medium">
+              <option value="ALL">All Garments</option>
+              <option value="AGING">3+ Years Old (Audit Alert)</option>
+              <option value="RECENT">Under 3 Years Old</option>
+            </select>
+          </div>
           <div class="col-span-2">
             <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1">Search Vault</label>
-            <input type="text" id="search-query" oninput="renderWardrobeList()" placeholder="e.g. Madewell, OCBD..." class="w-full text-xs rounded-lg border border-brand-border bg-brand-stone p-2 font-medium">
+            <input type="text" id="search-query" oninput="renderWardrobeList()" placeholder="Search title, brand, texture, notes..." class="w-full text-xs rounded-lg border border-brand-border bg-brand-stone p-2 font-medium">
           </div>
         </div>
       </div>
@@ -243,81 +192,52 @@
       <div id="wardrobe-grid-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
     </section>
 
-    <!-- VIEW 4: STYLE COMPASS & API KEY SETTINGS -->
-    <section id="view-compass" class="space-y-6 hidden">
-      <div class="bg-white border border-brand-border rounded-2xl p-6 shadow-sm space-y-6">
-        <div>
-          <h2 class="font-serif text-xl font-bold text-brand-navy tracking-tight mb-1">Style Compass & AI Vision Settings</h2>
-          <p class="text-xs sm:text-sm text-stone-600">Enter your Gemini API key below to unlock 1-click photo garment recognition.</p>
-        </div>
-
-        <!-- API KEY SETTING CARD -->
-        <div class="p-5 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-amber-900">Google Gemini API Key</span>
-            <span id="api-status-badge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-stone-200 text-stone-700 font-bold">Not Configured</span>
-          </div>
-          <div class="flex gap-2">
-            <input type="password" id="gemini-api-key-input" placeholder="Paste your API key here" class="flex-1 p-2 rounded-xl border border-brand-border bg-white text-xs font-mono focus:outline-none focus:ring-1 focus:ring-brand-navy">
-            <button onclick="saveApiKey()" class="px-5 py-2 bg-brand-navy text-white text-xs font-semibold rounded-xl hover:bg-stone-900 transition">Save Key</button>
-          </div>
-          <p class="text-[11px] text-stone-500">Your key is stored securely in your browser's private local storage and is never sent to external servers.</p>
-        </div>
-
-        <!-- Calibration Dials -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 rounded-2xl bg-brand-stone border border-brand-border">
-          <div class="space-y-2">
-            <div class="flex justify-between items-center text-xs font-semibold">
-              <span class="text-stone-700">Formality Target</span>
-              <span id="dial-formality-val" class="text-brand-navy font-bold">Smart Casual</span>
-            </div>
-            <input type="range" id="dial-formality" min="1" max="5" value="3" oninput="updateCompassDials()" class="w-full h-1.5 bg-stone-300 rounded-lg appearance-none cursor-pointer accent-brand-navy">
-          </div>
-          <div class="space-y-2">
-            <div class="flex justify-between items-center text-xs font-semibold">
-              <span class="text-stone-700">Aesthetic Split</span>
-              <span id="dial-aesthetic-val" class="text-brand-navy font-bold">60% Classic / 40% Athletic</span>
-            </div>
-            <input type="range" id="dial-aesthetic" min="1" max="5" value="3" oninput="updateCompassDials()" class="w-full h-1.5 bg-stone-300 rounded-lg appearance-none cursor-pointer accent-brand-navy">
-          </div>
-          <div class="space-y-2">
-            <div class="flex justify-between items-center text-xs font-semibold">
-              <span class="text-stone-700">Palette Discipline</span>
-              <span id="dial-palette-val" class="text-brand-navy font-bold">Balanced Earth</span>
-            </div>
-            <input type="range" id="dial-palette" min="1" max="3" value="2" oninput="updateCompassDials()" class="w-full h-1.5 bg-stone-300 rounded-lg appearance-none cursor-pointer accent-brand-navy">
-          </div>
-        </div>
-
-        <!-- Palette Equilibrium Diagnostic -->
-        <div class="p-5 rounded-2xl bg-brand-stone border border-brand-border space-y-3">
-          <div class="flex items-center justify-between text-xs font-semibold">
-            <span class="text-stone-700">Live Palette Equilibrium</span>
-            <span id="palette-ratio-text" class="text-brand-navy font-mono">Calculating...</span>
-          </div>
-          <div class="w-full h-4 bg-stone-200 rounded-full flex overflow-hidden shadow-inner" id="palette-progress-bar"></div>
-        </div>
-      </div>
-    </section>
-
   </main>
 
-  <!-- MODAL: MANUAL ADD GARMENT -->
-  <div id="add-item-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-brand-border">
+  <!-- MODAL: EDIT GARMENT -->
+  <div id="edit-item-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-brand-border space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
       <div class="flex items-center justify-between pb-3 border-b border-brand-border">
-        <h3 class="font-serif font-bold text-brand-navy text-base">Register Garment into Vault</h3>
-        <button onclick="toggleModal('add-item-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
-      </div>
-      <form id="add-item-form" onsubmit="handleManualAddItem(event)" class="space-y-3.5 pt-3 text-xs">
         <div>
-          <label class="block font-semibold text-stone-700 mb-1">Item Title & Brand</label>
-          <input type="text" id="new-item-name" required placeholder="e.g. Todd Snyder Olive Hopsack Blazer" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy">
+          <span class="text-[10px] font-mono font-bold text-stone-400 uppercase tracking-wider">Garment Editor &bull; ID #<span id="edit-item-id-label"></span></span>
+          <h3 class="font-serif font-bold text-brand-navy text-base" id="edit-modal-title">Edit Garment Details</h3>
         </div>
-        <div class="grid grid-cols-2 gap-3">
+        <button onclick="toggleModal('edit-item-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
+      </div>
+
+      <form id="edit-item-form" onsubmit="handleSaveEdit(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="edit-item-id">
+
+        <div class="flex flex-col sm:flex-row items-start gap-4 p-3.5 rounded-2xl bg-brand-stone/50 border border-brand-border">
+          <div class="w-28 h-28 rounded-xl bg-stone-100 overflow-hidden border border-brand-border flex-shrink-0 relative">
+            <img id="edit-photo-preview" src="" class="w-full h-full object-cover">
+            <span id="edit-photo-placeholder" class="hidden text-[10px] font-mono text-stone-400 flex items-center justify-center w-full h-full">No Photo</span>
+          </div>
+          <div class="flex-grow space-y-2 w-full">
+            <label class="block font-bold text-stone-700">Root Image Filename</label>
+            <div class="flex gap-2">
+              <input type="text" id="edit-item-fileref" placeholder="e.g. IMG_6368" class="flex-1 p-2 rounded-xl border border-brand-border bg-white font-mono text-xs focus:outline-none focus:ring-1 focus:ring-brand-navy">
+              <button type="button" onclick="testPreviewImage()" class="px-3 py-1.5 bg-stone-200 hover:bg-stone-300 text-stone-800 rounded-xl text-xs font-semibold">Test Image</button>
+            </div>
+            <p class="text-[10px] text-stone-400">Loads directly from repository root: <code>[fileRef].JPG</code>, <code>.jpg</code>, or <code>.jpeg</code>.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-2">
+            <label class="block font-semibold text-stone-700 mb-1">Item Title & Brand</label>
+            <input type="text" id="edit-item-name" required class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy font-semibold">
+          </div>
+          <div>
+            <label class="block font-semibold text-stone-700 mb-1">Purchase Month/Year</label>
+            <input type="month" id="edit-item-purchased" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy font-medium">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div>
             <label class="block font-semibold text-stone-700 mb-1">Category</label>
-            <select id="new-item-category" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy">
+            <select id="edit-item-category" class="w-full p-2 rounded-xl border border-brand-border bg-brand-stone font-medium">
               <option value="Woven">Shirts & Wovens</option>
               <option value="Knitwear">Knits & Sweaters</option>
               <option value="Tee">Tees & Base Layers</option>
@@ -331,7 +251,85 @@
           </div>
           <div>
             <label class="block font-semibold text-stone-700 mb-1">Curation Tier</label>
-            <select id="new-item-tier" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy">
+            <select id="edit-item-tier" class="w-full p-2 rounded-xl border border-brand-border bg-brand-stone font-medium">
+              <option value="Anchor">Anchor (Core Wear)</option>
+              <option value="Potential">Potential (Secondary)</option>
+              <option value="Active">Matchday / Sport</option>
+              <option value="Pending">Target / Pending</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-stone-700 mb-1">Color Palette</label>
+            <select id="edit-item-palette" class="w-full p-2 rounded-xl border border-brand-border bg-brand-stone font-medium">
+              <option value="earth">Earth Tone</option>
+              <option value="neutral">Warm Neutral</option>
+              <option value="blue">Blue Spectrum</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-stone-700 mb-1">Thermal Weight</label>
+            <select id="edit-item-weight" class="w-full p-2 rounded-xl border border-brand-border bg-brand-stone font-medium">
+              <option value="light">Lightweight</option>
+              <option value="mid">Midweight</option>
+              <option value="heavy">Heavyweight</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-stone-700 mb-1">Texture Specification</label>
+          <input type="text" id="edit-item-texture" placeholder="e.g. Brushed Cotton Flannel, Heavyweight Merino, Poplin Twill" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-stone-700 mb-1">Styling Notes & Pairing Blueprints</label>
+          <textarea id="edit-item-notes" rows="3" placeholder="Contextual pairing advice, open-layer blueprints..." class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy leading-relaxed"></textarea>
+        </div>
+
+        <div class="pt-3 border-t border-brand-border flex items-center justify-between">
+          <button type="button" onclick="deleteFromEditModal()" class="text-rose-600 hover:text-rose-800 font-semibold text-xs flex items-center space-x-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            <span>Delete Piece</span>
+          </button>
+          <div class="flex items-center space-x-2">
+            <button type="button" onclick="toggleModal('edit-item-modal', false)" class="px-4 py-2 text-stone-600 hover:text-stone-800 font-medium">Cancel</button>
+            <button type="submit" class="px-5 py-2 bg-brand-navy hover:bg-stone-900 text-white rounded-xl font-semibold shadow-sm transition">Save Changes</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD GARMENT -->
+  <div id="add-item-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-brand-border">
+      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+        <h3 class="font-serif font-bold text-brand-navy text-base">Register Garment into Vault</h3>
+        <button onclick="toggleModal('add-item-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
+      </div>
+      <form id="add-item-form" onsubmit="handleManualAddItem(event)" class="space-y-3.5 pt-3 text-xs">
+        <div>
+          <label class="block font-semibold text-stone-700 mb-1">Item Title & Brand</label>
+          <input type="text" id="new-item-name" required placeholder="e.g. Todd Snyder Olive Hopsack Blazer" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-stone-700 mb-1">Category</label>
+            <select id="new-item-category" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
+              <option value="Woven">Shirts & Wovens</option>
+              <option value="Knitwear">Knits & Sweaters</option>
+              <option value="Tee">Tees & Base Layers</option>
+              <option value="Polo">Polos & Casual Knits</option>
+              <option value="Pants">Pants & Bottoms</option>
+              <option value="Shorts">Shorts</option>
+              <option value="Layer">Jackets & 3rd Layers</option>
+              <option value="Athletic">Athleisure & Sport</option>
+              <option value="Footwear">Footwear Anchors</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-stone-700 mb-1">Curation Tier</label>
+            <select id="new-item-tier" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
               <option value="Anchor">Anchor (Core Wear)</option>
               <option value="Potential">Potential (Secondary)</option>
               <option value="Active">Matchday / Sport</option>
@@ -342,15 +340,15 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block font-semibold text-stone-700 mb-1">Color Palette</label>
-            <select id="new-item-palette" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy">
-              <option value="earth">Earth Tone (Olive, Espresso, Tan)</option>
-              <option value="neutral">Warm Neutral (Cream, Stone, Grey)</option>
-              <option value="blue">Blue Spectrum (Navy, Slate)</option>
+            <select id="new-item-palette" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
+              <option value="earth">Earth Tone</option>
+              <option value="neutral">Warm Neutral</option>
+              <option value="blue">Blue Spectrum</option>
             </select>
           </div>
           <div>
-            <label class="block font-semibold text-stone-700 mb-1">Weight</label>
-            <select id="new-item-weight" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy">
+            <label class="block font-semibold text-stone-700 mb-1">Thermal Weight</label>
+            <select id="new-item-weight" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
               <option value="mid">Midweight</option>
               <option value="heavy">Heavy / Cold</option>
               <option value="light">Lightweight / Warm</option>
@@ -358,14 +356,30 @@
           </div>
         </div>
         <div>
-          <label class="block font-semibold text-stone-700 mb-1">Camera Filename Reference (Optional)</label>
-          <input type="text" id="new-item-ref" placeholder="e.g. IMG_6360" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy font-mono">
+          <label class="block font-semibold text-stone-700 mb-1">Image Filename (fileRef)</label>
+          <input type="text" id="new-item-fileref" placeholder="e.g. IMG_6368" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-mono">
         </div>
         <div class="pt-2 flex items-center justify-end space-x-2">
-          <button type="button" onclick="toggleModal('add-item-modal', false)" class="px-4 py-2 text-stone-600 hover:text-stone-800">Cancel</button>
-          <button type="submit" class="px-5 py-2 bg-brand-navy hover:bg-stone-900 text-white rounded-xl font-semibold transition-colors">Save to Vault</button>
+          <button type="button" onclick="toggleModal('add-item-modal', false)" class="px-4 py-2 text-stone-600">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-brand-navy hover:bg-stone-900 text-white rounded-xl font-semibold">Save to Vault</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: PASTE IMPORT CODE -->
+  <div id="import-code-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-brand-border space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
+        <h3 class="font-serif font-bold text-brand-navy text-base">Import Garment Code</h3>
+        <button onclick="toggleModal('import-code-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
+      </div>
+      <p class="text-xs text-stone-500">Paste single items or entire arrays of garments directly.</p>
+      <textarea id="import-json-input" rows="7" placeholder="Paste garment JSON here..." class="w-full text-xs font-mono p-3 rounded-xl border border-brand-border bg-brand-stone/50 focus:outline-none focus:ring-1 focus:ring-brand-navy"></textarea>
+      <div class="flex justify-end space-x-2 pt-2">
+        <button type="button" onclick="toggleModal('import-code-modal', false)" class="px-4 py-2 text-xs text-stone-600">Cancel</button>
+        <button type="button" onclick="executeJsonImport()" class="px-5 py-2 bg-brand-navy text-white text-xs font-semibold rounded-xl hover:bg-stone-900 transition">Import to Vault</button>
+      </div>
     </div>
   </div>
 
@@ -383,154 +397,18 @@
     </div>
   </div>
 
-  <!-- APPLICATION LOGIC -->
   <script>
-    const DB_NAME = "CuratedWardrobeDB_v8";
-    const DB_VERSION = 1;
-    const PHOTO_STORE = "item_photos";
-    let dbInstance = null;
+    const STORAGE_KEY_ITEMS = "curated_wardrobe_items_cloud";
+    const STORAGE_KEY_PLAN = "curated_weekly_outfits_cloud";
+    const STORAGE_KEY_WEATHER = "curated_weather_cache_cloud";
 
-    function openPhotoDB() {
-      return new Promise((resolve) => {
-        const req = indexedDB.open(DB_NAME, DB_VERSION);
-        req.onupgradeneeded = (e) => {
-          const db = e.target.result;
-          if (!db.objectStoreNames.contains(PHOTO_STORE)) {
-            db.createObjectStore(PHOTO_STORE, { keyPath: "id" });
-          }
-        };
-        req.onsuccess = (e) => {
-          dbInstance = e.target.result;
-          resolve(dbInstance);
-        };
-        req.onerror = () => resolve(null);
-      });
-    }
+    let wardrobe = [];
+    let weeklyPlan = {};
+    let weeklyWeather = {};
+    let activeSwapTarget = null;
 
-    function savePhotoToDB(itemId, dataUrl) {
-      return new Promise((resolve) => {
-        if (!dbInstance) {
-          try { localStorage.setItem("photo_" + itemId, dataUrl); } catch(e){}
-          return resolve();
-        }
-        const tx = dbInstance.transaction(PHOTO_STORE, "readwrite");
-        const store = tx.objectStore(PHOTO_STORE);
-        store.put({ id: String(itemId), dataUrl: dataUrl });
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => resolve();
-      });
-    }
-
-    function getPhotoFromDB(itemId) {
-      return new Promise((resolve) => {
-        if (!dbInstance) return resolve(localStorage.getItem("photo_" + itemId) || null);
-        const tx = dbInstance.transaction(PHOTO_STORE, "readonly");
-        const store = tx.objectStore(PHOTO_STORE);
-        const req = store.get(String(itemId));
-        req.onsuccess = () => resolve(req.result ? req.result.dataUrl : null);
-        req.onerror = () => resolve(null);
-      });
-    }
-
-    function fastCompress(file, maxDim = 800, quality = 0.8) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            let w = img.width, h = img.height;
-            if (w > h) {
-              if (w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
-            } else {
-              if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
-            }
-            const canvas = document.createElement("canvas");
-            canvas.width = w; canvas.height = h;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0, w, h);
-            resolve(canvas.toDataURL("image/jpeg", quality));
-          };
-          img.onerror = () => resolve(e.target.result);
-          img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function rotateDataUrl90Deg(srcDataUrl) {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          canvas.width = img.height;
-          canvas.height = img.width;
-          const ctx = canvas.getContext("2d");
-          ctx.translate(canvas.width / 2, canvas.height / 2);
-          ctx.rotate(90 * Math.PI / 180);
-          ctx.drawImage(img, -img.width / 2, -img.height / 2);
-          resolve(canvas.toDataURL("image/jpeg", 0.85));
-        };
-        img.src = srcDataUrl;
-      });
-    }
-
-    /* Core Wardrobe Catalog */
-    const DEFAULT_WARDROBE = [
-      { id: 88, fileRef: "IMG_6330", name: "BR Crisp White Structured Button-Down", category: "Woven", tier: "Anchor", palette: "neutral", texture: "Poplin", weight: "mid", wearCount: 0 },
-      { id: 3, fileRef: "IMG_6332", name: "BR Blue/White Striped OCBD", category: "Woven", tier: "Anchor", palette: "blue", texture: "Oxford", weight: "mid", wearCount: 0 },
-      { id: 11, fileRef: "IMG_6341", name: "BR Dusty Rose / Terracotta Woven", category: "Woven", tier: "Anchor", palette: "earth", texture: "Twill", weight: "mid", wearCount: 0 },
-      { id: 102, fileRef: "IMG_6337", name: "BR Heather Grey Chambray / Oxford", category: "Woven", tier: "Anchor", palette: "neutral", texture: "Heather", weight: "mid", wearCount: 0 },
-      { id: 96, fileRef: "IMG_6325", name: "Heather Blue Classic OCBD", category: "Woven", tier: "Anchor", palette: "blue", texture: "Oxford", weight: "heavy", wearCount: 0 },
-      { id: 100, fileRef: "IMG_6329", name: "BR Blue/White Micro-Gingham Shirt", category: "Woven", tier: "Anchor", palette: "blue", texture: "Gingham", weight: "mid", wearCount: 0 },
-      { id: 98, fileRef: "IMG_6338", name: "Navy, Brown & Ecru Plaid Flannel", category: "Woven", tier: "Anchor", palette: "earth", texture: "Flannel", weight: "heavy", wearCount: 0 },
-      { id: 103, fileRef: "IMG_6334", name: "BR Navy/White Seersucker Short-Sleeve", category: "Woven", tier: "Anchor", palette: "blue", texture: "Seersucker", weight: "light", wearCount: 0 },
-      { id: 2, fileRef: "IMG_6340", name: "BR Double-Pocket Blue Chambray Shirt", category: "Woven", tier: "Potential", palette: "blue", texture: "Chambray", weight: "heavy", wearCount: 0 },
-      { id: 94, fileRef: "IMG_6336", name: "Madewell Washed Sky Blue Shirt", category: "Woven", tier: "Potential", palette: "blue", texture: "Cotton", weight: "mid", wearCount: 0 },
-      { id: 52, fileRef: "IMG_6287", name: "Espresso Brown Merino Crewneck", category: "Knitwear", tier: "Anchor", palette: "earth", texture: "Merino", weight: "heavy", wearCount: 0 },
-      { id: 54, fileRef: "IMG_6285", name: "J.Crew Micro-Houndstooth Knit (Navy/Tan)", category: "Knitwear", tier: "Anchor", palette: "earth", texture: "Jacquard", weight: "heavy", wearCount: 0 },
-      { id: 19, fileRef: "IMG_6291", name: "Forest Green Heritage Crewneck", category: "Knitwear", tier: "Anchor", palette: "earth", texture: "Ribbed Wool", weight: "heavy", wearCount: 0 },
-      { id: 72, fileRef: "IMG_6286", name: "Oatmeal Chunky Button Cardigan", category: "Layer", tier: "Anchor", palette: "neutral", texture: "Rib Knit", weight: "heavy", wearCount: 0 },
-      { id: 67, fileRef: "IMG_6289", name: "Camel Textured Waffle Long-Sleeve", category: "Knitwear", tier: "Anchor", palette: "earth", texture: "Waffle", weight: "heavy", wearCount: 0 },
-      { id: 9, fileRef: "IMG_6284", name: "J.Crew Ribbed Slate Blue Crewneck", category: "Knitwear", tier: "Potential", palette: "blue", texture: "Ribbed", weight: "heavy", wearCount: 0 },
-      { id: 17, fileRef: "IMG_6288", name: "Navy & Cream Bar-Stripe Crew", category: "Knitwear", tier: "Anchor", palette: "blue", texture: "Heavy Cotton", weight: "heavy", wearCount: 0 },
-      { id: 97, fileRef: "IMG_6351", name: "Heather Tan Full-Button Knit Polo", category: "Polo", tier: "Anchor", palette: "earth", texture: "Knit", weight: "mid", wearCount: 0 },
-      { id: 91, fileRef: "IMG_6343", name: "Ecru / Natural Tipped Tennis Polo", category: "Polo", tier: "Anchor", palette: "neutral", texture: "Pique", weight: "mid", wearCount: 0 },
-      { id: 85, fileRef: "IMG_6354", name: "J.Crew White Classic Pique Polo", category: "Polo", tier: "Anchor", palette: "neutral", texture: "Pique", weight: "mid", wearCount: 0 },
-      { id: 95, fileRef: "IMG_6346", name: "J.Crew Terracotta Garment-Dyed Polo", category: "Polo", tier: "Anchor", palette: "earth", texture: "Garment Dyed", weight: "mid", wearCount: 0 },
-      { id: 39, fileRef: "IMG_6228", name: "Madewell Natural Ecru Base Tee", category: "Tee", tier: "Anchor", palette: "neutral", texture: "Combed Cotton", weight: "light", wearCount: 0 },
-      { id: 66, fileRef: "IMG_6226", name: "Madewell Washed Charcoal Base Tee", category: "Tee", tier: "Anchor", palette: "neutral", texture: "Garment Wash", weight: "light", wearCount: 0 },
-      { id: 70, fileRef: "IMG_6224", name: "Madewell Faded Olive Green Tee", category: "Tee", tier: "Anchor", palette: "earth", texture: "Garment Wash", weight: "light", wearCount: 0 },
-      { id: 13, fileRef: "IMG_6219", name: "Buck Mason Slate Blue Combed Tee", category: "Tee", tier: "Anchor", palette: "blue", texture: "Heavy Jersey", weight: "mid", wearCount: 0 },
-      { id: 44, fileRef: "IMG_6242", name: "Faded Taupe / Olive Slub Henley", category: "Tee", tier: "Anchor", palette: "earth", texture: "Slub Knit", weight: "mid", wearCount: 0 },
-      { id: 64, fileRef: "IMG_6223", name: "Heather Grey Mallard Embroidered Tee", category: "Tee", tier: "Anchor", palette: "neutral", texture: "Heather", weight: "light", wearCount: 0 },
-      { id: 101, fileRef: "IMG_6342", name: "J.Crew Olive Twill Workshirt Jacket", category: "Layer", tier: "Anchor", palette: "earth", texture: "Heavy Twill", weight: "heavy", wearCount: 0 },
-      { id: 93, fileRef: "IMG_6357", name: "Sand Snap-Front Fleece Overshirt", category: "Layer", tier: "Anchor", palette: "neutral", texture: "Fleece", weight: "heavy", wearCount: 0 },
-      { id: 32, fileRef: "IMG_6283", name: "Navy Minimalist Technical Bomber", category: "Layer", tier: "Anchor", palette: "blue", texture: "Matte Shell", weight: "mid", wearCount: 0 },
-      { id: 81, fileRef: "IMG_6295", name: "Oatmeal Fine-Gauge Knit Hoodie", category: "Athletic", tier: "Anchor", palette: "neutral", texture: "Fine Knit", weight: "mid", wearCount: 0 },
-      { id: 38, fileRef: "IMG_6282", name: "Cream Heritage V-Stitch Sweatshirt", category: "Athletic", tier: "Anchor", palette: "neutral", texture: "French Terry", weight: "heavy", wearCount: 0 },
-      { id: 12, fileRef: "IMG_6358", name: "J.Crew Natural Ecru Solid Rugby Shirt", category: "Athletic", tier: "Anchor", palette: "neutral", texture: "Heavy Jersey", weight: "heavy", wearCount: 0 },
-      { id: 5, fileRef: "IMG_6356", name: "Forest Green & Grey Bar-Stripe Rugby", category: "Athletic", tier: "Anchor", palette: "earth", texture: "Heavy Jersey", weight: "heavy", wearCount: 0 },
-      { id: 56, fileRef: "IMG_6275", name: "Hill City Heather Grey Tech Hoodie", category: "Athletic", tier: "Anchor", palette: "neutral", texture: "Fleece", weight: "heavy", wearCount: 0 },
-      { id: 18, fileRef: "IMG_6255", name: "BR Charcoal Slate Garment-Dyed Chinos", category: "Pants", tier: "Anchor", palette: "neutral", texture: "Chino", weight: "mid", wearCount: 0 },
-      { id: 45, fileRef: "IMG_6262", name: "Olive Green Flat-Front Chinos", category: "Pants", tier: "Anchor", palette: "earth", texture: "Twill", weight: "mid", wearCount: 0 },
-      { id: 58, fileRef: "IMG_6261", name: "Stone / Light Sand Flat-Front Chinos", category: "Pants", tier: "Anchor", palette: "neutral", texture: "Cotton", weight: "mid", wearCount: 0 },
-      { id: 10, fileRef: "IMG_6257", name: "British Khaki Classic Chinos", category: "Pants", tier: "Anchor", palette: "earth", texture: "Twill", weight: "mid", wearCount: 0 },
-      { id: 28, fileRef: "IMG_6260", name: "BR Slim Traveler Pants (Washed Black)", category: "Pants", tier: "Anchor", palette: "neutral", texture: "Stretch Weave", weight: "mid", wearCount: 0 },
-      { id: 6, fileRef: "IMG_6256", name: "Madewell Athletic-Fit Medium Denim", category: "Pants", tier: "Anchor", palette: "blue", texture: "Denim", weight: "heavy", wearCount: 0 },
-      { id: 7, fileRef: "IMG_6268", name: "Charcoal Washed Straight Denim", category: "Pants", tier: "Anchor", palette: "neutral", texture: "Denim", weight: "heavy", wearCount: 0 },
-      { id: 68, fileRef: "IMG_6254", name: "Muted Olive-Grey 5-Pocket Pants", category: "Pants", tier: "Anchor", palette: "earth", texture: "Twill", weight: "mid", wearCount: 0 },
-      { id: 74, fileRef: "IMG_6269", name: "Heather Grey Articulated Tech Joggers", category: "Pants", tier: "Anchor", palette: "neutral", texture: "Tech Knit", weight: "mid", wearCount: 0 },
-      { id: 62, fileRef: "IMG_6265", name: "Taupe / Mushroom Brown Tech Joggers", category: "Pants", tier: "Anchor", palette: "earth", texture: "Tech Knit", weight: "mid", wearCount: 0 },
-      { id: 22, fileRef: "IMG_6264", name: "Charcoal Slate Technical Joggers", category: "Pants", tier: "Anchor", palette: "neutral", texture: "Matte Tech", weight: "mid", wearCount: 0 },
-      { id: 61, fileRef: "IMG_6238", name: "J.Crew 7\" Charcoal Chino Shorts", category: "Shorts", tier: "Anchor", palette: "neutral", texture: "7\" Chino", weight: "light", wearCount: 0 },
-      { id: 33, fileRef: "IMG_6232", name: "British Khaki Tailored Chino Shorts", category: "Shorts", tier: "Anchor", palette: "earth", texture: "Chino", weight: "light", wearCount: 0 },
-      { id: 31, fileRef: "IMG_6234", name: "Navy Technical Commuter Shorts", category: "Shorts", tier: "Anchor", palette: "blue", texture: "Tech", weight: "light", wearCount: 0 },
-      { id: 63, fileRef: "IMG_6233", name: "Olive Green Technical Active Shorts", category: "Shorts", tier: "Anchor", palette: "earth", texture: "Stretch", weight: "light", wearCount: 0 },
-      { id: 201, fileRef: "SHOE_WHITE_SNEAKER", name: "Minimal White Leather Sneaker", category: "Footwear", tier: "Pending", palette: "neutral", texture: "Leather", weight: "mid", wearCount: 0 },
-      { id: 202, fileRef: "SHOE_BROWN_CHUKKA", name: "Chocolate Brown Suede Chukka / Chelsea", category: "Footwear", tier: "Pending", palette: "earth", texture: "Suede", weight: "heavy", wearCount: 0 },
-      { id: 203, fileRef: "SHOE_DARK_LOAFER", name: "Dark Oak Blucher / Loafer", category: "Footwear", tier: "Pending", palette: "earth", texture: "Calfskin", weight: "mid", wearCount: 0 },
-      { id: 204, fileRef: "SHOE_RETRO_RUNNER", name: "Retro Neutral Runner (Grey / Olive)", category: "Footwear", tier: "Pending", palette: "neutral", texture: "Nylon/Suede", weight: "mid", wearCount: 0 }
-    ];
+    const LAT_MINNETONKA = 44.9212;
+    const LON_MINNETONKA = -93.4687;
 
     const DAYS_CONFIG = [
       { key: "mon", name: "Monday", defaultTemplate: "Client In-Person" },
@@ -542,165 +420,73 @@
       { key: "sun", name: "Sunday", defaultTemplate: "Downtime" }
     ];
 
-    const TEMPLATES = ["Client In-Person", "WFH Video Calls", "Elevated Casual", "Active Weekend", "Downtime"];
+    const TEMPLATES = ["Client In-Person", "WFH Video Calls", "Elevated Casual", "Date Night", "Active Weekend", "Downtime"];
 
-    let wardrobe = [];
-    let photoCache = {};
-    let weeklyPlan = {};
-    let unassignedPhotos = [];
-    let selectedPhotoObj = null;
-    let activeSwapTarget = null;
-    let weeklyWeather = {};
+    function getImagePath(fileRef) {
+      if (!fileRef || fileRef === 'NO_PHOTO') return null;
+      // Strip any extension if already included
+      const cleanRef = fileRef.replace(/\.(jpg|jpeg|png)$/i, '');
+      return `${cleanRef}.JPG`;
+    }
 
-    const LAT_MINNETONKA = 44.9212;
-    const LON_MINNETONKA = -93.4687;
-
-    async function initApp() {
-      await openPhotoDB();
-      wardrobe = JSON.parse(localStorage.getItem("curated_wardrobe_items_v8")) || [...DEFAULT_WARDROBE];
-      
-      for (let item of wardrobe) {
-        const photo = await getPhotoFromDB(item.id);
-        if (photo) photoCache[item.id] = photo;
-      }
-
-      weeklyPlan = JSON.parse(localStorage.getItem("curated_weekly_outfits_v8")) || {};
-      
-      const aiDropzone = document.getElementById('ai-vision-dropzone');
-      if (aiDropzone) {
-        aiDropzone.addEventListener('click', () => {
-          document.getElementById('ai-photo-input').click();
-        });
-      }
-
-      // Load Key & Update UI
-      const savedKey = localStorage.getItem('gemini_api_key') || '';
-      document.getElementById('gemini-api-key-input').value = savedKey;
-      updateApiStatusBadge(savedKey);
-
-      await fetchLiveWeather(false);
-
-      if (Object.keys(weeklyPlan).length === 0) {
-        smartGenerateWeek(false);
+    function handleImgFallback(el, ref) {
+      const clean = ref.replace(/\.(jpg|jpeg|png)$/i, '');
+      if (!el.dataset.attempt) {
+        el.dataset.attempt = "1";
+        el.src = `${clean}.jpg`;
+      } else if (el.dataset.attempt === "1") {
+        el.dataset.attempt = "2";
+        el.src = `${clean}.jpeg`;
       } else {
-        render7DayBoard();
-      }
-
-      renderWardrobeList();
-      renderMatcherItemList();
-      updateGapScorecard();
-      updatePhotoCoverageMetric();
-    }
-
-    function saveApiKey() {
-      const key = document.getElementById('gemini-api-key-input').value.trim();
-      localStorage.setItem('gemini_api_key', key);
-      updateApiStatusBadge(key);
-      showToast(key ? "API key saved locally!" : "API key cleared.");
-    }
-
-    /* Accepts any valid key format (including AQ...) */
-    function updateApiStatusBadge(key) {
-      const badge = document.getElementById('api-status-badge');
-      if (key && key.trim().length >= 20) {
-        badge.innerText = "✓ Active & Configured";
-        badge.className = "text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold";
-      } else {
-        badge.innerText = "Not Configured";
-        badge.className = "text-[10px] font-mono px-2 py-0.5 rounded-full bg-stone-200 text-stone-700 font-bold";
+        el.onerror = null;
+        el.classList.add('hidden');
+        if (el.nextElementSibling) el.nextElementSibling.classList.remove('hidden');
       }
     }
 
-    /* 1-Click AI Recognition Execution */
-    async function handleAiGarmentScan(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const apiKey = localStorage.getItem('gemini_api_key');
-      if (!apiKey || apiKey.trim().length < 20) {
-        showToast("Enter your Gemini API key in Style Compass & Settings first!", true);
-        switchView('compass');
-        return;
-      }
-
-      showToast("Scanning garment with Gemini Vision...");
-      const compressedDataUrl = await fastCompress(file, 800, 0.82);
-      const base64Data = compressedDataUrl.split(',')[1];
-
-      try {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey.trim()}`;
-        const prompt = "Analyze this men's garment photograph. Return valid JSON only with keys: name (brand and specific garment type, e.g. 'Todd Snyder Olive Hopsack Blazer'), category (exactly one of: 'Woven', 'Knitwear', 'Tee', 'Polo', 'Pants', 'Shorts', 'Layer', 'Athletic', 'Footwear'), tier ('Anchor' or 'Potential'), palette ('earth', 'neutral', or 'blue'), texture (e.g. 'Hopsack Wool', 'Oxford', 'Merino'), weight ('light', 'mid', or 'heavy'). Do not include markdown wraps.";
-
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{
-              parts: [
-                { text: prompt },
-                { inline_data: { mime_type: "image/jpeg", data: base64Data } }
-              ]
-            }]
-          })
-        });
-
-        const resData = await response.json();
-        if (resData.error) {
-          throw new Error(resData.error.message || "API Error");
-        }
-
-        const rawText = resData.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
-        const parsed = JSON.parse(rawText);
-
-        const newId = Date.now();
-        const newGarment = {
-          id: newId,
-          fileRef: "AI_SCAN_" + newId,
-          name: parsed.name || "Curated Garment",
-          category: parsed.category || "Layer",
-          tier: parsed.tier || "Anchor",
-          palette: parsed.palette || "earth",
-          texture: parsed.texture || "Tailored",
-          weight: parsed.weight || "mid",
-          notes: "Auto-recognized via Gemini Vision.",
-          wearCount: 0
-        };
-
-        wardrobe.unshift(newGarment);
-        photoCache[newId] = compressedDataUrl;
-        await savePhotoToDB(newId, compressedDataUrl);
-
-        localStorage.setItem("curated_wardrobe_items_v8", JSON.stringify(wardrobe));
-
-        renderWardrobeList();
-        renderMatcherItemList();
-        render7DayBoard();
-        updateGapScorecard();
-        updatePhotoCoverageMetric();
-
-        showToast(`Auto-recognized: "${newGarment.name}"!`);
-      } catch (err) {
-        console.error("Vision scan failed", err);
-        showToast("AI Recognition failed: " + err.message, true);
-      }
+    function checkGarmentAge(purchaseDateStr) {
+      if (!purchaseDateStr) return { isAging: false, years: null };
+      const [year, month] = purchaseDateStr.split('-').map(Number);
+      const purchaseDate = new Date(year, (month || 1) - 1, 1);
+      const now = new Date(2026, 9, 13);
+      const diffMs = now - purchaseDate;
+      const diffYears = diffMs / (1000 * 60 * 60 * 24 * 365.25);
+      return {
+        isAging: diffYears >= 3.0,
+        years: (Math.round(diffYears * 10) / 10).toFixed(1)
+      };
     }
 
-    async function fetchLiveWeather(showAlert = true) {
+    async function fetchLiveWeather() {
+      const cached = localStorage.getItem(STORAGE_KEY_WEATHER);
+      if (cached) {
+        try {
+          const { timestamp, data } = JSON.parse(cached);
+          if (Date.now() - timestamp < 3 * 60 * 60 * 1000) {
+            weeklyWeather = data;
+            render7DayBoard();
+            return;
+          }
+        } catch(e) {}
+      }
+
       try {
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT_MINNETONKA}&longitude=${LON_MINNETONKA}&daily=temperature_2m_max,temperature_2m_min,weathercode&temperature_unit=fahrenheit&timezone=America%2FChicago`;
         const res = await fetch(url);
         const data = await res.json();
         if (data && data.daily) {
+          const weatherMap = {};
           DAYS_CONFIG.forEach((d, idx) => {
             const max = Math.round(data.daily.temperature_2m_max[idx] || 56);
-            const min = Math.round(data.daily.temperature_2m_min[idx] || 40);
+            const min = Math.round(data.daily.temperature_2m_min[idx] || 38);
             const code = data.daily.weathercode[idx] || 0;
-            weeklyWeather[d.key] = { max, min, code };
+            weatherMap[d.key] = { max, min, code };
           });
-          if (showAlert) showToast("Live Minnetonka forecast updated!");
+          weeklyWeather = weatherMap;
+          localStorage.setItem(STORAGE_KEY_WEATHER, JSON.stringify({ timestamp: Date.now(), data: weatherMap }));
         }
       } catch (e) {
-        DAYS_CONFIG.forEach((d) => { weeklyWeather[d.key] = { max: 55, min: 38, code: 1 }; });
+        DAYS_CONFIG.forEach((d) => { weeklyWeather[d.key] = { max: 56, min: 38, code: 1 }; });
       }
       render7DayBoard();
     }
@@ -713,73 +499,83 @@
       return "🌦️ Showers";
     }
 
-    async function rotateItemPhoto(itemId, e) {
-      if (e) e.stopPropagation();
-      const currentDataUrl = photoCache[itemId];
-      if (!currentDataUrl) {
-        showToast("No photo attached to rotate", true);
-        return;
+    async function initApp() {
+      const saved = localStorage.getItem(STORAGE_KEY_ITEMS);
+      if (saved) {
+        try { wardrobe = JSON.parse(saved); } catch(e) { wardrobe = []; }
+      }
+      weeklyPlan = JSON.parse(localStorage.getItem(STORAGE_KEY_PLAN)) || {};
+
+      await fetchLiveWeather();
+
+      if (Object.keys(weeklyPlan).length === 0) {
+        smartGenerateWeek(false);
+      } else {
+        render7DayBoard();
       }
 
-      showToast("Rotating 90°...");
-      const rotated = await rotateDataUrl90Deg(currentDataUrl);
-      photoCache[itemId] = rotated;
-      await savePhotoToDB(itemId, rotated);
-
       renderWardrobeList();
-      render7DayBoard();
-      renderMatcherItemList();
-      showToast("Photo rotated and saved!");
     }
 
-    function handleManualAddItem(event) {
-      event.preventDefault();
-      const name = document.getElementById('new-item-name').value.trim();
-      const category = document.getElementById('new-item-category').value;
-      const tier = document.getElementById('new-item-tier').value;
-      const palette = document.getElementById('new-item-palette').value;
-      const weight = document.getElementById('new-item-weight').value || 'mid';
-      const fileRef = document.getElementById('new-item-ref').value.trim() || `ITEM_${Date.now()}`;
+    function executeJsonImport() {
+      const raw = document.getElementById('import-json-input').value.trim();
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        const incoming = Array.isArray(parsed) ? parsed : [parsed];
+        
+        let count = 0;
+        incoming.flat(Infinity).forEach(garment => {
+          if (!garment || typeof garment !== 'object' || Array.isArray(garment)) return;
+          if (!garment.name || garment.name === 'undefined') return;
 
-      if (!name) return;
-      const newId = Date.now();
+          const garmentId = garment.id ? Number(garment.id) : (Date.now() + Math.floor(Math.random() * 100000));
+          const cleanItem = {
+            id: garmentId,
+            fileRef: garment.fileRef || `IMG_${garmentId}`,
+            name: String(garment.name),
+            category: garment.category || 'Layer',
+            tier: garment.tier || 'Anchor',
+            palette: garment.palette || 'neutral',
+            texture: garment.texture || 'Textured',
+            weight: garment.weight || 'mid',
+            purchaseDate: garment.purchaseDate || new Date().toISOString().slice(0, 7),
+            notes: garment.notes || '',
+            wearCount: garment.wearCount || 0
+          };
 
-      const newItem = {
-        id: newId,
-        fileRef: fileRef,
-        name: name,
-        category: category,
-        tier: tier,
-        palette: palette,
-        weight: weight,
-        notes: "Registered wardrobe entry.",
-        wearCount: 0
-      };
+          const existingIndex = wardrobe.findIndex(w => w.id === cleanItem.id);
+          if (existingIndex !== -1) {
+            wardrobe[existingIndex] = { ...wardrobe[existingIndex], ...cleanItem };
+          } else {
+            wardrobe.unshift(cleanItem);
+          }
+          count++;
+        });
 
-      wardrobe.unshift(newItem);
-      localStorage.setItem("curated_wardrobe_items_v8", JSON.stringify(wardrobe));
+        wardrobe = wardrobe.flat(Infinity).filter(item => item && typeof item === 'object' && !Array.isArray(item) && item.name && item.name !== 'undefined');
 
-      renderWardrobeList();
-      renderMatcherItemList();
-      render7DayBoard();
-      updateGapScorecard();
-      updatePhotoCoverageMetric();
-
-      toggleModal('add-item-modal', false);
-      document.getElementById('add-item-form').reset();
-      showToast(`Registered "${name}" into Vault`);
+        localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
+        renderWardrobeList();
+        render7DayBoard();
+        toggleModal('import-code-modal', false);
+        document.getElementById('import-json-input').value = "";
+        showToast(`Successfully added ${count} item(s) to Vault!`);
+      } catch (err) {
+        showToast("Invalid code block. Please check JSON format.", true);
+      }
     }
 
-    /* Zero-Repeat Scheduling Engine */
     function smartGenerateWeek(showAlert = true) {
       const usedItemIds = new Set();
       const newPlan = {};
 
       DAYS_CONFIG.forEach(day => {
         const template = weeklyPlan[day.key]?.template || day.defaultTemplate;
-        const weather = weeklyWeather[day.key] || { max: 55, min: 40 };
+        const weather = weeklyWeather[day.key] || { max: 56, min: 38 };
         const temp = weather.max;
 
+        const isWeekend = (day.key === 'sat' || day.key === 'sun' || template === "Active Weekend" || template === "Downtime");
         const availablePool = wardrobe.filter(i => i.tier !== 'Exit' && !usedItemIds.has(i.id));
 
         const pickCandidate = (categories, paletteConstraint = null) => {
@@ -791,45 +587,40 @@
 
         let top = null, layer = null, bottom = null, shoes = null;
 
-        if (temp < 48) {
-          if (template === "Client In-Person") {
-            top = pickCandidate(['Woven']);
-            layer = pickCandidate(['Knitwear', 'Layer'], top?.palette === 'blue' ? 'non-blue' : null);
-            bottom = pickCandidate(['Pants'], top?.palette === 'blue' ? 'non-blue' : null);
-            shoes = availablePool.find(i => i.id == 202) || availablePool.find(i => i.id == 203);
-          } else if (template === "WFH Video Calls") {
-            layer = pickCandidate(['Layer', 'Knitwear']);
-            top = pickCandidate(['Woven', 'Polo', 'Tee']);
-            bottom = pickCandidate(['Pants']);
-            shoes = availablePool.find(i => i.id == 201) || availablePool.find(i => i.id == 204);
-          } else {
-            layer = pickCandidate(['Layer', 'Athletic']);
-            top = pickCandidate(['Tee', 'Woven']);
-            bottom = pickCandidate(['Pants']);
-            shoes = availablePool.find(i => i.id == 204) || availablePool.find(i => i.id == 202);
-          }
-        } else if (temp >= 48 && temp < 65) {
-          if (template === "Client In-Person") {
-            top = pickCandidate(['Woven']);
-            layer = pickCandidate(['Knitwear', 'Layer'], top?.palette === 'blue' ? 'non-blue' : null);
-            bottom = pickCandidate(['Pants']);
-            shoes = availablePool.find(i => i.id == 203) || availablePool.find(i => i.id == 202);
-          } else if (template === "WFH Video Calls") {
-            layer = pickCandidate(['Layer', 'Knitwear']);
-            top = pickCandidate(['Polo', 'Woven', 'Tee']);
-            bottom = pickCandidate(['Pants']);
-            shoes = availablePool.find(i => i.id == 201);
-          } else {
-            layer = pickCandidate(['Layer', 'Athletic']);
-            top = pickCandidate(['Woven', 'Tee', 'Polo']);
-            bottom = pickCandidate(['Pants', 'Shorts']);
-            shoes = availablePool.find(i => i.id == 201) || availablePool.find(i => i.id == 204);
-          }
+        if (template === "Date Night") {
+          layer = pickCandidate(['Layer']) || pickCandidate(['Knitwear']);
+          top = pickCandidate(['Tee', 'Woven'], layer?.palette === 'blue' ? 'non-blue' : null);
+          bottom = availablePool.find(i => i.id == 18) || availablePool.find(i => i.id == 7) || pickCandidate(['Pants']);
+          shoes = availablePool.find(i => i.id == 201) || availablePool.find(i => i.id == 203) || pickCandidate(['Footwear']);
+        } else if (isWeekend) {
+          top = pickCandidate(['Tee']) || pickCandidate(['Athletic', 'Polo']);
+          layer = pickCandidate(['Layer', 'Athletic', 'Knitwear']);
+          bottom = (temp >= 68) ? (pickCandidate(['Shorts']) || pickCandidate(['Pants'])) : pickCandidate(['Pants', 'Shorts']);
+          shoes = availablePool.find(i => i.id == 1730000031) || availablePool.find(i => i.id == 1730000021) || pickCandidate(['Footwear']);
         } else {
-          layer = null;
-          top = pickCandidate(['Woven', 'Polo', 'Tee']);
-          bottom = pickCandidate(['Shorts', 'Pants']);
-          shoes = availablePool.find(i => i.id == 201);
+          if (temp < 48) {
+            if (template === "Client In-Person") {
+              top = pickCandidate(['Woven']);
+              layer = pickCandidate(['Knitwear', 'Layer'], top?.palette === 'blue' ? 'non-blue' : null);
+              bottom = pickCandidate(['Pants'], top?.palette === 'blue' ? 'non-blue' : null);
+              shoes = availablePool.find(i => i.id == 203) || availablePool.find(i => i.id == 202) || pickCandidate(['Footwear']);
+            } else if (template === "WFH Video Calls") {
+              layer = pickCandidate(['Layer', 'Knitwear', 'Athletic']);
+              top = pickCandidate(['Woven', 'Polo', 'Tee']);
+              bottom = pickCandidate(['Pants']);
+              shoes = availablePool.find(i => i.id == 201) || pickCandidate(['Footwear']);
+            } else {
+              layer = pickCandidate(['Layer', 'Athletic']);
+              top = pickCandidate(['Tee', 'Woven', 'Athletic']);
+              bottom = pickCandidate(['Pants']);
+              shoes = pickCandidate(['Footwear']);
+            }
+          } else {
+            top = pickCandidate(['Woven', 'Polo', 'Tee']);
+            layer = pickCandidate(['Layer', 'Knitwear']);
+            bottom = pickCandidate(['Pants', 'Shorts']);
+            shoes = availablePool.find(i => i.id == 201) || pickCandidate(['Footwear']);
+          }
         }
 
         if (layer) usedItemIds.add(layer.id);
@@ -847,9 +638,9 @@
       });
 
       weeklyPlan = newPlan;
-      localStorage.setItem("curated_weekly_outfits_v8", JSON.stringify(weeklyPlan));
+      localStorage.setItem(STORAGE_KEY_PLAN, JSON.stringify(weeklyPlan));
       render7DayBoard();
-      if (showAlert) showToast("Zero-Repeat 7-day capsule curated!");
+      if (showAlert) showToast("Curated zero-repeat 7-day capsule!");
     }
 
     function checkWeeklyDuplicates() {
@@ -870,7 +661,7 @@
 
       DAYS_CONFIG.forEach(day => {
         const plan = weeklyPlan[day.key] || { template: day.defaultTemplate, layerId: "", shirtId: "", bottomId: "", footwearId: "" };
-        const weather = weeklyWeather[day.key] || { max: 55, min: 40, code: 1 };
+        const weather = weeklyWeather[day.key] || { max: 56, min: 38, code: 1 };
         
         const layer = wardrobe.find(i => i.id == plan.layerId);
         const top = wardrobe.find(i => i.id == plan.shirtId);
@@ -948,15 +739,6 @@
               </select>
             </div>
           </div>
-
-          <div class="pt-2 border-t border-brand-border flex items-center justify-between text-[11px]">
-            <button onclick="smartPickDay('${day.key}')" class="text-brand-navy hover:underline font-semibold">
-              ↻ Shuffle Day
-            </button>
-            <button onclick="clearSingleDay('${day.key}')" class="text-stone-400 hover:text-stone-700">
-              Clear
-            </button>
-          </div>
         `;
         container.appendChild(col);
       });
@@ -974,13 +756,17 @@
         `;
       }
 
-      const photoUrl = photoCache[item.id];
+      const imgPath = getImagePath(item.fileRef);
       const toneBadge = item.palette === 'blue' ? 'bg-blue-100 text-blue-900' : item.palette === 'earth' ? 'bg-amber-100 text-amber-900' : 'bg-stone-200 text-stone-800';
 
       return `
         <div onclick="openSwapModal('${dayKey}', '${slot}')" class="flatlay-card relative ${heightClass} w-full rounded-lg overflow-hidden border border-brand-border bg-white shadow-2xs group cursor-pointer">
-          ${photoUrl ? `
-            <img src="${photoUrl}" class="w-full h-full object-cover">
+          ${imgPath ? `
+            <img src="${imgPath}" onerror="handleImgFallback(this, '${item.fileRef}')" class="w-full h-full object-cover">
+            <div class="hidden w-full h-full ${toneBadge} flex flex-col items-center justify-center p-2 text-center">
+              <span class="text-[9px] font-mono font-bold">#${item.id}</span>
+              <span class="text-[9px] font-semibold mt-0.5 line-clamp-1">${item.name}</span>
+            </div>
           ` : `
             <div class="w-full h-full ${toneBadge} flex flex-col items-center justify-center p-2 text-center">
               <span class="text-[9px] font-mono font-bold">#${item.id}</span>
@@ -999,56 +785,29 @@
       const vaultMatches = wardrobe.filter(i => categories.includes(i.category) && i.tier !== 'Exit');
       return vaultMatches.map(item => {
         const isSelected = item.id == selectedId ? 'selected' : '';
-        const hasPhoto = photoCache[item.id] ? '📸' : '';
         const toneIndicator = item.palette === 'blue' ? '🔵' : item.palette === 'earth' ? '🟤' : '⚪';
-        return `<option value="${item.id}" ${isSelected}>${hasPhoto} ${toneIndicator} ${item.name}</option>`;
+        return `<option value="${item.id}" ${isSelected}>${toneIndicator} ${item.name}</option>`;
       }).join('');
     }
 
     function updateOutfitSlot(dayKey, slotKey, value) {
       if (!weeklyPlan[dayKey]) weeklyPlan[dayKey] = {};
       weeklyPlan[dayKey][slotKey] = value ? parseInt(value) : "";
-      localStorage.setItem("curated_weekly_outfits_v8", JSON.stringify(weeklyPlan));
+      localStorage.setItem(STORAGE_KEY_PLAN, JSON.stringify(weeklyPlan));
       render7DayBoard();
     }
 
     function changeDayTemplate(dayKey, newTemplate) {
       if (!weeklyPlan[dayKey]) weeklyPlan[dayKey] = {};
       weeklyPlan[dayKey].template = newTemplate;
-      smartPickDay(dayKey, newTemplate);
-    }
-
-    function smartPickDay(dayKey, forcedTemplate = null) {
-      const template = forcedTemplate || (weeklyPlan[dayKey]?.template) || "Elevated Casual";
-      const pool = wardrobe.filter(i => i.tier === 'Anchor');
-      let layer = pool.find(i => i.id == 72) || pool[0];
-      let top = pool.find(i => i.id == 11) || pool[1];
-      let bottom = pool.find(i => i.id == 18) || pool[2];
-      let shoes = pool.find(i => i.id == 201) || pool[3];
-
-      weeklyPlan[dayKey] = {
-        template,
-        layerId: layer ? layer.id : "",
-        shirtId: top ? top.id : "",
-        bottomId: bottom ? bottom.id : "",
-        footwearId: shoes ? shoes.id : ""
-      };
-      localStorage.setItem("curated_weekly_outfits_v8", JSON.stringify(weeklyPlan));
-      render7DayBoard();
-    }
-
-    function clearSingleDay(dayKey) {
-      const template = weeklyPlan[dayKey]?.template || "Elevated Casual";
-      weeklyPlan[dayKey] = { template, layerId: "", shirtId: "", bottomId: "", footwearId: "" };
-      localStorage.setItem("curated_weekly_outfits_v8", JSON.stringify(weeklyPlan));
-      render7DayBoard();
+      smartGenerateWeek(false);
     }
 
     function clearWeekPlan() {
       DAYS_CONFIG.forEach(d => {
         weeklyPlan[d.key] = { template: d.defaultTemplate, layerId: "", shirtId: "", bottomId: "", footwearId: "" };
       });
-      localStorage.setItem("curated_weekly_outfits_v8", JSON.stringify(weeklyPlan));
+      localStorage.setItem(STORAGE_KEY_PLAN, JSON.stringify(weeklyPlan));
       render7DayBoard();
       showToast("Cleared 7-day board");
     }
@@ -1057,179 +816,192 @@
       const grid = document.getElementById('wardrobe-grid-container');
       const cat = document.getElementById('filter-category').value;
       const tier = document.getElementById('filter-tier').value;
-      const photo = document.getElementById('filter-photo').value;
       const search = (document.getElementById('search-query')?.value || '').toLowerCase();
 
       grid.innerHTML = '';
+      let agingCount = 0;
+
       const filtered = wardrobe.filter(i => {
+        if (!i || !i.name || i.name === 'undefined') return false;
+
+        const ageCheck = checkGarmentAge(i.purchaseDate);
+        if (ageCheck.isAging) agingCount++;
+
         if (cat !== 'ALL' && i.category !== cat) return false;
         if (tier !== 'ALL' && i.tier !== tier) return false;
-        if (photo === 'HAS_PHOTO' && !photoCache[i.id]) return false;
-        if (photo === 'NO_PHOTO' && !!photoCache[i.id]) return false;
-        if (search && !i.name.toLowerCase().includes(search) && !(i.fileRef && i.fileRef.toLowerCase().includes(search))) return false;
+
+        if (search) {
+          const matchName = i.name && i.name.toLowerCase().includes(search);
+          const matchRef = i.fileRef && i.fileRef.toLowerCase().includes(search);
+          const matchNotes = i.notes && i.notes.toLowerCase().includes(search);
+          if (!matchName && !matchRef && !matchNotes) return false;
+        }
         return true;
       });
 
       filtered.forEach(item => {
-        const photoUrl = photoCache[item.id];
+        const imgPath = getImagePath(item.fileRef);
+        const ageCheck = checkGarmentAge(item.purchaseDate);
+
         const card = document.createElement('div');
-        card.className = "bg-white border border-brand-border rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between";
+        card.className = "bg-white border border-brand-border rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between group cursor-pointer hover:border-brand-navy hover:shadow-md transition-all";
+        card.onclick = () => openEditModal(item.id);
+
         card.innerHTML = `
-          <div>
-            <div class="aspect-4/3 bg-stone-100 relative overflow-hidden flex items-center justify-center">
-              ${photoUrl ? `<img src="${photoUrl}" class="w-full h-full object-cover">` : `<span class="text-xs font-mono font-bold text-stone-400">${item.fileRef || 'NO_PHOTO'}</span>`}
-              <span class="absolute top-2 left-2 text-[9px] font-mono px-1.5 py-0.5 rounded bg-stone-900/80 text-white font-bold">#${item.id}</span>
-              ${photoUrl ? `
-                <button onclick="rotateItemPhoto(${item.id}, event)" title="Rotate 90° Clockwise" class="absolute bottom-2 right-2 px-2 py-1 bg-white/90 hover:bg-white text-brand-navy rounded-lg text-[10px] font-bold shadow-md flex items-center space-x-1 backdrop-blur-xs">
-                  <span>⟳ Rotate 90°</span>
-                </button>
-              ` : ''}
+          <div class="flex flex-col h-full justify-between">
+            <div>
+              <div class="aspect-4/3 bg-stone-100 relative overflow-hidden flex items-center justify-center border-b border-brand-border">
+                ${imgPath ? `
+                  <img src="${imgPath}" onerror="handleImgFallback(this, '${item.fileRef}')" class="w-full h-full object-cover">
+                  <span class="hidden text-xs font-mono font-bold text-stone-400">NO PHOTO</span>
+                ` : `
+                  <span class="text-xs font-mono font-bold text-stone-400">NO PHOTO</span>
+                `}
+                <span class="absolute top-2 left-2 text-[9px] font-mono px-1.5 py-0.5 rounded bg-stone-900/80 text-white font-bold">#${item.id}</span>
+                ${ageCheck.isAging ? `
+                  <span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-bold shadow-md">⚠️ 3+ Yrs</span>
+                ` : ''}
+              </div>
+              <div class="p-3.5 space-y-1">
+                <div class="flex items-center justify-between text-[10px] text-stone-500 font-bold uppercase tracking-wider">
+                  <span>${item.category} &bull; ${item.palette}</span>
+                  <span class="font-mono text-stone-400">${item.fileRef || 'No Ref'}</span>
+                </div>
+                <h4 class="font-serif font-bold text-xs text-brand-navy leading-snug group-hover:text-amber-800 transition-colors">${item.name}</h4>
+                <p class="text-[10px] text-stone-500 leading-relaxed line-clamp-2 mt-1">${item.notes || 'Click card to edit fileRef or details.'}</p>
+              </div>
             </div>
-            <div class="p-3.5 space-y-1">
-              <span class="text-[10px] font-bold text-stone-500 uppercase tracking-wider">${item.category} &bull; ${item.palette}</span>
-              <h4 class="font-serif font-bold text-xs text-brand-navy leading-snug">${item.name}</h4>
+
+            <div class="px-3.5 py-2.5 bg-brand-stone/40 border-t border-brand-border/60 flex items-center justify-between text-[11px]">
+              <span class="text-[10px] text-stone-500 font-semibold">Edit Details</span>
+              <button onclick="deleteGarment(${item.id}, event)" class="text-rose-600 hover:text-rose-800 font-semibold hover:underline">Remove</button>
             </div>
           </div>
         `;
         grid.appendChild(card);
       });
+
+      document.getElementById('photo-coverage-badge').innerText = `${wardrobe.filter(i => i.fileRef && i.fileRef !== 'NO_PHOTO').length} / ${wardrobe.length} Pieces`;
+      document.getElementById('aging-count-badge').innerText = `${agingCount} Audit Alerts`;
     }
 
-    async function handleRawPhotoBatch(e) {
-      const files = e.target.files;
-      if (!files || files.length === 0) return;
-
-      showToast(`Loading & optimizing ${files.length} photos...`);
-      for (let file of files) {
-        const dataUrl = await fastCompress(file, 600, 0.82);
-        const refName = file.name.split('.')[0].toUpperCase();
-        
-        const autoMatch = wardrobe.find(i => i.fileRef && i.fileRef.toUpperCase() === refName);
-        if (autoMatch) {
-          photoCache[autoMatch.id] = dataUrl;
-          await savePhotoToDB(autoMatch.id, dataUrl);
-        } else {
-          unassignedPhotos.push({ refName, dataUrl });
-        }
-      }
-
-      renderPhotoPool();
-      renderMatcherItemList();
-      updatePhotoCoverageMetric();
-      render7DayBoard();
-      showToast(`Photos ready!`);
-    }
-
-    function renderPhotoPool() {
-      const container = document.getElementById('photo-pool-grid');
-      container.innerHTML = '';
-      document.getElementById('unlinked-photo-count').innerText = `${unassignedPhotos.length} Unbound Photos`;
-
-      unassignedPhotos.forEach(photoObj => {
-        const thumb = document.createElement('div');
-        const isSelected = selectedPhotoObj && selectedPhotoObj.dataUrl === photoObj.dataUrl;
-        thumb.className = `aspect-square rounded-xl overflow-hidden border-2 relative cursor-pointer group bg-stone-100 ${
-          isSelected ? 'border-amber-600 shadow-md ring-2 ring-amber-400' : 'border-brand-border'
-        }`;
-        thumb.onclick = () => selectPhotoForBinding(photoObj);
-        thumb.innerHTML = `
-          <img src="${photoObj.dataUrl}" class="w-full h-full object-cover">
-          <span class="absolute bottom-0 inset-x-0 bg-stone-900/80 text-[8px] text-white text-center py-0.5 truncate px-1 font-mono">${photoObj.refName}</span>
-        `;
-        container.appendChild(thumb);
-      });
-    }
-
-    function selectPhotoForBinding(photoObj) {
-      selectedPhotoObj = photoObj;
-      renderPhotoPool();
-      const banner = document.getElementById('active-selected-photo-banner');
-      banner.classList.remove('hidden');
-      document.getElementById('selected-photo-label').innerText = photoObj.refName;
-    }
-
-    function clearSelectedPhoto() {
-      selectedPhotoObj = null;
-      document.getElementById('active-selected-photo-banner').classList.add('hidden');
-      renderPhotoPool();
-    }
-
-    function renderMatcherItemList() {
-      const list = document.getElementById('matcher-item-list');
-      const query = (document.getElementById('matcher-search')?.value || '').toLowerCase().trim();
-      list.innerHTML = '';
-
-      const filtered = wardrobe.filter(i => {
-        if (!query) return true;
-        return i.name.toLowerCase().includes(query) || (i.fileRef && i.fileRef.toLowerCase().includes(query)) || String(i.id).includes(query);
-      });
-
-      filtered.forEach(item => {
-        const hasPhoto = Boolean(photoCache[item.id]);
-        const card = document.createElement('div');
-        card.className = "p-2.5 rounded-xl border border-brand-border bg-white hover:border-brand-navy flex items-center justify-between cursor-pointer transition shadow-2xs";
-        card.onclick = () => bindSelectedPhotoToItem(item.id);
-
-        card.innerHTML = `
-          <div class="flex items-center space-x-3">
-            <div class="w-12 h-12 rounded-lg bg-stone-100 overflow-hidden border border-brand-border flex-shrink-0 flex items-center justify-center">
-              ${hasPhoto ? `<img src="${photoCache[item.id]}" class="w-full h-full object-cover">` : `<span class="text-[9px] font-mono text-stone-400">#${item.id}</span>`}
-            </div>
-            <div>
-              <div class="flex items-center space-x-2">
-                <span class="text-[9px] font-mono text-stone-500">${item.fileRef || 'NO_REF'}</span>
-                ${hasPhoto ? '<span class="text-[9px] text-emerald-800 bg-emerald-50 px-1 rounded font-bold">✓ Bound</span>' : '<span class="text-[9px] text-amber-800 bg-amber-50 px-1 rounded font-bold">Empty</span>'}
-              </div>
-              <h4 class="font-serif font-bold text-xs text-brand-navy leading-snug">${item.name}</h4>
-            </div>
-          </div>
-          <button class="px-2.5 py-1 bg-stone-100 hover:bg-brand-navy hover:text-white rounded-lg text-[10px] font-bold text-stone-700 transition">
-            Bind Photo
-          </button>
-        `;
-        list.appendChild(card);
-      });
-    }
-
-    async function bindSelectedPhotoToItem(itemId) {
-      if (!selectedPhotoObj) {
-        showToast("Click a photo on the left tray first!", true);
-        return;
-      }
-      const item = wardrobe.find(i => i.id === itemId);
+    function openEditModal(itemId) {
+      const item = wardrobe.find(i => i && i.id == itemId);
       if (!item) return;
 
-      photoCache[itemId] = selectedPhotoObj.dataUrl;
-      await savePhotoToDB(itemId, selectedPhotoObj.dataUrl);
+      document.getElementById('edit-item-id').value = item.id;
+      document.getElementById('edit-item-id-label').innerText = item.id;
+      document.getElementById('edit-modal-title').innerText = item.name || "Edit Garment";
+      document.getElementById('edit-item-name').value = item.name || "";
+      document.getElementById('edit-item-fileref').value = item.fileRef || "";
+      document.getElementById('edit-item-category').value = item.category || "Woven";
+      document.getElementById('edit-item-tier').value = item.tier || "Anchor";
+      document.getElementById('edit-item-palette').value = item.palette || "neutral";
+      document.getElementById('edit-item-weight').value = item.weight || "mid";
+      document.getElementById('edit-item-texture').value = item.texture || "";
+      document.getElementById('edit-item-purchased').value = item.purchaseDate || "";
+      document.getElementById('edit-item-notes').value = item.notes || "";
 
-      unassignedPhotos = unassignedPhotos.filter(p => p.dataUrl !== selectedPhotoObj.dataUrl);
-      const linkedRef = selectedPhotoObj.refName;
-      clearSelectedPhoto();
+      testPreviewImage();
+      toggleModal('edit-item-modal', true);
+    }
 
-      renderPhotoPool();
-      renderMatcherItemList();
+    function testPreviewImage() {
+      const ref = document.getElementById('edit-item-fileref').value.trim();
+      const img = document.getElementById('edit-photo-preview');
+      const placeholder = document.getElementById('edit-photo-placeholder');
+      if (ref) {
+        const clean = ref.replace(/\.(jpg|jpeg|png)$/i, '');
+        img.src = `${clean}.JPG`;
+        img.onerror = () => {
+          img.src = `${clean}.jpg`;
+          img.onerror = () => { img.src = `${clean}.jpeg`; };
+        };
+        img.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+      } else {
+        img.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+      }
+    }
+
+    function handleSaveEdit(e) {
+      e.preventDefault();
+      const itemId = Number(document.getElementById('edit-item-id').value);
+      const item = wardrobe.find(i => i.id == itemId);
+      if (!item) return;
+
+      item.name = document.getElementById('edit-item-name').value.trim();
+      item.fileRef = document.getElementById('edit-item-fileref').value.trim();
+      item.category = document.getElementById('edit-item-category').value;
+      item.tier = document.getElementById('edit-item-tier').value;
+      item.palette = document.getElementById('edit-item-palette').value;
+      item.weight = document.getElementById('edit-item-weight').value;
+      item.texture = document.getElementById('edit-item-texture').value.trim();
+      item.purchaseDate = document.getElementById('edit-item-purchased').value;
+      item.notes = document.getElementById('edit-item-notes').value.trim();
+
+      localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
+      renderWardrobeList();
       render7DayBoard();
-      updatePhotoCoverageMetric();
-      showToast(`Linked ${linkedRef} to ${item.name}!`);
+      toggleModal('edit-item-modal', false);
+      showToast(`Updated "${item.name}"!`);
+    }
+
+    function deleteGarment(itemId, e) {
+      if (e) e.stopPropagation();
+      wardrobe = wardrobe.filter(i => i && i.id != itemId);
+      localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
+      renderWardrobeList();
+      render7DayBoard();
+      showToast("Garment removed.");
+    }
+
+    function exportFullWardrobeBackup() {
+      const payload = { exportedAt: new Date().toISOString(), wardrobe, weeklyPlan };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `closet_cloud_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      showToast("Backup exported!");
+    }
+
+    function importFullWardrobeBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const raw = JSON.parse(e.target.result);
+          const incoming = Array.isArray(raw) ? raw : (raw.wardrobe || []);
+          wardrobe = incoming;
+          localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
+          if (raw.weeklyPlan) {
+            weeklyPlan = raw.weeklyPlan;
+            localStorage.setItem(STORAGE_KEY_PLAN, JSON.stringify(weeklyPlan));
+          }
+          renderWardrobeList();
+          render7DayBoard();
+          showToast(`Restored ${wardrobe.length} garments!`);
+        } catch(err) {
+          showToast("Invalid backup file.", true);
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
     }
 
     function switchView(viewName) {
       document.getElementById('view-planner').classList.add('hidden');
-      document.getElementById('view-matcher').classList.add('hidden');
       document.getElementById('view-wardrobe').classList.add('hidden');
-      document.getElementById('view-compass').classList.add('hidden');
-
-      ['planner', 'matcher', 'wardrobe', 'compass'].forEach(t => {
+      ['planner', 'wardrobe'].forEach(t => {
         const btn = document.getElementById(`tab-btn-${t}`);
-        if (btn) btn.className = "px-3.5 py-1.5 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5";
+        if (btn) btn.className = "px-4 py-2 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5 transition";
       });
-
       document.getElementById(`view-${viewName}`).classList.remove('hidden');
-      const activeBtn = document.getElementById(`tab-btn-${viewName}`);
-      if (activeBtn) activeBtn.className = "px-3.5 py-1.5 rounded-lg bg-white text-brand-navy shadow-sm font-semibold flex items-center space-x-1.5";
-      
+      document.getElementById(`tab-btn-${viewName}`).className = "px-4 py-2 rounded-lg bg-white text-brand-navy shadow-sm font-semibold flex items-center space-x-1.5 transition";
       if (viewName === 'planner') render7DayBoard();
-      if (viewName === 'matcher') renderMatcherItemList();
       if (viewName === 'wardrobe') renderWardrobeList();
     }
 
@@ -1243,86 +1015,6 @@
 
     function toggleModal(id, open) {
       document.getElementById(id).classList.toggle('hidden', !open);
-    }
-
-    function updatePhotoCoverageMetric() {
-      const total = wardrobe.length;
-      const count = wardrobe.filter(i => !!photoCache[i.id]).length;
-      const badge = document.getElementById('photo-coverage-badge');
-      if (badge) badge.innerText = `${count} / ${total} Photographed`;
-    }
-
-    function updateCompassDials() {
-      const f = document.getElementById('dial-formality').value;
-      const a = document.getElementById('dial-aesthetic').value;
-      const p = document.getElementById('dial-palette').value;
-      document.getElementById('dial-formality-val').innerText = ["Rugged", "Casual Active", "Smart Casual", "Presentation", "Executive"][f-1];
-      document.getElementById('dial-aesthetic-val').innerText = ["80% Athletic", "60% Athletic", "Balanced", "60% Tailored", "80% Tailored"][a-1];
-      document.getElementById('dial-palette-val').innerText = ["Blue Heavy", "Balanced Earth", "Earth Rich"][p-1];
-    }
-
-    function updateGapScorecard() {
-      const blue = wardrobe.filter(i => i.palette === 'blue').length;
-      const earth = wardrobe.filter(i => i.palette === 'earth').length;
-      const neutral = wardrobe.filter(i => i.palette === 'neutral').length;
-      const tot = wardrobe.length || 1;
-      const bPct = Math.round((blue/tot)*100), ePct = Math.round((earth/tot)*100), nPct = Math.round((neutral/tot)*100);
-
-      document.getElementById('palette-ratio-text').innerText = `${bPct}% Blue / ${ePct}% Earth / ${nPct}% Neutral`;
-      document.getElementById('palette-progress-bar').innerHTML = `
-        <div style="width: ${bPct}%" class="bg-blue-800 h-full"></div>
-        <div style="width: ${ePct}%" class="bg-amber-800 h-full"></div>
-        <div style="width: ${nPct}%" class="bg-stone-400 h-full"></div>
-      `;
-    }
-
-    function openSwapModal(dayKey, slot) {
-      activeSwapTarget = { dayKey, slot };
-      const day = DAYS_CONFIG.find(d => d.key === dayKey);
-      document.getElementById('swap-day-title').innerText = `${day.name} Alternative`;
-
-      let categories = [];
-      if (slot === 'layerId') categories = ['Layer', 'Knitwear', 'Athletic'];
-      if (slot === 'shirtId') categories = ['Woven', 'Polo', 'Knitwear', 'Tee', 'Athletic'];
-      if (slot === 'bottomId') categories = ['Pants', 'Shorts'];
-      if (slot === 'footwearId') categories = ['Footwear'];
-
-      document.getElementById('swap-slot-label').innerText = `Select ${categories.join('/')}`;
-
-      const list = document.getElementById('swap-carousel-list');
-      const filtered = wardrobe.filter(i => categories.includes(i.category) && i.tier !== 'Exit');
-
-      list.innerHTML = `
-        <div onclick="selectSwapPiece(null)" class="p-2.5 rounded-xl border border-dashed border-stone-300 text-stone-500 text-xs font-semibold hover:bg-stone-50 cursor-pointer">
-          None / Clear this slot
-        </div>
-      `;
-
-      filtered.forEach(item => {
-        const photo = photoCache[item.id];
-        const card = document.createElement('div');
-        card.className = "p-2.5 rounded-xl border border-brand-border bg-white hover:border-brand-navy flex items-center space-x-3 cursor-pointer transition shadow-2xs";
-        card.onclick = () => selectSwapPiece(item.id);
-        card.innerHTML = `
-          <div class="w-12 h-12 rounded-lg bg-stone-100 overflow-hidden border border-brand-border flex-shrink-0 flex items-center justify-center">
-            ${photo ? `<img src="${photo}" class="w-full h-full object-cover">` : `<span class="text-[10px] font-mono">#${item.id}</span>`}
-          </div>
-          <div class="flex-grow">
-            <h4 class="font-serif font-bold text-xs text-brand-navy leading-snug">${item.name}</h4>
-            <span class="text-[10px] text-stone-500 font-medium">${item.category} &bull; ${item.palette} &bull; ${item.tier}</span>
-          </div>
-        `;
-        list.appendChild(card);
-      });
-
-      toggleModal('swap-modal', true);
-    }
-
-    function selectSwapPiece(itemId) {
-      if (!activeSwapTarget) return;
-      const { dayKey, slot } = activeSwapTarget;
-      updateOutfitSlot(dayKey, slot, itemId);
-      toggleModal('swap-modal', false);
     }
 
     window.onload = initApp;
