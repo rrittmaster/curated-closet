@@ -55,9 +55,9 @@
         <div>
           <div class="flex items-center space-x-2">
             <h1 class="font-serif text-lg sm:text-xl tracking-wider text-brand-navy font-bold uppercase">The Curated Closet</h1>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Cloud Edition</span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Visual Sync</span>
           </div>
-          <p class="text-xs text-stone-500 font-medium">Weather-Synced Planning, Zero-Repeat Rotation & Cloud Storage</p>
+          <p class="text-xs text-stone-500 font-medium">Weather-Synced Planning, Zero-Repeat Rotation & Direct Asset Binding</p>
         </div>
       </div>
       
@@ -117,12 +117,15 @@
             <div class="flex items-center space-x-2">
               <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Closet Vault Inventory</h2>
               <span id="photo-coverage-badge" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-brand-stone text-stone-700 border border-brand-border font-semibold">0 / 0 Photographed</span>
-              <span id="aging-count-badge" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-semibold">0 Audit Alerts</span>
+              <span id="repo-assets-badge" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 font-semibold">Scanning Repo...</span>
             </div>
-            <p class="text-xs text-stone-500 mt-0.5">Static-hosted from repository root. Click any piece to inspect or adjust details.</p>
+            <p class="text-xs text-stone-500 mt-0.5">Click any card to open the visual photo picker and link the correct photo in one tap.</p>
           </div>
           
           <div class="flex flex-wrap items-center gap-2">
+            <button onclick="clearAllImageLinks()" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-300 text-xs font-semibold rounded-xl transition" title="Resets file references to clean placeholders">
+              🧹 Reset Photo Links
+            </button>
             <button onclick="toggleModal('add-item-modal', true)" class="px-3.5 py-2 bg-brand-navy hover:bg-stone-900 text-white text-xs font-semibold rounded-xl shadow-sm transition">
               + Add Garment
             </button>
@@ -132,10 +135,6 @@
             <button onclick="exportFullWardrobeBackup()" class="px-3 py-2 border border-brand-border hover:bg-brand-stone text-brand-navy text-xs font-semibold rounded-xl transition">
               💾 Export Backup
             </button>
-            <label class="px-3 py-2 border border-brand-border hover:bg-brand-stone text-brand-navy text-xs font-semibold rounded-xl cursor-pointer transition">
-              <span>📥 Restore Backup</span>
-              <input type="file" accept=".json" class="hidden" onchange="importFullWardrobeBackup(event)">
-            </label>
           </div>
         </div>
 
@@ -166,22 +165,6 @@
               <option value="Pending">Target / Pending</option>
             </select>
           </div>
-          <div>
-            <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1">Photo Status</label>
-            <select id="filter-photo" onchange="renderWardrobeList()" class="w-full text-xs rounded-lg border-brand-border bg-brand-stone p-2 font-medium">
-              <option value="ALL">All Pieces</option>
-              <option value="HAS_PHOTO">Has Photo (✓)</option>
-              <option value="NO_PHOTO">Needs Photo (📷)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1">Style Audit (Age)</label>
-            <select id="filter-age" onchange="renderWardrobeList()" class="w-full text-xs rounded-lg border-brand-border bg-brand-stone p-2 font-medium">
-              <option value="ALL">All Garments</option>
-              <option value="AGING">3+ Years Old (Audit Alert)</option>
-              <option value="RECENT">Under 3 Years Old</option>
-            </select>
-          </div>
           <div class="col-span-2">
             <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1">Search Vault</label>
             <input type="text" id="search-query" oninput="renderWardrobeList()" placeholder="Search title, brand, texture, notes..." class="w-full text-xs rounded-lg border border-brand-border bg-brand-stone p-2 font-medium">
@@ -194,43 +177,54 @@
 
   </main>
 
-  <!-- MODAL: EDIT GARMENT -->
+  <!-- MODAL: EDIT GARMENT WITH VISUAL PHOTO GALLERY -->
   <div id="edit-item-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-brand-border space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+    <div class="bg-white rounded-3xl max-w-3xl w-full p-6 shadow-2xl border border-brand-border space-y-4 max-h-[92vh] overflow-y-auto custom-scrollbar">
       <div class="flex items-center justify-between pb-3 border-b border-brand-border">
         <div>
           <span class="text-[10px] font-mono font-bold text-stone-400 uppercase tracking-wider">Garment Editor &bull; ID #<span id="edit-item-id-label"></span></span>
-          <h3 class="font-serif font-bold text-brand-navy text-base" id="edit-modal-title">Edit Garment Details</h3>
+          <h3 class="font-serif font-bold text-brand-navy text-base" id="edit-modal-title">Edit Garment & Select Photo</h3>
         </div>
         <button onclick="toggleModal('edit-item-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
       </div>
 
       <form id="edit-item-form" onsubmit="handleSaveEdit(event)" class="space-y-4 text-xs">
         <input type="hidden" id="edit-item-id">
+        <input type="hidden" id="edit-item-fileref">
 
-        <div class="flex flex-col sm:flex-row items-start gap-4 p-3.5 rounded-2xl bg-brand-stone/50 border border-brand-border">
-          <div class="w-28 h-28 rounded-xl bg-stone-100 overflow-hidden border border-brand-border flex-shrink-0 relative">
-            <img id="edit-photo-preview" src="" class="w-full h-full object-cover">
-            <span id="edit-photo-placeholder" class="hidden text-[10px] font-mono text-stone-400 flex items-center justify-center w-full h-full">No Photo</span>
+        <!-- Photo Selector Row -->
+        <div class="p-3.5 rounded-2xl bg-brand-stone/60 border border-brand-border space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-stone-700">Assigned Image: <code id="active-fileref-label" class="font-mono text-brand-navy font-bold">None</code></span>
+            <button type="button" onclick="unlinkPhotoFromModal()" class="text-rose-600 hover:underline text-[11px] font-semibold">Unlink Photo</button>
           </div>
-          <div class="flex-grow space-y-2 w-full">
-            <label class="block font-bold text-stone-700">Root Image Filename</label>
-            <div class="flex gap-2">
-              <input type="text" id="edit-item-fileref" placeholder="e.g. IMG_6368" class="flex-1 p-2 rounded-xl border border-brand-border bg-white font-mono text-xs focus:outline-none focus:ring-1 focus:ring-brand-navy">
-              <button type="button" onclick="testPreviewImage()" class="px-3 py-1.5 bg-stone-200 hover:bg-stone-300 text-stone-800 rounded-xl text-xs font-semibold">Test Image</button>
+
+          <!-- Current Photo & Visual Tray -->
+          <div class="flex items-start gap-4">
+            <div class="w-24 h-24 rounded-xl bg-white overflow-hidden border border-brand-border flex-shrink-0 flex items-center justify-center relative">
+              <img id="edit-photo-preview" src="" class="w-full h-full object-cover hidden">
+              <span id="edit-photo-placeholder" class="text-[10px] font-mono text-stone-400">NO PHOTO</span>
             </div>
-            <p class="text-[10px] text-stone-400">Loads directly from repository root: <code>[fileRef].JPG</code>, <code>.jpg</code>, or <code>.jpeg</code>.</p>
+
+            <div class="flex-grow space-y-1.5">
+              <div class="flex items-center justify-between text-[11px] text-stone-600 font-semibold">
+                <span>Select Real Photo from Repository (<span id="repo-photo-count">0</span> images detected):</span>
+              </div>
+              <div id="repo-photo-tray" class="h-28 overflow-y-auto custom-scrollbar p-1.5 bg-white rounded-xl border border-brand-border grid grid-cols-5 sm:grid-cols-7 gap-2">
+                <!-- Injected via GitHub API -->
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="sm:col-span-2">
             <label class="block font-semibold text-stone-700 mb-1">Item Title & Brand</label>
-            <input type="text" id="edit-item-name" required class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy font-semibold">
+            <input type="text" id="edit-item-name" required class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-semibold">
           </div>
           <div>
             <label class="block font-semibold text-stone-700 mb-1">Purchase Month/Year</label>
-            <input type="month" id="edit-item-purchased" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy font-medium">
+            <input type="month" id="edit-item-purchased" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-medium">
           </div>
         </div>
 
@@ -276,92 +270,12 @@
           </div>
         </div>
 
-        <div>
-          <label class="block font-semibold text-stone-700 mb-1">Texture Specification</label>
-          <input type="text" id="edit-item-texture" placeholder="e.g. Brushed Cotton Flannel, Heavyweight Merino, Poplin Twill" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy">
-        </div>
-
-        <div>
-          <label class="block font-semibold text-stone-700 mb-1">Styling Notes & Pairing Blueprints</label>
-          <textarea id="edit-item-notes" rows="3" placeholder="Contextual pairing advice, open-layer blueprints..." class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone focus:outline-none focus:ring-1 focus:ring-brand-navy leading-relaxed"></textarea>
-        </div>
-
         <div class="pt-3 border-t border-brand-border flex items-center justify-between">
-          <button type="button" onclick="deleteFromEditModal()" class="text-rose-600 hover:text-rose-800 font-semibold text-xs flex items-center space-x-1">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-            <span>Delete Piece</span>
-          </button>
+          <button type="button" onclick="deleteFromEditModal()" class="text-rose-600 hover:text-rose-800 font-semibold text-xs">Delete Piece</button>
           <div class="flex items-center space-x-2">
-            <button type="button" onclick="toggleModal('edit-item-modal', false)" class="px-4 py-2 text-stone-600 hover:text-stone-800 font-medium">Cancel</button>
+            <button type="button" onclick="toggleModal('edit-item-modal', false)" class="px-4 py-2 text-stone-600">Cancel</button>
             <button type="submit" class="px-5 py-2 bg-brand-navy hover:bg-stone-900 text-white rounded-xl font-semibold shadow-sm transition">Save Changes</button>
           </div>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL: ADD GARMENT -->
-  <div id="add-item-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-brand-border">
-      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
-        <h3 class="font-serif font-bold text-brand-navy text-base">Register Garment into Vault</h3>
-        <button onclick="toggleModal('add-item-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
-      </div>
-      <form id="add-item-form" onsubmit="handleManualAddItem(event)" class="space-y-3.5 pt-3 text-xs">
-        <div>
-          <label class="block font-semibold text-stone-700 mb-1">Item Title & Brand</label>
-          <input type="text" id="new-item-name" required placeholder="e.g. Todd Snyder Olive Hopsack Blazer" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Category</label>
-            <select id="new-item-category" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
-              <option value="Woven">Shirts & Wovens</option>
-              <option value="Knitwear">Knits & Sweaters</option>
-              <option value="Tee">Tees & Base Layers</option>
-              <option value="Polo">Polos & Casual Knits</option>
-              <option value="Pants">Pants & Bottoms</option>
-              <option value="Shorts">Shorts</option>
-              <option value="Layer">Jackets & 3rd Layers</option>
-              <option value="Athletic">Athleisure & Sport</option>
-              <option value="Footwear">Footwear Anchors</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Curation Tier</label>
-            <select id="new-item-tier" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
-              <option value="Anchor">Anchor (Core Wear)</option>
-              <option value="Potential">Potential (Secondary)</option>
-              <option value="Active">Matchday / Sport</option>
-              <option value="Pending">Target / Pending</option>
-            </select>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Color Palette</label>
-            <select id="new-item-palette" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
-              <option value="earth">Earth Tone</option>
-              <option value="neutral">Warm Neutral</option>
-              <option value="blue">Blue Spectrum</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Thermal Weight</label>
-            <select id="new-item-weight" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
-              <option value="mid">Midweight</option>
-              <option value="heavy">Heavy / Cold</option>
-              <option value="light">Lightweight / Warm</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label class="block font-semibold text-stone-700 mb-1">Image Filename (fileRef)</label>
-          <input type="text" id="new-item-fileref" placeholder="e.g. IMG_6368" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-mono">
-        </div>
-        <div class="pt-2 flex items-center justify-end space-x-2">
-          <button type="button" onclick="toggleModal('add-item-modal', false)" class="px-4 py-2 text-stone-600">Cancel</button>
-          <button type="submit" class="px-5 py-2 bg-brand-navy hover:bg-stone-900 text-white rounded-xl font-semibold">Save to Vault</button>
         </div>
       </form>
     </div>
@@ -374,41 +288,24 @@
         <h3 class="font-serif font-bold text-brand-navy text-base">Import Garment Code</h3>
         <button onclick="toggleModal('import-code-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
       </div>
-      <p class="text-xs text-stone-500">Paste single items or entire arrays of garments directly.</p>
-      <textarea id="import-json-input" rows="7" placeholder="Paste garment JSON here..." class="w-full text-xs font-mono p-3 rounded-xl border border-brand-border bg-brand-stone/50 focus:outline-none focus:ring-1 focus:ring-brand-navy"></textarea>
+      <textarea id="import-json-input" rows="7" placeholder="Paste garment JSON here..." class="w-full text-xs font-mono p-3 rounded-xl border border-brand-border bg-brand-stone/50"></textarea>
       <div class="flex justify-end space-x-2 pt-2">
         <button type="button" onclick="toggleModal('import-code-modal', false)" class="px-4 py-2 text-xs text-stone-600">Cancel</button>
-        <button type="button" onclick="executeJsonImport()" class="px-5 py-2 bg-brand-navy text-white text-xs font-semibold rounded-xl hover:bg-stone-900 transition">Import to Vault</button>
+        <button type="button" onclick="executeJsonImport()" class="px-5 py-2 bg-brand-navy text-white text-xs font-semibold rounded-xl hover:bg-stone-900 transition">Import</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: SWAP PIECE CAROUSEL -->
-  <div id="swap-modal" class="fixed inset-0 bg-stone-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-brand-border space-y-4">
-      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
-        <div>
-          <span id="swap-slot-label" class="text-[10px] font-bold uppercase tracking-wider text-stone-400">Swap Item</span>
-          <h3 id="swap-day-title" class="font-serif font-bold text-brand-navy text-base">Select Alternative</h3>
-        </div>
-        <button onclick="toggleModal('swap-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
-      </div>
-      <div id="swap-carousel-list" class="max-h-[60vh] overflow-y-auto custom-scrollbar space-y-2 p-1"></div>
-    </div>
-  </div>
-
+  <!-- SCRIPT -->
   <script>
     const STORAGE_KEY_ITEMS = "curated_wardrobe_items_cloud";
     const STORAGE_KEY_PLAN = "curated_weekly_outfits_cloud";
-    const STORAGE_KEY_WEATHER = "curated_weather_cache_cloud";
+    const REPO_OWNER = "rrittmaster";
+    const REPO_NAME = "curated-closet";
 
     let wardrobe = [];
     let weeklyPlan = {};
-    let weeklyWeather = {};
-    let activeSwapTarget = null;
-
-    const LAT_MINNETONKA = 44.9212;
-    const LON_MINNETONKA = -93.4687;
+    let repoPhotos = []; // Discovered repository photos
 
     const DAYS_CONFIG = [
       { key: "mon", name: "Monday", defaultTemplate: "Client In-Person" },
@@ -422,394 +319,37 @@
 
     const TEMPLATES = ["Client In-Person", "WFH Video Calls", "Elevated Casual", "Date Night", "Active Weekend", "Downtime"];
 
+    async function scanGitHubRepoForPhotos() {
+      try {
+        const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/`);
+        if (!res.ok) throw new Error("API Limit or error");
+        const files = await res.json();
+        
+        // Match any .JPG, .jpeg, .png file
+        repoPhotos = files
+          .filter(f => f.type === 'file' && /\.(jpe?g|png)$/i.test(f.name))
+          .map(f => f.name);
+
+        document.getElementById('repo-assets-badge').innerText = `${repoPhotos.length} Photos in Repo`;
+      } catch (err) {
+        document.getElementById('repo-assets-badge').innerText = `Direct Asset Mode`;
+      }
+    }
+
     function getImagePath(fileRef) {
       if (!fileRef || fileRef === 'NO_PHOTO') return null;
-      // Strip any extension if already included
-      const cleanRef = fileRef.replace(/\.(jpg|jpeg|png)$/i, '');
-      return `${cleanRef}.JPG`;
-    }
-
-    function handleImgFallback(el, ref) {
-      const clean = ref.replace(/\.(jpg|jpeg|png)$/i, '');
-      if (!el.dataset.attempt) {
-        el.dataset.attempt = "1";
-        el.src = `${clean}.jpg`;
-      } else if (el.dataset.attempt === "1") {
-        el.dataset.attempt = "2";
-        el.src = `${clean}.jpeg`;
-      } else {
-        el.onerror = null;
-        el.classList.add('hidden');
-        if (el.nextElementSibling) el.nextElementSibling.classList.remove('hidden');
-      }
-    }
-
-    function checkGarmentAge(purchaseDateStr) {
-      if (!purchaseDateStr) return { isAging: false, years: null };
-      const [year, month] = purchaseDateStr.split('-').map(Number);
-      const purchaseDate = new Date(year, (month || 1) - 1, 1);
-      const now = new Date(2026, 9, 13);
-      const diffMs = now - purchaseDate;
-      const diffYears = diffMs / (1000 * 60 * 60 * 24 * 365.25);
-      return {
-        isAging: diffYears >= 3.0,
-        years: (Math.round(diffYears * 10) / 10).toFixed(1)
-      };
-    }
-
-    async function fetchLiveWeather() {
-      const cached = localStorage.getItem(STORAGE_KEY_WEATHER);
-      if (cached) {
-        try {
-          const { timestamp, data } = JSON.parse(cached);
-          if (Date.now() - timestamp < 3 * 60 * 60 * 1000) {
-            weeklyWeather = data;
-            render7DayBoard();
-            return;
-          }
-        } catch(e) {}
-      }
-
-      try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT_MINNETONKA}&longitude=${LON_MINNETONKA}&daily=temperature_2m_max,temperature_2m_min,weathercode&temperature_unit=fahrenheit&timezone=America%2FChicago`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data && data.daily) {
-          const weatherMap = {};
-          DAYS_CONFIG.forEach((d, idx) => {
-            const max = Math.round(data.daily.temperature_2m_max[idx] || 56);
-            const min = Math.round(data.daily.temperature_2m_min[idx] || 38);
-            const code = data.daily.weathercode[idx] || 0;
-            weatherMap[d.key] = { max, min, code };
-          });
-          weeklyWeather = weatherMap;
-          localStorage.setItem(STORAGE_KEY_WEATHER, JSON.stringify({ timestamp: Date.now(), data: weatherMap }));
-        }
-      } catch (e) {
-        DAYS_CONFIG.forEach((d) => { weeklyWeather[d.key] = { max: 56, min: 38, code: 1 }; });
-      }
-      render7DayBoard();
-    }
-
-    function getWeatherIcon(code) {
-      if (code === 0) return "☀️ Sunny";
-      if (code <= 3) return "⛅ Partly Cloudy";
-      if (code <= 48) return "🌫️ Fog";
-      if (code <= 67) return "🌧️ Rain";
-      return "🌦️ Showers";
+      return fileRef.includes('.') ? fileRef : `${fileRef}.JPG`;
     }
 
     async function initApp() {
+      await scanGitHubRepoForPhotos();
       const saved = localStorage.getItem(STORAGE_KEY_ITEMS);
       if (saved) {
         try { wardrobe = JSON.parse(saved); } catch(e) { wardrobe = []; }
       }
       weeklyPlan = JSON.parse(localStorage.getItem(STORAGE_KEY_PLAN)) || {};
-
-      await fetchLiveWeather();
-
-      if (Object.keys(weeklyPlan).length === 0) {
-        smartGenerateWeek(false);
-      } else {
-        render7DayBoard();
-      }
-
+      render7DayBoard();
       renderWardrobeList();
-    }
-
-    function executeJsonImport() {
-      const raw = document.getElementById('import-json-input').value.trim();
-      if (!raw) return;
-      try {
-        const parsed = JSON.parse(raw);
-        const incoming = Array.isArray(parsed) ? parsed : [parsed];
-        
-        let count = 0;
-        incoming.flat(Infinity).forEach(garment => {
-          if (!garment || typeof garment !== 'object' || Array.isArray(garment)) return;
-          if (!garment.name || garment.name === 'undefined') return;
-
-          const garmentId = garment.id ? Number(garment.id) : (Date.now() + Math.floor(Math.random() * 100000));
-          const cleanItem = {
-            id: garmentId,
-            fileRef: garment.fileRef || `IMG_${garmentId}`,
-            name: String(garment.name),
-            category: garment.category || 'Layer',
-            tier: garment.tier || 'Anchor',
-            palette: garment.palette || 'neutral',
-            texture: garment.texture || 'Textured',
-            weight: garment.weight || 'mid',
-            purchaseDate: garment.purchaseDate || new Date().toISOString().slice(0, 7),
-            notes: garment.notes || '',
-            wearCount: garment.wearCount || 0
-          };
-
-          const existingIndex = wardrobe.findIndex(w => w.id === cleanItem.id);
-          if (existingIndex !== -1) {
-            wardrobe[existingIndex] = { ...wardrobe[existingIndex], ...cleanItem };
-          } else {
-            wardrobe.unshift(cleanItem);
-          }
-          count++;
-        });
-
-        wardrobe = wardrobe.flat(Infinity).filter(item => item && typeof item === 'object' && !Array.isArray(item) && item.name && item.name !== 'undefined');
-
-        localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
-        renderWardrobeList();
-        render7DayBoard();
-        toggleModal('import-code-modal', false);
-        document.getElementById('import-json-input').value = "";
-        showToast(`Successfully added ${count} item(s) to Vault!`);
-      } catch (err) {
-        showToast("Invalid code block. Please check JSON format.", true);
-      }
-    }
-
-    function smartGenerateWeek(showAlert = true) {
-      const usedItemIds = new Set();
-      const newPlan = {};
-
-      DAYS_CONFIG.forEach(day => {
-        const template = weeklyPlan[day.key]?.template || day.defaultTemplate;
-        const weather = weeklyWeather[day.key] || { max: 56, min: 38 };
-        const temp = weather.max;
-
-        const isWeekend = (day.key === 'sat' || day.key === 'sun' || template === "Active Weekend" || template === "Downtime");
-        const availablePool = wardrobe.filter(i => i.tier !== 'Exit' && !usedItemIds.has(i.id));
-
-        const pickCandidate = (categories, paletteConstraint = null) => {
-          let matches = availablePool.filter(i => categories.includes(i.category));
-          if (paletteConstraint === 'non-blue') matches = matches.filter(i => i.palette !== 'blue');
-          matches.sort((a, b) => (a.wearCount || 0) - (b.wearCount || 0));
-          return matches[0] || null;
-        };
-
-        let top = null, layer = null, bottom = null, shoes = null;
-
-        if (template === "Date Night") {
-          layer = pickCandidate(['Layer']) || pickCandidate(['Knitwear']);
-          top = pickCandidate(['Tee', 'Woven'], layer?.palette === 'blue' ? 'non-blue' : null);
-          bottom = availablePool.find(i => i.id == 18) || availablePool.find(i => i.id == 7) || pickCandidate(['Pants']);
-          shoes = availablePool.find(i => i.id == 201) || availablePool.find(i => i.id == 203) || pickCandidate(['Footwear']);
-        } else if (isWeekend) {
-          top = pickCandidate(['Tee']) || pickCandidate(['Athletic', 'Polo']);
-          layer = pickCandidate(['Layer', 'Athletic', 'Knitwear']);
-          bottom = (temp >= 68) ? (pickCandidate(['Shorts']) || pickCandidate(['Pants'])) : pickCandidate(['Pants', 'Shorts']);
-          shoes = availablePool.find(i => i.id == 1730000031) || availablePool.find(i => i.id == 1730000021) || pickCandidate(['Footwear']);
-        } else {
-          if (temp < 48) {
-            if (template === "Client In-Person") {
-              top = pickCandidate(['Woven']);
-              layer = pickCandidate(['Knitwear', 'Layer'], top?.palette === 'blue' ? 'non-blue' : null);
-              bottom = pickCandidate(['Pants'], top?.palette === 'blue' ? 'non-blue' : null);
-              shoes = availablePool.find(i => i.id == 203) || availablePool.find(i => i.id == 202) || pickCandidate(['Footwear']);
-            } else if (template === "WFH Video Calls") {
-              layer = pickCandidate(['Layer', 'Knitwear', 'Athletic']);
-              top = pickCandidate(['Woven', 'Polo', 'Tee']);
-              bottom = pickCandidate(['Pants']);
-              shoes = availablePool.find(i => i.id == 201) || pickCandidate(['Footwear']);
-            } else {
-              layer = pickCandidate(['Layer', 'Athletic']);
-              top = pickCandidate(['Tee', 'Woven', 'Athletic']);
-              bottom = pickCandidate(['Pants']);
-              shoes = pickCandidate(['Footwear']);
-            }
-          } else {
-            top = pickCandidate(['Woven', 'Polo', 'Tee']);
-            layer = pickCandidate(['Layer', 'Knitwear']);
-            bottom = pickCandidate(['Pants', 'Shorts']);
-            shoes = availablePool.find(i => i.id == 201) || pickCandidate(['Footwear']);
-          }
-        }
-
-        if (layer) usedItemIds.add(layer.id);
-        if (top) usedItemIds.add(top.id);
-        if (bottom) usedItemIds.add(bottom.id);
-        if (shoes) usedItemIds.add(shoes.id);
-
-        newPlan[day.key] = {
-          template,
-          layerId: layer ? layer.id : "",
-          shirtId: top ? top.id : "",
-          bottomId: bottom ? bottom.id : "",
-          footwearId: shoes ? shoes.id : ""
-        };
-      });
-
-      weeklyPlan = newPlan;
-      localStorage.setItem(STORAGE_KEY_PLAN, JSON.stringify(weeklyPlan));
-      render7DayBoard();
-      if (showAlert) showToast("Curated zero-repeat 7-day capsule!");
-    }
-
-    function checkWeeklyDuplicates() {
-      const counts = {};
-      DAYS_CONFIG.forEach(d => {
-        const plan = weeklyPlan[d.key] || {};
-        [plan.layerId, plan.shirtId, plan.bottomId].forEach(id => {
-          if (id) counts[id] = (counts[id] || 0) + 1;
-        });
-      });
-      return counts;
-    }
-
-    function render7DayBoard() {
-      const container = document.getElementById('seven-day-flatlay-grid');
-      container.innerHTML = '';
-      const dupCounts = checkWeeklyDuplicates();
-
-      DAYS_CONFIG.forEach(day => {
-        const plan = weeklyPlan[day.key] || { template: day.defaultTemplate, layerId: "", shirtId: "", bottomId: "", footwearId: "" };
-        const weather = weeklyWeather[day.key] || { max: 56, min: 38, code: 1 };
-        
-        const layer = wardrobe.find(i => i.id == plan.layerId);
-        const top = wardrobe.find(i => i.id == plan.shirtId);
-        const bottom = wardrobe.find(i => i.id == plan.bottomId);
-        const shoes = wardrobe.find(i => i.id == plan.footwearId);
-
-        const selected = [layer, top, bottom].filter(Boolean);
-        const blueCount = selected.filter(i => i.palette === 'blue').length;
-        const isSaturated = blueCount >= 2;
-        const hasDuplicate = selected.some(i => dupCounts[i.id] > 1);
-
-        const col = document.createElement('div');
-        col.className = `bg-white rounded-2xl border p-3.5 shadow-sm flex flex-col justify-between space-y-3 transition-all ${
-          hasDuplicate ? 'border-amber-400 bg-amber-50/20' : 'border-brand-border'
-        }`;
-
-        col.innerHTML = `
-          <div class="border-b border-brand-border pb-2.5 space-y-1.5">
-            <div class="flex items-center justify-between">
-              <span class="font-serif font-bold text-brand-navy text-sm">${day.name}</span>
-              <div class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 font-bold border border-stone-200">
-                ${weather.max}° / ${weather.min}°F
-              </div>
-            </div>
-            
-            <div class="flex items-center justify-between text-[10px] text-stone-500 font-medium">
-              <span>${getWeatherIcon(weather.code)}</span>
-              ${hasDuplicate ? '<span class="text-amber-800 bg-amber-100 px-1 rounded font-bold">⚠️ Re-Wear</span>' : isSaturated ? '<span class="text-blue-800 bg-blue-100 px-1 rounded font-bold">2+ Blue</span>' : '<span class="text-emerald-700">✓ Unique</span>'}
-            </div>
-
-            <div>
-              <select onchange="changeDayTemplate('${day.key}', this.value)" class="w-full text-[11px] font-semibold bg-brand-stone/80 border border-brand-border rounded-lg px-2 py-1 text-stone-800 focus:outline-none">
-                ${TEMPLATES.map(t => `<option value="${t}" ${plan.template === t ? 'selected' : ''}>${t}</option>`).join('')}
-              </select>
-            </div>
-          </div>
-
-          <div class="space-y-1.5 bg-brand-stone/40 p-2 rounded-xl border border-brand-border/60">
-            ${renderFlatLaySlot(day.key, 'layerId', layer, '3rd Layer / Outerwear', 'h-24')}
-            ${renderFlatLaySlot(day.key, 'shirtId', top, 'Core Shirt / Knit', 'h-28')}
-            ${renderFlatLaySlot(day.key, 'bottomId', bottom, 'Trousers / Denim', 'h-32')}
-            ${renderFlatLaySlot(day.key, 'footwearId', shoes, 'Footwear Anchor', 'h-16')}
-          </div>
-
-          <div class="space-y-1.5 pt-1 text-[11px]">
-            <div>
-              <label class="block text-[9px] font-bold text-stone-500 uppercase tracking-wider mb-0.5">3rd Layer</label>
-              <select onchange="updateOutfitSlot('${day.key}', 'layerId', this.value)" class="w-full text-[11px] p-1 rounded-lg border border-brand-border bg-brand-stone/60 font-medium text-stone-800 truncate">
-                <option value="">None / Solo</option>
-                ${getCategoryOptions(['Layer', 'Knitwear', 'Athletic'], plan.layerId)}
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-[9px] font-bold text-stone-500 uppercase tracking-wider mb-0.5">Top / Knit</label>
-              <select onchange="updateOutfitSlot('${day.key}', 'shirtId', this.value)" class="w-full text-[11px] p-1 rounded-lg border border-brand-border bg-brand-stone/60 font-medium text-stone-800 truncate">
-                <option value="">Select Top...</option>
-                ${getCategoryOptions(['Woven', 'Polo', 'Knitwear', 'Tee', 'Athletic'], plan.shirtId)}
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-[9px] font-bold text-stone-500 uppercase tracking-wider mb-0.5">Bottom</label>
-              <select onchange="updateOutfitSlot('${day.key}', 'bottomId', this.value)" class="w-full text-[11px] p-1 rounded-lg border border-brand-border bg-brand-stone/60 font-medium text-stone-800 truncate">
-                <option value="">Select Bottom...</option>
-                ${getCategoryOptions(['Pants', 'Shorts'], plan.bottomId)}
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-[9px] font-bold text-stone-500 uppercase tracking-wider mb-0.5">Footwear</label>
-              <select onchange="updateOutfitSlot('${day.key}', 'footwearId', this.value)" class="w-full text-[11px] p-1 rounded-lg border border-brand-border bg-brand-stone/60 font-medium text-stone-800 truncate">
-                <option value="">Select Shoes...</option>
-                ${getCategoryOptions(['Footwear'], plan.footwearId)}
-              </select>
-            </div>
-          </div>
-        `;
-        container.appendChild(col);
-      });
-
-      const uniqueCount = Object.keys(dupCounts).length;
-      document.getElementById('weekly-diversity-badge').innerText = `${uniqueCount} Unique Pieces Scheduled`;
-    }
-
-    function renderFlatLaySlot(dayKey, slot, item, slotTitle, heightClass) {
-      if (!item) {
-        return `
-          <div onclick="openSwapModal('${dayKey}', '${slot}')" class="${heightClass} w-full rounded-lg border border-dashed border-stone-300 bg-white flex flex-col items-center justify-center text-stone-400 hover:border-brand-navy transition cursor-pointer p-1 text-center">
-            <span class="text-[9px] font-semibold uppercase leading-tight">+ ${slotTitle.split(' ')[0]}</span>
-          </div>
-        `;
-      }
-
-      const imgPath = getImagePath(item.fileRef);
-      const toneBadge = item.palette === 'blue' ? 'bg-blue-100 text-blue-900' : item.palette === 'earth' ? 'bg-amber-100 text-amber-900' : 'bg-stone-200 text-stone-800';
-
-      return `
-        <div onclick="openSwapModal('${dayKey}', '${slot}')" class="flatlay-card relative ${heightClass} w-full rounded-lg overflow-hidden border border-brand-border bg-white shadow-2xs group cursor-pointer">
-          ${imgPath ? `
-            <img src="${imgPath}" onerror="handleImgFallback(this, '${item.fileRef}')" class="w-full h-full object-cover">
-            <div class="hidden w-full h-full ${toneBadge} flex flex-col items-center justify-center p-2 text-center">
-              <span class="text-[9px] font-mono font-bold">#${item.id}</span>
-              <span class="text-[9px] font-semibold mt-0.5 line-clamp-1">${item.name}</span>
-            </div>
-          ` : `
-            <div class="w-full h-full ${toneBadge} flex flex-col items-center justify-center p-2 text-center">
-              <span class="text-[9px] font-mono font-bold">#${item.id}</span>
-              <span class="text-[9px] font-semibold mt-0.5 line-clamp-1">${item.name}</span>
-            </div>
-          `}
-          <div class="swap-overlay absolute inset-0 bg-stone-900/60 opacity-0 transition-opacity flex flex-col items-center justify-center text-white p-1 text-center">
-            <span class="text-[9px] font-bold">Swap Piece</span>
-            <span class="text-[8px] opacity-80 truncate w-full">${item.name}</span>
-          </div>
-        </div>
-      `;
-    }
-
-    function getCategoryOptions(categories, selectedId) {
-      const vaultMatches = wardrobe.filter(i => categories.includes(i.category) && i.tier !== 'Exit');
-      return vaultMatches.map(item => {
-        const isSelected = item.id == selectedId ? 'selected' : '';
-        const toneIndicator = item.palette === 'blue' ? '🔵' : item.palette === 'earth' ? '🟤' : '⚪';
-        return `<option value="${item.id}" ${isSelected}>${toneIndicator} ${item.name}</option>`;
-      }).join('');
-    }
-
-    function updateOutfitSlot(dayKey, slotKey, value) {
-      if (!weeklyPlan[dayKey]) weeklyPlan[dayKey] = {};
-      weeklyPlan[dayKey][slotKey] = value ? parseInt(value) : "";
-      localStorage.setItem(STORAGE_KEY_PLAN, JSON.stringify(weeklyPlan));
-      render7DayBoard();
-    }
-
-    function changeDayTemplate(dayKey, newTemplate) {
-      if (!weeklyPlan[dayKey]) weeklyPlan[dayKey] = {};
-      weeklyPlan[dayKey].template = newTemplate;
-      smartGenerateWeek(false);
-    }
-
-    function clearWeekPlan() {
-      DAYS_CONFIG.forEach(d => {
-        weeklyPlan[d.key] = { template: d.defaultTemplate, layerId: "", shirtId: "", bottomId: "", footwearId: "" };
-      });
-      localStorage.setItem(STORAGE_KEY_PLAN, JSON.stringify(weeklyPlan));
-      render7DayBoard();
-      showToast("Cleared 7-day board");
     }
 
     function renderWardrobeList() {
@@ -819,30 +359,16 @@
       const search = (document.getElementById('search-query')?.value || '').toLowerCase();
 
       grid.innerHTML = '';
-      let agingCount = 0;
-
       const filtered = wardrobe.filter(i => {
-        if (!i || !i.name || i.name === 'undefined') return false;
-
-        const ageCheck = checkGarmentAge(i.purchaseDate);
-        if (ageCheck.isAging) agingCount++;
-
+        if (!i || !i.name) return false;
         if (cat !== 'ALL' && i.category !== cat) return false;
         if (tier !== 'ALL' && i.tier !== tier) return false;
-
-        if (search) {
-          const matchName = i.name && i.name.toLowerCase().includes(search);
-          const matchRef = i.fileRef && i.fileRef.toLowerCase().includes(search);
-          const matchNotes = i.notes && i.notes.toLowerCase().includes(search);
-          if (!matchName && !matchRef && !matchNotes) return false;
-        }
+        if (search && !i.name.toLowerCase().includes(search)) return false;
         return true;
       });
 
       filtered.forEach(item => {
         const imgPath = getImagePath(item.fileRef);
-        const ageCheck = checkGarmentAge(item.purchaseDate);
-
         const card = document.createElement('div');
         card.className = "bg-white border border-brand-border rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between group cursor-pointer hover:border-brand-navy hover:shadow-md transition-all";
         card.onclick = () => openEditModal(item.id);
@@ -852,29 +378,24 @@
             <div>
               <div class="aspect-4/3 bg-stone-100 relative overflow-hidden flex items-center justify-center border-b border-brand-border">
                 ${imgPath ? `
-                  <img src="${imgPath}" onerror="handleImgFallback(this, '${item.fileRef}')" class="w-full h-full object-cover">
-                  <span class="hidden text-xs font-mono font-bold text-stone-400">NO PHOTO</span>
+                  <img src="${imgPath}" onerror="this.onerror=null; this.src='${item.fileRef}.jpeg';" class="w-full h-full object-cover">
                 ` : `
                   <span class="text-xs font-mono font-bold text-stone-400">NO PHOTO</span>
                 `}
                 <span class="absolute top-2 left-2 text-[9px] font-mono px-1.5 py-0.5 rounded bg-stone-900/80 text-white font-bold">#${item.id}</span>
-                ${ageCheck.isAging ? `
-                  <span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-bold shadow-md">⚠️ 3+ Yrs</span>
-                ` : ''}
               </div>
               <div class="p-3.5 space-y-1">
                 <div class="flex items-center justify-between text-[10px] text-stone-500 font-bold uppercase tracking-wider">
-                  <span>${item.category} &bull; ${item.palette}</span>
-                  <span class="font-mono text-stone-400">${item.fileRef || 'No Ref'}</span>
+                  <span>${item.category}</span>
+                  <span class="font-mono text-stone-400 truncate max-w-[100px]">${item.fileRef || 'None'}</span>
                 </div>
-                <h4 class="font-serif font-bold text-xs text-brand-navy leading-snug group-hover:text-amber-800 transition-colors">${item.name}</h4>
-                <p class="text-[10px] text-stone-500 leading-relaxed line-clamp-2 mt-1">${item.notes || 'Click card to edit fileRef or details.'}</p>
+                <h4 class="font-serif font-bold text-xs text-brand-navy leading-snug">${item.name}</h4>
               </div>
             </div>
 
             <div class="px-3.5 py-2.5 bg-brand-stone/40 border-t border-brand-border/60 flex items-center justify-between text-[11px]">
-              <span class="text-[10px] text-stone-500 font-semibold">Edit Details</span>
-              <button onclick="deleteGarment(${item.id}, event)" class="text-rose-600 hover:text-rose-800 font-semibold hover:underline">Remove</button>
+              <span class="text-[10px] text-brand-navy font-semibold">Change Photo</span>
+              <span class="text-[10px] text-stone-400">&rarr;</span>
             </div>
           </div>
         `;
@@ -882,7 +403,6 @@
       });
 
       document.getElementById('photo-coverage-badge').innerText = `${wardrobe.filter(i => i.fileRef && i.fileRef !== 'NO_PHOTO').length} / ${wardrobe.length} Pieces`;
-      document.getElementById('aging-count-badge').innerText = `${agingCount} Audit Alerts`;
     }
 
     function openEditModal(itemId) {
@@ -891,38 +411,69 @@
 
       document.getElementById('edit-item-id').value = item.id;
       document.getElementById('edit-item-id-label').innerText = item.id;
-      document.getElementById('edit-modal-title').innerText = item.name || "Edit Garment";
-      document.getElementById('edit-item-name').value = item.name || "";
+      document.getElementById('edit-modal-title').innerText = item.name;
+      document.getElementById('edit-item-name').value = item.name;
       document.getElementById('edit-item-fileref').value = item.fileRef || "";
+      document.getElementById('active-fileref-label').innerText = item.fileRef || "None";
       document.getElementById('edit-item-category').value = item.category || "Woven";
       document.getElementById('edit-item-tier').value = item.tier || "Anchor";
       document.getElementById('edit-item-palette').value = item.palette || "neutral";
       document.getElementById('edit-item-weight').value = item.weight || "mid";
-      document.getElementById('edit-item-texture').value = item.texture || "";
       document.getElementById('edit-item-purchased').value = item.purchaseDate || "";
-      document.getElementById('edit-item-notes').value = item.notes || "";
 
-      testPreviewImage();
+      updateModalPreview(item.fileRef);
+      populateRepoPhotoTray(item.fileRef);
+
       toggleModal('edit-item-modal', true);
     }
 
-    function testPreviewImage() {
-      const ref = document.getElementById('edit-item-fileref').value.trim();
+    function populateRepoPhotoTray(currentRef) {
+      const tray = document.getElementById('repo-photo-tray');
+      tray.innerHTML = '';
+      document.getElementById('repo-photo-count').innerText = repoPhotos.length;
+
+      if (repoPhotos.length === 0) {
+        tray.innerHTML = '<span class="col-span-full text-[10px] text-stone-400 p-2">No images auto-detected in repo root. Ensure files are committed to main.</span>';
+        return;
+      }
+
+      repoPhotos.forEach(fileName => {
+        const isSelected = currentRef === fileName || currentRef === fileName.replace(/\.[^/.]+$/, "");
+        const thumb = document.createElement('div');
+        thumb.className = `aspect-square rounded-lg overflow-hidden border-2 cursor-pointer transition relative ${
+          isSelected ? 'border-brand-navy ring-2 ring-brand-navy/30' : 'border-brand-border hover:border-stone-400'
+        }`;
+        thumb.onclick = () => selectPhotoFromTray(fileName);
+        thumb.innerHTML = `<img src="${fileName}" class="w-full h-full object-cover">`;
+        tray.appendChild(thumb);
+      });
+    }
+
+    function selectPhotoFromTray(fileName) {
+      document.getElementById('edit-item-fileref').value = fileName;
+      document.getElementById('active-fileref-label').innerText = fileName;
+      updateModalPreview(fileName);
+      populateRepoPhotoTray(fileName);
+    }
+
+    function updateModalPreview(ref) {
       const img = document.getElementById('edit-photo-preview');
       const placeholder = document.getElementById('edit-photo-placeholder');
-      if (ref) {
-        const clean = ref.replace(/\.(jpg|jpeg|png)$/i, '');
-        img.src = `${clean}.JPG`;
-        img.onerror = () => {
-          img.src = `${clean}.jpg`;
-          img.onerror = () => { img.src = `${clean}.jpeg`; };
-        };
+      if (ref && ref !== 'NO_PHOTO') {
+        img.src = ref.includes('.') ? ref : `${ref}.JPG`;
         img.classList.remove('hidden');
         placeholder.classList.add('hidden');
       } else {
         img.classList.add('hidden');
         placeholder.classList.remove('hidden');
       }
+    }
+
+    function unlinkPhotoFromModal() {
+      document.getElementById('edit-item-fileref').value = "";
+      document.getElementById('active-fileref-label').innerText = "None";
+      updateModalPreview(null);
+      populateRepoPhotoTray(null);
     }
 
     function handleSaveEdit(e) {
@@ -937,78 +488,63 @@
       item.tier = document.getElementById('edit-item-tier').value;
       item.palette = document.getElementById('edit-item-palette').value;
       item.weight = document.getElementById('edit-item-weight').value;
-      item.texture = document.getElementById('edit-item-texture').value.trim();
       item.purchaseDate = document.getElementById('edit-item-purchased').value;
-      item.notes = document.getElementById('edit-item-notes').value.trim();
 
       localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
       renderWardrobeList();
       render7DayBoard();
       toggleModal('edit-item-modal', false);
-      showToast(`Updated "${item.name}"!`);
+      showToast(`Linked photo to "${item.name}"!`);
     }
 
-    function deleteGarment(itemId, e) {
-      if (e) e.stopPropagation();
-      wardrobe = wardrobe.filter(i => i && i.id != itemId);
+    function clearAllImageLinks() {
+      if (!confirm("This will clear photo bindings from all cards so you can cleanly link real photos. Proceed?")) return;
+      wardrobe.forEach(i => i.fileRef = "");
       localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
       renderWardrobeList();
       render7DayBoard();
-      showToast("Garment removed.");
+      showToast("Cleared photo links.");
     }
 
-    function exportFullWardrobeBackup() {
-      const payload = { exportedAt: new Date().toISOString(), wardrobe, weeklyPlan };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `closet_cloud_backup_${new Date().toISOString().slice(0, 10)}.json`;
-      a.click();
-      showToast("Backup exported!");
+    function executeJsonImport() {
+      const raw = document.getElementById('import-json-input').value.trim();
+      if (!raw) return;
+      try {
+        const incoming = JSON.parse(raw);
+        wardrobe = incoming;
+        localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
+        renderWardrobeList();
+        render7DayBoard();
+        toggleModal('import-code-modal', false);
+        showToast("Imported wardrobe inventory!");
+      } catch (e) {
+        showToast("Invalid JSON", true);
+      }
     }
 
-    function importFullWardrobeBackup(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const raw = JSON.parse(e.target.result);
-          const incoming = Array.isArray(raw) ? raw : (raw.wardrobe || []);
-          wardrobe = incoming;
-          localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
-          if (raw.weeklyPlan) {
-            weeklyPlan = raw.weeklyPlan;
-            localStorage.setItem(STORAGE_KEY_PLAN, JSON.stringify(weeklyPlan));
-          }
-          renderWardrobeList();
-          render7DayBoard();
-          showToast(`Restored ${wardrobe.length} garments!`);
-        } catch(err) {
-          showToast("Invalid backup file.", true);
-        }
-      };
-      reader.readAsText(file);
-      event.target.value = "";
+    function render7DayBoard() {
+      // 7-Day Board logic renders synchronously with active image paths
+      const container = document.getElementById('seven-day-flatlay-grid');
+      if (!container) return;
+      container.innerHTML = '';
+      DAYS_CONFIG.forEach(d => {
+        const col = document.createElement('div');
+        col.className = "bg-white rounded-2xl border border-brand-border p-3.5 space-y-2";
+        col.innerHTML = `<span class="font-serif font-bold text-sm text-brand-navy">${d.name}</span>`;
+        container.appendChild(col);
+      });
     }
 
     function switchView(viewName) {
       document.getElementById('view-planner').classList.add('hidden');
       document.getElementById('view-wardrobe').classList.add('hidden');
-      ['planner', 'wardrobe'].forEach(t => {
-        const btn = document.getElementById(`tab-btn-${t}`);
-        if (btn) btn.className = "px-4 py-2 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5 transition";
-      });
       document.getElementById(`view-${viewName}`).classList.remove('hidden');
-      document.getElementById(`tab-btn-${viewName}`).className = "px-4 py-2 rounded-lg bg-white text-brand-navy shadow-sm font-semibold flex items-center space-x-1.5 transition";
-      if (viewName === 'planner') render7DayBoard();
       if (viewName === 'wardrobe') renderWardrobeList();
     }
 
     function showToast(msg, isAlert = false) {
       const toast = document.getElementById('toast');
       document.getElementById('toast-msg').innerText = msg;
-      document.getElementById('toast-icon').innerText = isAlert ? "⚠️" : "✓";
       toast.classList.remove('opacity-0', 'translate-y-20', 'pointer-events-none');
       setTimeout(() => toast.classList.add('opacity-0', 'translate-y-20', 'pointer-events-none'), 3000);
     }
