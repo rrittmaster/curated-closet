@@ -55,27 +55,34 @@
         <div>
           <div class="flex items-center space-x-2">
             <h1 class="font-serif text-lg sm:text-xl tracking-wider text-brand-navy font-bold uppercase">The Curated Closet</h1>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Intake Studio</span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">Vision AI Enabled</span>
           </div>
-          <p class="text-xs text-stone-500 font-medium">Sequential Visual Intake &bull; Weather-Synced Flat-Lays &bull; Zero-Repeat Rotation</p>
+          <p class="text-xs text-stone-500 font-medium">Multimodal Garment Analysis &bull; Weather-Synced Flat-Lays &bull; Zero-Repeat Rotation</p>
         </div>
       </div>
       
-      <!-- Core Navigation -->
-      <nav class="flex space-x-1.5 bg-brand-stone p-1 rounded-xl border border-brand-border text-xs sm:text-sm font-medium">
-        <button id="tab-btn-build" onclick="switchView('build')" class="px-4 py-2 rounded-lg bg-white text-brand-navy shadow-sm font-semibold flex items-center space-x-1.5 transition">
-          <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-          <span>Build My Wardrobe</span>
+      <!-- Core Navigation & Key Button -->
+      <div class="flex items-center space-x-2">
+        <button onclick="toggleModal('api-key-modal', true)" class="px-3 py-1.5 rounded-xl border border-brand-border bg-brand-stone hover:bg-stone-200 text-brand-navy text-xs font-semibold flex items-center space-x-1.5 transition">
+          <span id="api-key-indicator" class="w-2 h-2 rounded-full bg-rose-500"></span>
+          <span>Vision API Key</span>
         </button>
-        <button id="tab-btn-wardrobe" onclick="switchView('wardrobe')" class="px-4 py-2 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5 transition">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          <span>Closet Vault (<span id="nav-vault-count">0</span>)</span>
-        </button>
-        <button id="tab-btn-planner" onclick="switchView('planner')" class="px-4 py-2 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5 transition">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          <span>7-Day Board</span>
-        </button>
-      </nav>
+
+        <nav class="flex space-x-1.5 bg-brand-stone p-1 rounded-xl border border-brand-border text-xs sm:text-sm font-medium">
+          <button id="tab-btn-build" onclick="switchView('build')" class="px-4 py-2 rounded-lg bg-white text-brand-navy shadow-sm font-semibold flex items-center space-x-1.5 transition">
+            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+            <span>Intake Studio</span>
+          </button>
+          <button id="tab-btn-wardrobe" onclick="switchView('wardrobe')" class="px-4 py-2 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Closet Vault (<span id="nav-vault-count">0</span>)</span>
+          </button>
+          <button id="tab-btn-planner" onclick="switchView('planner')" class="px-4 py-2 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>7-Day Board</span>
+          </button>
+        </nav>
+      </div>
     </div>
   </header>
 
@@ -89,22 +96,25 @@
 
   <main class="flex-grow max-w-[1700px] mx-auto w-full px-3 sm:px-6 py-6">
 
-    <!-- VIEW 1: BUILD MY WARDROBE (INTAKE STUDIO) -->
+    <!-- VIEW 1: BUILD MY WARDROBE (INTAKE STUDIO + VISION AI) -->
     <section id="view-build" class="space-y-6">
       
       <!-- Progress Bar & Subheader -->
       <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-3">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Wardrobe Intake Studio</h2>
-            <p class="text-xs text-stone-500">Review photos one-by-one. Confirm or adjust the details to lock each piece into your Closet Vault.</p>
+            <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Vision-Powered Intake Studio</h2>
+            <p class="text-xs text-stone-500">Analyze images with Gemini Vision AI to draft attributes, or apply quick-match presets.</p>
           </div>
           <div class="flex items-center space-x-3">
+            <label class="flex items-center space-x-1.5 text-xs text-stone-600 cursor-pointer select-none">
+              <input type="checkbox" id="chk-auto-ai" class="rounded text-brand-navy focus:ring-0">
+              <span class="font-medium">Auto-Run AI on Navigation</span>
+            </label>
             <span class="text-xs font-mono font-bold text-brand-navy" id="intake-progress-label">Photo 1 of 126</span>
             <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold" id="vault-total-badge">0 Pieces Confirmed</span>
           </div>
         </div>
-        <!-- Progress bar line -->
         <div class="w-full bg-stone-100 h-2 rounded-full overflow-hidden border border-brand-border">
           <div id="intake-progress-bar" class="bg-brand-navy h-full transition-all duration-300" style="width: 1%;"></div>
         </div>
@@ -113,7 +123,7 @@
       <!-- Main Intake Workbench -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        <!-- Left: Large Image Preview Stage -->
+        <!-- Left Stage: Image & AI Action Bar -->
         <div class="lg:col-span-5 bg-white border border-brand-border rounded-3xl p-5 shadow-sm flex flex-col items-center space-y-4">
           <div class="w-full aspect-4/5 rounded-2xl overflow-hidden bg-stone-100 border border-brand-border relative flex items-center justify-center">
             <img id="intake-photo-img" src="" class="w-full h-full object-cover">
@@ -125,35 +135,39 @@
             </div>
           </div>
 
+          <!-- PRIMARY AI TRIGGER BUTTON -->
+          <button id="btn-trigger-ai" onclick="runGeminiVisionAnalysis()" class="w-full py-3 px-4 bg-gradient-to-r from-indigo-900 via-brand-navy to-indigo-950 hover:opacity-95 text-white rounded-xl shadow-md font-semibold text-xs flex items-center justify-center space-x-2 transition">
+            <svg id="ai-icon-sparkle" class="w-4 h-4 text-amber-300 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <span id="ai-btn-text">✨ Auto-Draft Details with Vision AI</span>
+          </button>
+
           <!-- Step Navigation Controls -->
           <div class="flex items-center justify-between w-full pt-1">
-            <button onclick="navigateIntake(-1)" class="px-4 py-2 border border-brand-border hover:bg-brand-stone text-stone-700 text-xs font-semibold rounded-xl transition flex items-center space-x-1">
-              <span>&larr; Previous</span>
+            <button onclick="navigateIntake(-1)" class="px-4 py-2 border border-brand-border hover:bg-brand-stone text-stone-700 text-xs font-semibold rounded-xl transition">
+              &larr; Previous
             </button>
             <button onclick="skipPhoto()" class="px-4 py-2 text-stone-500 hover:text-stone-800 text-xs font-semibold">
               Skip Photo &rarr;
             </button>
-            <button onclick="navigateIntake(1)" class="px-4 py-2 border border-brand-border hover:bg-brand-stone text-stone-700 text-xs font-semibold rounded-xl transition flex items-center space-x-1">
-              <span>Next &rarr;</span>
+            <button onclick="navigateIntake(1)" class="px-4 py-2 border border-brand-border hover:bg-brand-stone text-stone-700 text-xs font-semibold rounded-xl transition">
+              Next &rarr;
             </button>
           </div>
         </div>
 
-        <!-- Right: Garment Confirmation Form & Quick Presets -->
+        <!-- Right Stage: Card Details Form & Quick Overrides -->
         <div class="lg:col-span-7 space-y-5">
           
-          <!-- Quick Match Suggestions Panel -->
+          <!-- Quick Match Presets -->
           <div class="bg-white border border-brand-border rounded-3xl p-5 shadow-sm space-y-3">
             <div class="flex items-center justify-between border-b border-brand-border pb-2">
-              <span class="text-xs font-bold text-brand-navy uppercase tracking-wider">Suggested Presets (1-Click Fill)</span>
-              <span class="text-[10px] text-stone-400">Click a preset below or type custom details</span>
+              <span class="text-xs font-bold text-brand-navy uppercase tracking-wider">Quick Presets (Brand Overrides)</span>
+              <span class="text-[10px] text-stone-400">Click to override AI for signature pieces</span>
             </div>
-            <div id="intake-preset-chips" class="flex flex-wrap gap-2 max-h-36 overflow-y-auto custom-scrollbar p-1">
-              <!-- Dynamically populated presets -->
-            </div>
+            <div id="intake-preset-chips" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar p-1"></div>
           </div>
 
-          <!-- The Confirmation Card -->
+          <!-- Confirmation Card Form -->
           <div class="bg-white border border-brand-border rounded-3xl p-6 shadow-sm space-y-4">
             <div class="border-b border-brand-border pb-3 flex items-center justify-between">
               <div>
@@ -211,13 +225,13 @@
               </div>
 
               <div>
-                <label class="block font-semibold text-stone-700 mb-1">Texture / Fabric Notes</label>
-                <input type="text" id="intake-texture" placeholder="e.g. Soft Herringbone Wool Blend, Slub Cotton Jersey" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
+                <label class="block font-semibold text-stone-700 mb-1">Texture / Material Specification</label>
+                <input type="text" id="intake-texture" placeholder="e.g. Slub Cotton Jersey, Heavy French Terry, Hopsack Wool" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
               </div>
 
               <div>
-                <label class="block font-semibold text-stone-700 mb-1">Styling Notes & Context</label>
-                <input type="text" id="intake-notes" placeholder="e.g. Client presentation anchor; pairs over ecru tees and dark denim." class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
+                <label class="block font-semibold text-stone-700 mb-1">Styling Notes & Pairing Blueprints</label>
+                <input type="text" id="intake-notes" placeholder="e.g. Pairs under chore jackets with dark wash denim and retro court sneakers." class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
               </div>
 
               <div class="pt-3 border-t border-brand-border flex items-center justify-between">
@@ -225,8 +239,8 @@
                   Remove from Vault
                 </button>
                 <div class="flex items-center space-x-2 ml-auto">
-                  <button type="submit" class="px-6 py-3 bg-brand-navy hover:bg-stone-900 text-white font-bold rounded-xl shadow-md transition flex items-center space-x-2 text-xs">
-                    <span>✓ Confirm & Put in Closet Vault</span>
+                  <button type="submit" class="px-6 py-3 bg-brand-navy hover:bg-stone-900 text-white font-bold rounded-xl shadow-md transition text-xs">
+                    ✓ Confirm & Put in Closet Vault
                   </button>
                 </div>
               </div>
@@ -240,7 +254,7 @@
 
     </section>
 
-    <!-- VIEW 2: CLOSET VAULT (FULL INVENTORY & EDITING) -->
+    <!-- VIEW 2: CLOSET VAULT -->
     <section id="view-wardrobe" class="space-y-6 hidden">
       <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-4">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -249,12 +263,12 @@
               <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Closet Vault Inventory</h2>
               <span id="vault-count-badge" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold">0 Confirmed</span>
             </div>
-            <p class="text-xs text-stone-500 mt-0.5">Click any card to edit details, change specifications, or delete.</p>
+            <p class="text-xs text-stone-500 mt-0.5">Click any card to inspect or adjust details.</p>
           </div>
           
           <div class="flex flex-wrap items-center gap-2">
             <button onclick="switchView('build')" class="px-3.5 py-2 bg-brand-navy hover:bg-stone-900 text-white text-xs font-semibold rounded-xl shadow-sm transition">
-              + Add More via Intake
+              + Add More in Studio
             </button>
             <button onclick="exportFullWardrobeBackup()" class="px-3 py-2 border border-brand-border hover:bg-brand-stone text-brand-navy text-xs font-semibold rounded-xl transition">
               💾 Export Backup
@@ -301,7 +315,7 @@
       <div id="wardrobe-grid-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
     </section>
 
-    <!-- VIEW 3: 7-DAY FLAT-LAY BOARD -->
+    <!-- VIEW 3: 7-DAY BOARD -->
     <section id="view-planner" class="space-y-6 hidden">
       <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-4">
         <div>
@@ -327,87 +341,38 @@
 
   </main>
 
-  <!-- MODAL: EDIT GARMENT DIRECTLY FROM VAULT -->
-  <div id="edit-item-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-brand-border space-y-4">
+  <!-- MODAL: GOOGLE AI STUDIO API KEY CONFIGURATION -->
+  <div id="api-key-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-brand-border space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-brand-border">
-        <h3 class="font-serif font-bold text-brand-navy text-base">Edit Card Details</h3>
-        <button onclick="toggleModal('edit-item-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
+        <h3 class="font-serif font-bold text-brand-navy text-base">Google Gemini Vision Key</h3>
+        <button onclick="toggleModal('api-key-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
       </div>
 
-      <form id="edit-vault-form" onsubmit="handleSaveVaultEdit(event)" class="space-y-3.5 text-xs">
-        <input type="hidden" id="edit-vault-id">
+      <p class="text-xs text-stone-600 leading-relaxed">
+        To enable multimodal photo analysis, paste your Gemini API key from <a href="https://aistudio.google.com/" target="_blank" class="text-indigo-600 underline font-semibold">Google AI Studio</a>. It is stored solely in your local browser storage.
+      </p>
 
-        <div>
-          <label class="block font-semibold text-stone-700 mb-1">Item Title</label>
-          <input type="text" id="edit-vault-name" required class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-semibold">
-        </div>
+      <div class="space-y-2">
+        <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider">Gemini API Key</label>
+        <input type="password" id="input-api-key" placeholder="AIzaSy..." class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-mono text-xs">
+      </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Category</label>
-            <select id="edit-vault-category" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
-              <option value="Layer">Jackets & 3rd Layers</option>
-              <option value="Woven">Shirts & Wovens</option>
-              <option value="Knitwear">Knits & Sweaters</option>
-              <option value="Tee">Tees & Base Layers</option>
-              <option value="Polo">Polos & Casual Knits</option>
-              <option value="Pants">Pants & Bottoms</option>
-              <option value="Shorts">Shorts</option>
-              <option value="Footwear">Footwear Anchors</option>
-              <option value="Athletic">Athleisure & Sport</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Tier</label>
-            <select id="edit-vault-tier" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
-              <option value="Anchor">Anchor (Core Wear)</option>
-              <option value="Potential">Potential (Secondary)</option>
-              <option value="Active">Matchday / Sport</option>
-            </select>
-          </div>
+      <div class="pt-2 flex items-center justify-between">
+        <button type="button" onclick="clearApiKey()" class="text-rose-600 text-xs font-semibold hover:underline">Remove Key</button>
+        <div class="flex space-x-2">
+          <button type="button" onclick="toggleModal('api-key-modal', false)" class="px-4 py-2 text-stone-600 text-xs">Cancel</button>
+          <button type="button" onclick="saveApiKey()" class="px-5 py-2 bg-brand-navy text-white text-xs font-semibold rounded-xl hover:bg-stone-900 transition">Save Key</button>
         </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Palette</label>
-            <select id="edit-vault-palette" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
-              <option value="neutral">Warm Neutral / Grey</option>
-              <option value="earth">Earth Tone / Khaki</option>
-              <option value="blue">Blue Spectrum / Navy</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Weight</label>
-            <select id="edit-vault-weight" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
-              <option value="mid">Midweight</option>
-              <option value="heavy">Heavyweight</option>
-              <option value="light">Lightweight</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block font-semibold text-stone-700 mb-1">Notes</label>
-          <input type="text" id="edit-vault-notes" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
-        </div>
-
-        <div class="pt-3 border-t border-brand-border flex items-center justify-between">
-          <button type="button" onclick="deleteFromModal()" class="text-rose-600 hover:text-rose-800 font-semibold text-xs">Delete Garment</button>
-          <div class="flex items-center space-x-2">
-            <button type="button" onclick="toggleModal('edit-item-modal', false)" class="px-4 py-2 text-stone-600">Cancel</button>
-            <button type="submit" class="px-5 py-2 bg-brand-navy hover:bg-stone-900 text-white rounded-xl font-semibold">Save Changes</button>
-          </div>
-        </div>
-      </form>
+      </div>
     </div>
   </div>
 
   <script>
     const STORAGE_KEY_ITEMS = "curated_closet_confirmed_vault";
     const STORAGE_KEY_PLAN = "curated_closet_confirmed_plan";
+    const STORAGE_KEY_API = "closet_gemini_api_key";
 
-    // Verified complete repository manifest (126 files)
     const VERIFIED_FILES = [
       "IMG_6219.jpg","IMG_6221.jpg","IMG_6222.jpg","IMG_6223.jpg","IMG_6224.jpg","IMG_6225.jpg","IMG_6226.jpg",
       "IMG_6227.jpg","IMG_6228.jpg","IMG_6229.jpg","IMG_6230.jpg","IMG_6231.jpg","IMG_6232.jpg","IMG_6233.jpg",
@@ -429,9 +394,8 @@
       "IMG_6379.jpg","IMG_6380.jpg","IMG_6381.jpg","IMG_6382.jpg","IMG_6383.jpg","IMG_6384.jpg","IMG_6385.jpg"
     ];
 
-    // Quick match presets library based on our styling audit
     const CATALOG_PRESETS = [
-      { name: "Oatmeal Herringbone Patch-Pocket Blazer", category: "Layer", tier: "Anchor", palette: "neutral", weight: "mid", texture: "Soft Herringbone Wool", notes: "Core client presentation tailoring." },
+      { name: "Oatmeal Herringbone Patch-Pocket Blazer", category: "Layer", tier: "Anchor", palette: "neutral", weight: "mid", texture: "Soft Herringbone Wool", notes: "Core client presentation jacket." },
       { name: "Charcoal Donegal Fleck Tweed Blazer", category: "Layer", tier: "Anchor", palette: "neutral", weight: "heavy", texture: "Donegal Tweed", notes: "Textured winter client jacket." },
       { name: "Grey Herringbone Tweed Sport Coat", category: "Layer", tier: "Anchor", palette: "neutral", weight: "heavy", texture: "Wool Tweed", notes: "Structured winter sport coat." },
       { name: "Slate Blue Micro-Hopsack Blazer", category: "Layer", tier: "Anchor", palette: "blue", weight: "mid", texture: "Textured Hopsack", notes: "Unstructured client casual jacket." },
@@ -443,37 +407,21 @@
       { name: "Nike Air Max 1 Grey Corduroy & Suede", category: "Footwear", tier: "Active", palette: "neutral", weight: "mid", texture: "Corduroy / Suede", notes: "Textured travel runner." },
       { name: "Air Jordan 1 Low Sanddrift / Linen", category: "Footwear", tier: "Active", palette: "earth", weight: "mid", texture: "Tumbled Leather", notes: "Elevated warm neutral court low." },
       { name: "Adidas Muted Yellow & Burgundy Suede", category: "Footwear", tier: "Active", palette: "earth", weight: "light", texture: "Soft Suede", notes: "Retro color pop sneaker." },
-      { name: "Air Jordan 1 Low White / Patterned Collar", category: "Footwear", tier: "Active", palette: "neutral", weight: "mid", texture: "Leather / Textile", notes: "Clean court sneaker." },
-      { name: "Nike Dunk Low Off-White & Burnt Orange", category: "Footwear", tier: "Active", palette: "earth", weight: "mid", texture: "Suede / Leather", notes: "Autumnal court sneaker." },
-      { name: "Nike Air Max 1 Wheat & Navy Rope-Lace", category: "Footwear", tier: "Active", palette: "earth", weight: "heavy", texture: "Nubuck / Heavy Mesh", notes: "Rugged utility runner." },
-      { name: "Air Jordan 1 Low Mocha & Royal Blue", category: "Footwear", tier: "Active", palette: "earth", weight: "mid", texture: "Colorblocked Leather", notes: "Weekend statement sneaker." },
-      { name: "Air Jordan 1 Low Stealth Grey", category: "Footwear", tier: "Active", palette: "neutral", weight: "mid", texture: "Smooth Leather", notes: "Cool grey court shoe." },
-      { name: "Royal Blue Distance Performance Runner", category: "Footwear", tier: "Active", palette: "blue", weight: "light", texture: "Breathable Mesh", notes: "Marathon training shoe." },
       { name: "Khaki Utility Field Chore Jacket", category: "Layer", tier: "Anchor", palette: "earth", weight: "heavy", texture: "Cotton Canvas", notes: "Structured utility workwear jacket." },
       { name: "Washed Denim Workwear Overshirt", category: "Layer", tier: "Anchor", palette: "blue", weight: "heavy", texture: "Washed Denim", notes: "Rugged casual overshirt." },
       { name: "Tan Technical Hooded Windbreaker", category: "Layer", tier: "Active", palette: "earth", weight: "light", texture: "Ripstop Shell", notes: "Outdoor running shell." },
-      { name: "Black Technical Lightweight Wind Shell", category: "Layer", tier: "Active", palette: "neutral", weight: "light", texture: "Matte Shell", notes: "Wind and light rain shield." },
-      { name: "Olive Green Heavyweight Pullover Hoodie", category: "Athletic", tier: "Active", palette: "earth", weight: "heavy", texture: "Cotton Fleece", notes: "Casual fleece hoodie." },
-      { name: "Navy Technical Full-Zip Track Midlayer", category: "Athletic", tier: "Active", palette: "blue", weight: "mid", texture: "Stretch Knit", notes: "Running track midlayer." },
       { name: "Classic Khaki 7\" Flat-Front Chino Shorts", category: "Shorts", tier: "Anchor", palette: "earth", weight: "light", texture: "Stretch Chino Twill", notes: "Tailored summer short anchor." },
       { name: "Olive Green 7\" Flat-Front Chino Shorts", category: "Shorts", tier: "Anchor", palette: "earth", weight: "light", texture: "Stretch Chino Twill", notes: "Earth tone tailored shorts." },
-      { name: "Slate Blue 7\" Tailored Chino Shorts", category: "Shorts", tier: "Anchor", palette: "blue", weight: "light", texture: "Cotton Twill", notes: "Casual summer staple." },
-      { name: "Charcoal Slate Technical Workout Shorts", category: "Shorts", tier: "Active", palette: "neutral", weight: "light", texture: "4-Way Stretch", notes: "Gym and athletic shorts." },
-      { name: "Heather Grey Tailored Casual Shorts", category: "Shorts", tier: "Anchor", palette: "neutral", weight: "light", texture: "Washed Cotton", notes: "Neutral summer shorts." },
-      { name: "Navy Technical Athletic Running Shorts", category: "Shorts", tier: "Active", palette: "blue", weight: "light", texture: "Lightweight Mesh", notes: "Primary running shorts." },
       { name: "Heritage Red & White Striped Crew Tee", category: "Tee", tier: "Anchor", palette: "earth", weight: "mid", texture: "Jersey Cotton", notes: "Nautical graphic pop." },
       { name: "White & Slate Striped Crewneck Tee", category: "Tee", tier: "Anchor", palette: "neutral", weight: "light", texture: "Slub Cotton", notes: "Clean summer striped tee." },
-      { name: "Heather Grey Micro-Stripe Crew Tee", category: "Tee", tier: "Anchor", palette: "neutral", weight: "light", texture: "Combed Cotton", notes: "Textured base layer." },
       { name: "Solid Washed Vintage Navy Crew Tee", category: "Tee", tier: "Anchor", palette: "blue", weight: "light", texture: "Washed Cotton", notes: "Everyday solid navy tee." },
-      { name: "Heather Grey Open-Hem Lounge Sweatpants", category: "Pants", tier: "Active", palette: "neutral", weight: "heavy", texture: "French Terry", notes: "Downtime sweatpants." },
-      { name: "Minnesota United FC Primary Kit (Black)", category: "Athletic", tier: "Active", palette: "blue", weight: "light", texture: "Aeroready Mesh", notes: "MNUFC home jersey." },
-      { name: "Minnesota United FC Secondary Kit (White)", category: "Athletic", tier: "Active", palette: "neutral", weight: "light", texture: "Aeroready Mesh", notes: "MNUFC away jersey." },
-      { name: "Heritage Gold / Yellow Athletic Kit", category: "Athletic", tier: "Active", palette: "earth", weight: "light", texture: "Performance Mesh", notes: "Yellow matchday kit." }
+      { name: "Minnesota United FC Primary Kit (Black)", category: "Athletic", tier: "Active", palette: "blue", weight: "light", texture: "Aeroready Mesh", notes: "MNUFC home jersey." }
     ];
 
     let currentIntakeIndex = 0;
     let wardrobe = [];
     let weeklyPlan = {};
+    let isAnalyzing = false;
 
     const DAYS_CONFIG = [
       { key: "mon", name: "Monday", defaultTemplate: "Client In-Person" },
@@ -492,11 +440,43 @@
       }
       weeklyPlan = JSON.parse(localStorage.getItem(STORAGE_KEY_PLAN)) || {};
 
+      checkApiKeyStatus();
       renderPresetChips();
       loadIntakePhoto(0);
       updateVaultCounts();
       renderWardrobeList();
       render7DayBoard();
+    }
+
+    function checkApiKeyStatus() {
+      const key = localStorage.getItem(STORAGE_KEY_API);
+      const indicator = document.getElementById('api-key-indicator');
+      if (key && key.trim().length > 10) {
+        indicator.className = "w-2 h-2 rounded-full bg-emerald-500 shadow-sm";
+        document.getElementById('input-api-key').value = key;
+      } else {
+        indicator.className = "w-2 h-2 rounded-full bg-rose-500 animate-pulse";
+      }
+    }
+
+    function saveApiKey() {
+      const val = document.getElementById('input-api-key').value.trim();
+      if (!val) {
+        alert("Please enter a valid Gemini API key.");
+        return;
+      }
+      localStorage.setItem(STORAGE_KEY_API, val);
+      checkApiKeyStatus();
+      toggleModal('api-key-modal', false);
+      showToast("Gemini Vision API Key saved!");
+    }
+
+    function clearApiKey() {
+      localStorage.removeItem(STORAGE_KEY_API);
+      document.getElementById('input-api-key').value = "";
+      checkApiKeyStatus();
+      toggleModal('api-key-modal', false);
+      showToast("API Key removed.");
     }
 
     function renderPresetChips() {
@@ -520,7 +500,107 @@
       document.getElementById('intake-weight').value = p.weight;
       document.getElementById('intake-texture').value = p.texture || "";
       document.getElementById('intake-notes').value = p.notes || "";
-      showToast(`Applied preset: ${p.name}`);
+      showToast(`Applied: ${p.name}`);
+    }
+
+    async function blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64String = reader.result.split(',')[1];
+          resolve(base64String);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    async function runGeminiVisionAnalysis() {
+      const apiKey = localStorage.getItem(STORAGE_KEY_API);
+      if (!apiKey) {
+        toggleModal('api-key-modal', true);
+        return;
+      }
+
+      if (isAnalyzing) return;
+      isAnalyzing = true;
+
+      const btn = document.getElementById('btn-trigger-ai');
+      const btnText = document.getElementById('ai-btn-text');
+      const filename = VERIFIED_FILES[currentIntakeIndex];
+
+      btn.disabled = true;
+      btnText.innerText = "Analyzing photo with Vision AI...";
+
+      try {
+        const imageRes = await fetch(filename);
+        if (!imageRes.ok) throw new Error("Could not load image file from repo.");
+        const imageBlob = await imageRes.blob();
+        const base64Data = await blobToBase64(imageBlob);
+
+        const promptText = `
+You are an expert menswear stylist analyzing a photograph of a garment from an executive casual wardrobe.
+Analyze this image and return ONLY a strict JSON object with these exact keys:
+{
+  "name": "Concise, descriptive garment title (e.g., 'Heather Grey Heavy French Terry Hoodie', 'Oatmeal Herringbone Wool Blazer', 'Olive Flat-Front Chino Shorts')",
+  "category": "Must be exactly one of: 'Layer', 'Woven', 'Knitwear', 'Tee', 'Polo', 'Pants', 'Shorts', 'Footwear', 'Athletic'",
+  "tier": "Must be exactly one of: 'Anchor', 'Potential', 'Active'",
+  "palette": "Must be exactly one of: 'neutral', 'earth', 'blue'",
+  "weight": "Must be exactly one of: 'light', 'mid', 'heavy'",
+  "texture": "Brief material texture description (e.g., 'Soft slub cotton jersey', 'Textured Donegal tweed', '4-way technical stretch')",
+  "notes": "Actionable 1-sentence pairing blueprint (e.g., 'Pairs cleanly with dark wash denim and minimal leather sneakers.')"
+}
+`;
+
+        const requestBody = {
+          contents: [{
+            parts: [
+              { text: promptText },
+              {
+                inline_data: {
+                  mime_type: "image/jpeg",
+                  data: base64Data
+                }
+              }
+            ]
+          }],
+          generationConfig: {
+            responseMimeType: "application/json"
+          }
+        };
+
+        const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+        const response = await fetch(apiEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.error?.message || "Gemini API error");
+        }
+
+        const data = await response.json();
+        const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        const parsed = JSON.parse(textResponse);
+
+        if (parsed.name) document.getElementById('intake-name').value = parsed.name;
+        if (parsed.category) document.getElementById('intake-category').value = parsed.category;
+        if (parsed.tier) document.getElementById('intake-tier').value = parsed.tier;
+        if (parsed.palette) document.getElementById('intake-palette').value = parsed.palette;
+        if (parsed.weight) document.getElementById('intake-weight').value = parsed.weight;
+        if (parsed.texture) document.getElementById('intake-texture').value = parsed.texture;
+        if (parsed.notes) document.getElementById('intake-notes').value = parsed.notes;
+
+        showToast("AI drafted card details successfully!");
+      } catch (err) {
+        showToast(`AI error: ${err.message}`, true);
+      } finally {
+        isAnalyzing = false;
+        btn.disabled = false;
+        btnText.innerText = "✨ Auto-Draft Details with Vision AI";
+      }
     }
 
     function loadIntakePhoto(index) {
@@ -531,18 +611,15 @@
       const filename = VERIFIED_FILES[currentIntakeIndex];
       const cleanRef = filename.replace('.jpg', '');
 
-      // Update image
       const img = document.getElementById('intake-photo-img');
       img.src = filename;
       img.onerror = () => { img.src = `${cleanRef}.JPG`; };
 
-      // Update UI labels
       document.getElementById('intake-filename-badge').innerText = filename;
       document.getElementById('intake-progress-label').innerText = `Photo ${currentIntakeIndex + 1} of ${VERIFIED_FILES.length}`;
       const pct = Math.round(((currentIntakeIndex + 1) / VERIFIED_FILES.length) * 100);
       document.getElementById('intake-progress-bar').style.width = `${pct}%`;
 
-      // Check if already in vault
       const existing = wardrobe.find(w => w.fileRef === cleanRef || w.fileRef === filename);
       const watermark = document.getElementById('intake-confirmed-watermark');
       const statusTag = document.getElementById('intake-status-tag');
@@ -554,7 +631,6 @@
         statusTag.className = "text-xs font-mono font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-lg";
         deleteBtn.classList.remove('hidden');
 
-        // Pre-fill existing data
         document.getElementById('intake-name').value = existing.name;
         document.getElementById('intake-category').value = existing.category;
         document.getElementById('intake-tier').value = existing.tier;
@@ -568,14 +644,13 @@
         statusTag.className = "text-xs font-mono font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-lg";
         deleteBtn.classList.add('hidden');
 
-        // Check if there is a preset recommendation
-        const guessPreset = CATALOG_PRESETS.find(p => p.fileRef === cleanRef);
-        if (guessPreset) {
-          applyPresetToIntake(guessPreset);
-        } else {
-          document.getElementById('intake-name').value = "";
-          document.getElementById('intake-texture').value = "";
-          document.getElementById('intake-notes').value = "";
+        document.getElementById('intake-name').value = "";
+        document.getElementById('intake-texture').value = "";
+        document.getElementById('intake-notes').value = "";
+
+        // If auto-run AI checkbox is selected and key exists
+        if (document.getElementById('chk-auto-ai').checked && localStorage.getItem(STORAGE_KEY_API)) {
+          runGeminiVisionAnalysis();
         }
       }
     }
@@ -628,8 +703,6 @@
       updateVaultCounts();
       renderWardrobeList();
       showToast(`Confirmed: "${name}" added to Vault!`);
-
-      // Advance to next photo automatically
       navigateIntake(1);
     }
 
@@ -669,7 +742,7 @@
       if (filtered.length === 0) {
         grid.innerHTML = `
           <div class="col-span-full py-16 text-center space-y-3">
-            <p class="text-sm text-stone-400">No confirmed garments in this filter.</p>
+            <p class="text-sm text-stone-400">No confirmed garments match this filter.</p>
             <button onclick="switchView('build')" class="px-4 py-2 bg-brand-navy text-white text-xs font-semibold rounded-xl">
               Go to Intake Studio to Confirm Pieces &rarr;
             </button>
@@ -681,8 +754,7 @@
       filtered.forEach(item => {
         const imgSrc = `${item.fileRef}.jpg`;
         const card = document.createElement('div');
-        card.className = "bg-white border border-brand-border rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between group cursor-pointer hover:border-brand-navy hover:shadow-md transition-all";
-        card.onclick = () => openVaultEditModal(item.id);
+        card.className = "bg-white border border-brand-border rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between group hover:border-brand-navy hover:shadow-md transition-all";
 
         card.innerHTML = `
           <div class="flex flex-col h-full justify-between">
@@ -696,14 +768,9 @@
                   <span>${item.category}</span>
                   <span class="font-mono text-stone-400">${item.palette}</span>
                 </div>
-                <h4 class="font-serif font-bold text-xs text-brand-navy leading-snug group-hover:text-amber-800 transition">${item.name}</h4>
+                <h4 class="font-serif font-bold text-xs text-brand-navy leading-snug">${item.name}</h4>
                 <p class="text-[10px] text-stone-500 leading-relaxed line-clamp-2 mt-1">${item.notes || item.texture || ''}</p>
               </div>
-            </div>
-
-            <div class="px-3.5 py-2.5 bg-brand-stone/40 border-t border-brand-border/60 flex items-center justify-between text-[11px]">
-              <span class="text-[10px] text-stone-600 font-semibold">Click to Edit</span>
-              <span class="text-[10px] text-stone-400">&rarr;</span>
             </div>
           </div>
         `;
@@ -711,54 +778,8 @@
       });
     }
 
-    function openVaultEditModal(itemId) {
-      const item = wardrobe.find(w => w.id === itemId);
-      if (!item) return;
-
-      document.getElementById('edit-vault-id').value = item.id;
-      document.getElementById('edit-vault-name').value = item.name;
-      document.getElementById('edit-vault-category').value = item.category;
-      document.getElementById('edit-vault-tier').value = item.tier;
-      document.getElementById('edit-vault-palette').value = item.palette;
-      document.getElementById('edit-vault-weight').value = item.weight;
-      document.getElementById('edit-vault-notes').value = item.notes || "";
-
-      toggleModal('edit-item-modal', true);
-    }
-
-    function handleSaveVaultEdit(e) {
-      e.preventDefault();
-      const id = Number(document.getElementById('edit-vault-id').value);
-      const item = wardrobe.find(w => w.id === id);
-      if (!item) return;
-
-      item.name = document.getElementById('edit-vault-name').value.trim();
-      item.category = document.getElementById('edit-vault-category').value;
-      item.tier = document.getElementById('edit-vault-tier').value;
-      item.palette = document.getElementById('edit-vault-palette').value;
-      item.weight = document.getElementById('edit-vault-weight').value;
-      item.notes = document.getElementById('edit-vault-notes').value.trim();
-
-      localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
-      renderWardrobeList();
-      render7DayBoard();
-      toggleModal('edit-item-modal', false);
-      showToast(`Updated "${item.name}"`);
-    }
-
-    function deleteFromModal() {
-      const id = Number(document.getElementById('edit-vault-id').value);
-      wardrobe = wardrobe.filter(w => w.id !== id);
-      localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
-      updateVaultCounts();
-      renderWardrobeList();
-      render7DayBoard();
-      toggleModal('edit-item-modal', false);
-      showToast("Garment deleted.");
-    }
-
     function clearVaultConfirm() {
-      if (!confirm("Are you sure you want to clear your Closet Vault? You can rebuild it in Intake.")) return;
+      if (!confirm("Clear your confirmed Closet Vault? You can re-confirm items in the Studio at any time.")) return;
       wardrobe = [];
       localStorage.removeItem(STORAGE_KEY_ITEMS);
       updateVaultCounts();
@@ -770,7 +791,7 @@
 
     function smartGenerateWeek() {
       if (wardrobe.length < 5) {
-        showToast("Add at least 5-10 garments via Intake before curating!", true);
+        showToast("Confirm at least 5 garments before curating!", true);
         return;
       }
       const usedIds = new Set();
