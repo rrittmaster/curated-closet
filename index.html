@@ -40,7 +40,6 @@
     .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #F2EFEB; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #D4CCC2; border-radius: 9999px; }
-    .flatlay-card:hover .swap-overlay { opacity: 1; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased text-stone-800">
@@ -61,7 +60,7 @@
         </div>
       </div>
       
-      <!-- Core Navigation & Key Button -->
+      <!-- Navigation & API Key -->
       <div class="flex items-center space-x-2">
         <button onclick="toggleModal('api-key-modal', true)" class="px-3 py-1.5 rounded-xl border border-brand-border bg-brand-stone hover:bg-stone-200 text-brand-navy text-xs font-semibold flex items-center space-x-1.5 transition">
           <span id="api-key-indicator" class="w-2 h-2 rounded-full bg-rose-500"></span>
@@ -96,7 +95,7 @@
 
   <main class="flex-grow max-w-[1700px] mx-auto w-full px-3 sm:px-6 py-6">
 
-    <!-- VIEW 1: BUILD MY WARDROBE (INTAKE STUDIO + VISION AI) -->
+    <!-- VIEW 1: INTAKE STUDIO -->
     <section id="view-build" class="space-y-6">
       
       <!-- Progress Bar & Subheader -->
@@ -155,10 +154,9 @@
           </div>
         </div>
 
-        <!-- Right Stage: Card Details Form & Quick Overrides -->
+        <!-- Right Stage: Card Details Form & Quick Presets -->
         <div class="lg:col-span-7 space-y-5">
           
-          <!-- Quick Match Presets -->
           <div class="bg-white border border-brand-border rounded-3xl p-5 shadow-sm space-y-3">
             <div class="flex items-center justify-between border-b border-brand-border pb-2">
               <span class="text-xs font-bold text-brand-navy uppercase tracking-wider">Quick Presets (Brand Overrides)</span>
@@ -279,40 +277,8 @@
           </div>
         </div>
 
-        <!-- Filters -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 pt-3 border-t border-brand-border">
-          <div>
-            <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1">Category</label>
-            <select id="filter-category" onchange="renderWardrobeList()" class="w-full text-xs rounded-lg border-brand-border bg-brand-stone p-2 font-medium">
-              <option value="ALL">All Categories</option>
-              <option value="Layer">Jackets & 3rd Layers</option>
-              <option value="Woven">Shirts & Wovens</option>
-              <option value="Knitwear">Knits & Sweaters</option>
-              <option value="Tee">Tees & Base Layers</option>
-              <option value="Polo">Polos & Casual Knits</option>
-              <option value="Pants">Pants & Bottoms</option>
-              <option value="Shorts">Shorts</option>
-              <option value="Footwear">Footwear Anchors</option>
-              <option value="Athletic">Athleisure & Sport</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1">Curation Tier</label>
-            <select id="filter-tier" onchange="renderWardrobeList()" class="w-full text-xs rounded-lg border-brand-border bg-brand-stone p-2 font-medium">
-              <option value="ALL">All Tiers</option>
-              <option value="Anchor">Anchor (Core Wear)</option>
-              <option value="Potential">Potential (Secondary)</option>
-              <option value="Active">Matchday / Sport Only</option>
-            </select>
-          </div>
-          <div class="col-span-4">
-            <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1">Search Vault</label>
-            <input type="text" id="search-query" oninput="renderWardrobeList()" placeholder="Search title, brand, texture, notes..." class="w-full text-xs rounded-lg border border-brand-border bg-brand-stone p-2 font-medium">
-          </div>
-        </div>
+        <div id="wardrobe-grid-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
       </div>
-
-      <div id="wardrobe-grid-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
     </section>
 
     <!-- VIEW 3: 7-DAY BOARD -->
@@ -350,12 +316,12 @@
       </div>
 
       <p class="text-xs text-stone-600 leading-relaxed">
-        To enable multimodal photo analysis, paste your Gemini API key from <a href="https://aistudio.google.com/" target="_blank" class="text-indigo-600 underline font-semibold">Google AI Studio</a>. It is stored solely in your local browser storage.
+        Paste your Gemini API key from <a href="https://aistudio.google.com/" target="_blank" class="text-indigo-600 underline font-semibold">Google AI Studio</a>. It is stored solely in your local browser storage.
       </p>
 
       <div class="space-y-2">
         <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider">Gemini API Key</label>
-        <input type="password" id="input-api-key" placeholder="AIzaSy..." class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-mono text-xs">
+        <input type="password" id="input-api-key" placeholder="AQ.Ab8..." class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-mono text-xs">
       </div>
 
       <div class="pt-2 flex items-center justify-between">
@@ -406,16 +372,13 @@
       { name: "Puma Retro Light Grey Suede Gum-Sole", category: "Footwear", tier: "Active", palette: "neutral", weight: "mid", texture: "Suede / Gum Sole", notes: "Retro terrace low sneaker." },
       { name: "Nike Air Max 1 Grey Corduroy & Suede", category: "Footwear", tier: "Active", palette: "neutral", weight: "mid", texture: "Corduroy / Suede", notes: "Textured travel runner." },
       { name: "Air Jordan 1 Low Sanddrift / Linen", category: "Footwear", tier: "Active", palette: "earth", weight: "mid", texture: "Tumbled Leather", notes: "Elevated warm neutral court low." },
-      { name: "Adidas Muted Yellow & Burgundy Suede", category: "Footwear", tier: "Active", palette: "earth", weight: "light", texture: "Soft Suede", notes: "Retro color pop sneaker." },
       { name: "Khaki Utility Field Chore Jacket", category: "Layer", tier: "Anchor", palette: "earth", weight: "heavy", texture: "Cotton Canvas", notes: "Structured utility workwear jacket." },
       { name: "Washed Denim Workwear Overshirt", category: "Layer", tier: "Anchor", palette: "blue", weight: "heavy", texture: "Washed Denim", notes: "Rugged casual overshirt." },
-      { name: "Tan Technical Hooded Windbreaker", category: "Layer", tier: "Active", palette: "earth", weight: "light", texture: "Ripstop Shell", notes: "Outdoor running shell." },
       { name: "Classic Khaki 7\" Flat-Front Chino Shorts", category: "Shorts", tier: "Anchor", palette: "earth", weight: "light", texture: "Stretch Chino Twill", notes: "Tailored summer short anchor." },
       { name: "Olive Green 7\" Flat-Front Chino Shorts", category: "Shorts", tier: "Anchor", palette: "earth", weight: "light", texture: "Stretch Chino Twill", notes: "Earth tone tailored shorts." },
       { name: "Heritage Red & White Striped Crew Tee", category: "Tee", tier: "Anchor", palette: "earth", weight: "mid", texture: "Jersey Cotton", notes: "Nautical graphic pop." },
       { name: "White & Slate Striped Crewneck Tee", category: "Tee", tier: "Anchor", palette: "neutral", weight: "light", texture: "Slub Cotton", notes: "Clean summer striped tee." },
-      { name: "Solid Washed Vintage Navy Crew Tee", category: "Tee", tier: "Anchor", palette: "blue", weight: "light", texture: "Washed Cotton", notes: "Everyday solid navy tee." },
-      { name: "Minnesota United FC Primary Kit (Black)", category: "Athletic", tier: "Active", palette: "blue", weight: "light", texture: "Aeroready Mesh", notes: "MNUFC home jersey." }
+      { name: "Solid Washed Vintage Navy Crew Tee", category: "Tee", tier: "Anchor", palette: "blue", weight: "light", texture: "Washed Cotton", notes: "Everyday solid navy tee." }
     ];
 
     let currentIntakeIndex = 0;
@@ -569,7 +532,7 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
           }
         };
 
-        const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;:generateContent?key=${apiKey}`;
+        const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
         const response = await fetch(apiEndpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -648,7 +611,6 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
         document.getElementById('intake-texture').value = "";
         document.getElementById('intake-notes').value = "";
 
-        // If auto-run AI checkbox is selected and key exists
         if (document.getElementById('chk-auto-ai').checked && localStorage.getItem(STORAGE_KEY_API)) {
           runGeminiVisionAnalysis();
         }
@@ -726,35 +688,24 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
 
     function renderWardrobeList() {
       const grid = document.getElementById('wardrobe-grid-container');
-      const cat = document.getElementById('filter-category').value;
-      const tier = document.getElementById('filter-tier').value;
-      const search = (document.getElementById('search-query')?.value || '').toLowerCase();
-
       grid.innerHTML = '';
-      const filtered = wardrobe.filter(i => {
-        if (!i || !i.name) return false;
-        if (cat !== 'ALL' && i.category !== cat) return false;
-        if (tier !== 'ALL' && i.tier !== tier) return false;
-        if (search && !i.name.toLowerCase().includes(search) && !i.fileRef.toLowerCase().includes(search)) return false;
-        return true;
-      });
 
-      if (filtered.length === 0) {
+      if (wardrobe.length === 0) {
         grid.innerHTML = `
           <div class="col-span-full py-16 text-center space-y-3">
-            <p class="text-sm text-stone-400">No confirmed garments match this filter.</p>
+            <p class="text-sm text-stone-400">No confirmed garments in vault yet.</p>
             <button onclick="switchView('build')" class="px-4 py-2 bg-brand-navy text-white text-xs font-semibold rounded-xl">
-              Go to Intake Studio to Confirm Pieces &rarr;
+              Go to Intake Studio &rarr;
             </button>
           </div>
         `;
         return;
       }
 
-      filtered.forEach(item => {
+      wardrobe.forEach(item => {
         const imgSrc = `${item.fileRef}.jpg`;
         const card = document.createElement('div');
-        card.className = "bg-white border border-brand-border rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between group hover:border-brand-navy hover:shadow-md transition-all";
+        card.className = "bg-white border border-brand-border rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between group";
 
         card.innerHTML = `
           <div class="flex flex-col h-full justify-between">
@@ -822,7 +773,7 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
       weeklyPlan = newPlan;
       localStorage.setItem(STORAGE_KEY_PLAN, JSON.stringify(weeklyPlan));
       render7DayBoard();
-      showToast("7-Day rotation curated from your confirmed pieces!");
+      showToast("7-Day rotation curated!");
     }
 
     function render7DayBoard() {
