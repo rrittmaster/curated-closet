@@ -55,9 +55,9 @@
         <div>
           <div class="flex items-center space-x-2">
             <h1 class="font-serif text-lg sm:text-xl tracking-wider text-brand-navy font-bold uppercase">The Curated Closet</h1>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">Vision AI Enabled</span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">Optimized Token Engine</span>
           </div>
-          <p class="text-xs text-stone-500 font-medium">Auto-Retrying Vision Engine &bull; Zero-Repeat Rotation &bull; Weather-Synced Flat-Lays</p>
+          <p class="text-xs text-stone-500 font-medium">Auto-Compressed Vision Analysis &bull; Zero-Repeat Rotation &bull; Weather-Synced Flat-Lays</p>
         </div>
       </div>
       
@@ -96,7 +96,7 @@
 
   <main class="flex-grow max-w-[1700px] mx-auto w-full px-3 sm:px-6 py-6">
 
-    <!-- VIEW 1: BUILD MY WARDROBE (INTAKE STUDIO + RESILIENT VISION AI) -->
+    <!-- VIEW 1: BUILD MY WARDROBE (INTAKE STUDIO + COMPRESSED VISION AI) -->
     <section id="view-build" class="space-y-6">
       
       <!-- Progress Bar & Subheader -->
@@ -104,7 +104,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Vision-Powered Intake Studio</h2>
-            <p class="text-xs text-stone-500">Auto-draft garment attributes with Gemini 3.8 Flash, or use 1-click catalog presets.</p>
+            <p class="text-xs text-stone-500">Auto-compressed image analysis minimizes quota consumption while preserving garment accuracy.</p>
           </div>
           <div class="flex items-center space-x-3">
             <label class="flex items-center space-x-1.5 text-xs text-stone-600 cursor-pointer select-none">
@@ -135,7 +135,7 @@
             </div>
           </div>
 
-          <!-- PRIMARY AI TRIGGER BUTTON WITH BACKOFF STATUS -->
+          <!-- PRIMARY AI TRIGGER BUTTON WITH RETRY & BACKOFF STATUS -->
           <button id="btn-trigger-ai" onclick="runGeminiVisionAnalysis()" class="w-full py-3 px-4 bg-gradient-to-r from-indigo-900 via-brand-navy to-indigo-950 hover:opacity-95 text-white rounded-xl shadow-md font-semibold text-xs flex items-center justify-center space-x-2 transition">
             <svg id="ai-icon-sparkle" class="w-4 h-4 text-amber-300 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
             <span id="ai-btn-text">✨ Auto-Draft Details with Vision AI</span>
@@ -162,7 +162,7 @@
           <div class="bg-white border border-brand-border rounded-3xl p-5 shadow-sm space-y-3">
             <div class="flex items-center justify-between border-b border-brand-border pb-2">
               <span class="text-xs font-bold text-brand-navy uppercase tracking-wider">Quick Presets (Brand Overrides)</span>
-              <span class="text-[10px] text-stone-400">Click to override AI for signature pieces</span>
+              <span class="text-[10px] text-stone-400">Click to bypass API for signature items</span>
             </div>
             <div id="intake-preset-chips" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar p-1"></div>
           </div>
@@ -470,15 +470,37 @@
       showToast(`Applied: ${p.name}`);
     }
 
-    async function blobToBase64(blob) {
+    // Client-side downscaler: resizes high-res images to max 1000px, reducing tokens by ~90%
+    async function getOptimizedBase64(imageUrl) {
       return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64String = reader.result.split(',')[1];
-          resolve(base64String);
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          const maxDim = 1000;
+          let width = img.naturalWidth || img.width;
+          let height = img.naturalHeight || img.height;
+
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+          resolve(dataUrl.split(',')[1]);
         };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
+        img.onerror = () => reject(new Error("Failed to load image for compression"));
+        img.src = imageUrl;
       });
     }
 
@@ -506,13 +528,10 @@
       const filename = VERIFIED_FILES[currentIntakeIndex];
 
       btn.disabled = true;
-      btnText.innerText = "Reading photo bytes...";
+      btnText.innerText = "Compressing photo bytes...";
 
       try {
-        const imageRes = await fetch(filename);
-        if (!imageRes.ok) throw new Error("Could not load image file from repo.");
-        const imageBlob = await imageRes.blob();
-        const base64Data = await blobToBase64(imageBlob);
+        const base64Data = await getOptimizedBase64(filename);
 
         const promptText = `
 You are an expert menswear stylist analyzing a photograph of a garment from an executive casual wardrobe.
@@ -545,14 +564,14 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
           }
         };
 
-        const maxRetries = 4;
+        const maxRetries = 3;
         let successfulData = null;
         let lastError = null;
 
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
           btnText.innerText = attempt === 1 
             ? "Analyzing photo with Vision AI..." 
-            : `Demand spike on Gemini; retrying (${attempt}/${maxRetries})...`;
+            : `Rate limit hit; waiting ${attempt * 2}s (attempt ${attempt}/${maxRetries})...`;
 
           const response = await callGeminiEndpoint("gemini-3.8-flash", apiKey, requestBody);
 
@@ -565,21 +584,19 @@ Analyze this image and return ONLY a strict JSON object with these exact keys:
           const errMsg = errData.error?.message || `HTTP ${response.status}`;
           lastError = new Error(errMsg);
 
-          // Exponential backoff on transient capacity / rate limit spikes
-          if (response.status === 503 || response.status === 429 || errMsg.toLowerCase().includes("high demand") || errMsg.toLowerCase().includes("resource has been exhausted")) {
+          if (response.status === 429 || response.status === 503 || errMsg.toLowerCase().includes("quota") || errMsg.toLowerCase().includes("resource has been exhausted") || errMsg.toLowerCase().includes("high demand")) {
             if (attempt < maxRetries) {
-              const waitMs = attempt * 1500;
+              const waitMs = attempt * 2000;
               await new Promise(r => setTimeout(r, waitMs));
               continue;
             }
           } else {
-            // Unrecoverable client error
             break;
           }
         }
 
         if (!successfulData) {
-          throw lastError || new Error("Gemini server busy. Please wait a few seconds and try again.");
+          throw lastError || new Error("Free tier quota limit reached. Please wait 60 seconds.");
         }
 
         const textResponse = successfulData.candidates?.[0]?.content?.parts?.[0]?.text;
