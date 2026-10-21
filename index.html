@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Curated Closet">
-  <meta name="theme-color" content="#18181b">
+  <meta name="theme-color" content="#09090b">
 
   <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -40,7 +40,7 @@
     body { -webkit-tap-highlight-color: transparent; }
     .hero-anchor-active {
       border: 1.5px solid #C5B294 !important;
-      box-shadow: 0 0 12px rgba(197, 178, 148, 0.25);
+      box-shadow: 0 0 14px rgba(197, 178, 148, 0.25);
     }
   </style>
 </head>
@@ -56,14 +56,16 @@
       <p class="text-xs text-zinc-400 mb-6">Executive Wardrobe Architecture</p>
       
       <form id="authForm" class="space-y-3">
-        <input type="email" id="authEmail" required placeholder="Enter your work email" 
+        <input type="email" id="authEmail" required placeholder="Enter your email address" 
                class="w-full px-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-brand-brass text-white placeholder-zinc-500">
         <button type="submit" id="authSubmitBtn" 
-                class="w-full py-2.5 bg-brand-brass hover:bg-brand-brassLight text-zinc-950 font-medium text-sm rounded-xl transition duration-150">
+                class="w-full py-2.5 bg-brand-brass hover:bg-brand-brassLight text-zinc-950 font-semibold text-sm rounded-xl transition duration-150">
           Send Magic Link
         </button>
       </form>
+      
       <div id="authNotice" class="text-xs text-emerald-400 mt-4 hidden"></div>
+      <div id="authError" class="text-xs text-rose-400 mt-4 hidden text-left bg-rose-950/40 p-2.5 rounded-lg border border-rose-900/50"></div>
     </div>
   </div>
 
@@ -107,7 +109,7 @@
       <div class="flex items-center justify-between bg-zinc-900/60 p-4 rounded-xl border border-zinc-800">
         <div>
           <h2 class="text-sm font-semibold text-white">Minnetonka, MN Forecast Sync</h2>
-          <p class="text-xs text-zinc-400" id="forecastSummary">Loading weather...</p>
+          <p class="text-xs text-zinc-400" id="forecastSummary">54°F High · Clear Autumn Skies</p>
         </div>
         <button id="curateWeekBtn" class="bg-brand-brass hover:bg-brand-brassLight text-zinc-950 font-semibold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition">
           <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
@@ -139,269 +141,302 @@
 
   <!-- JAVASCRIPT ARCHITECTURE -->
   <script>
-    // Supabase Credentials
-    const SUPABASE_URL = 'https://rqiuuzeatlhyxfgwvuaa.supabase.co';
-    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxaXV1emVhdGxoeXhmZ3d2dWFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NTU5ODEsImV4cCI6MjEwODEzMTk4MX0.X7-YIKjHCpoL2W_aEJVWOlr1UwGT_fawxiTqR-J4I0s';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-
-    let currentUser = null;
-    let garments = [];
-    let activeAnchorGarmentId = null; // FEAT-01 Hero Anchor
-    let weeklyPlan = null;
-
-    // Days structure
-    const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-
-    // 1. AUTHENTICATION LIFECYCLE
-    async function initApp() {
-      lucide.createIcons();
-      const { data: { session } } = await supabase.auth.getSession();
+    (function() {
+      // 1. SUPABASE CLIENT INITIALIZATION (Collision Safe)
+      const SUPABASE_URL = 'https://rqiuuzeatlhyxfgwvuaa.supabase.co';
+      const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxaXV1emVhdGxoeXhmZ3d2dWFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NTU5ODEsImV4cCI6MjEwODEzMTk4MX0.X7-YIKjHCpoL2W_aEJVWOlr1UwGT_fawxiTqR-J4I0s';
       
-      if (session) {
-        handleUserSignedIn(session.user);
-      } else {
-        document.getElementById('authScreen').classList.remove('hidden');
-      }
+      const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON) : null;
 
-      supabase.auth.onAuthStateChange((_event, session) => {
+      let currentUser = null;
+      let garments = [];
+      let activeAnchorGarmentId = null;
+      let weeklyPlan = null;
+
+      const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
+      // 2. AUTHENTICATION LIFECYCLE
+      async function initApp() {
+        if (window.lucide) window.lucide.createIcons();
+        if (!sb) {
+          showAuthError("Database connection failed to initialize. Please check your network.");
+          return;
+        }
+
+        const { data: { session } } = await sb.auth.getSession();
+        
         if (session) {
           handleUserSignedIn(session.user);
         } else {
           document.getElementById('authScreen').classList.remove('hidden');
-          document.getElementById('appContainer').classList.add('hidden');
         }
-      });
-    }
 
-    async function handleUserSignedIn(user) {
-      currentUser = user;
-      document.getElementById('authScreen').classList.add('hidden');
-      document.getElementById('appContainer').classList.remove('hidden');
-      document.getElementById('userEmailDisplay').textContent = user.email;
-
-      // Check for local legacy migration
-      checkLegacyMigrationNeeded();
-
-      // Fetch user data from Supabase
-      await fetchUserData();
-      renderVault();
-      renderDaysBoard();
-      lucide.createIcons();
-    }
-
-    // 2. ONE-CLICK LOCALSTORAGE MIGRATION (FEAT-03)
-    function checkLegacyMigrationNeeded() {
-      const localData = localStorage.getItem('curated_closet_vault') || localStorage.getItem('confirmedGarments');
-      if (localData) {
-        try {
-          const parsed = JSON.parse(localData);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            const migrateBtn = document.getElementById('migrateBtn');
-            migrateBtn.classList.remove('hidden');
-            migrateBtn.onclick = () => runMigration(parsed);
+        sb.auth.onAuthStateChange((_event, session) => {
+          if (session) {
+            handleUserSignedIn(session.user);
+          } else {
+            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('appContainer').classList.add('hidden');
           }
-        } catch(e) { console.error("Migration parse check failed", e); }
+        });
       }
-    }
 
-    async function runMigration(localItems) {
-      const migrateBtn = document.getElementById('migrateBtn');
-      migrateBtn.innerHTML = `<span>Importing...</span>`;
+      async function handleUserSignedIn(user) {
+        currentUser = user;
+        document.getElementById('authScreen').classList.add('hidden');
+        document.getElementById('appContainer').classList.remove('hidden');
+        document.getElementById('userEmailDisplay').textContent = user.email;
 
-      const rowsToInsert = localItems.map(item => ({
-        user_id: currentUser.id,
-        name: item.name || 'Tailored Item',
-        category: item.category || 'Tops',
-        sub_category: item.subCategory || item.category,
-        color: item.color || '',
-        pattern: item.pattern || '',
-        formality: item.formality || 'Executive Casual',
-        season: item.season || ['All'],
-        image_url: item.imageUrl || item.image || '',
-        wear_count: item.wearCount || 0
-      }));
-
-      const { data, error } = await supabase.from('garments').insert(rowsToInsert);
-      if (!error) {
-        localStorage.removeItem('curated_closet_vault');
-        localStorage.removeItem('confirmedGarments');
-        migrateBtn.classList.add('hidden');
+        checkLegacyMigrationNeeded();
         await fetchUserData();
         renderVault();
-        alert('All 125 pieces successfully imported to your private cloud closet!');
-      } else {
-        alert('Import failed: ' + error.message);
-        migrateBtn.textContent = 'Retry Import';
+        renderDaysBoard();
+        if (window.lucide) window.lucide.createIcons();
       }
-    }
 
-    // 3. FETCH GARMENTS & PLANS
-    async function fetchUserData() {
-      const { data: gData } = await supabase.from('garments').select('*').order('created_at', { ascending: false });
-      garments = gData || [];
-      document.getElementById('vaultCount').textContent = garments.length;
-
-      const { data: pData } = await supabase.from('weekly_plans').select('*').order('created_at', { ascending: false }).limit(1);
-      weeklyPlan = pData && pData[0] ? pData[0].plan_data : null;
-    }
-
-    // 4. FEAT-01: HERO PIECE STYLING ENGINE
-    window.setHeroAnchor = function(garmentId) {
-      if (activeAnchorGarmentId === garmentId) {
-        activeAnchorGarmentId = null; // Toggle off
-      } else {
-        activeAnchorGarmentId = garmentId;
+      function showAuthError(msg) {
+        const errBox = document.getElementById('authError');
+        errBox.textContent = msg;
+        errBox.classList.remove('hidden');
       }
-      renderDaysBoard();
-      renderVault();
-    };
 
-    // 5. RENDER 7-DAY BOARD
-    function renderDaysBoard() {
-      const grid = document.getElementById('daysGrid');
-      grid.innerHTML = '';
+      // 3. ONE-CLICK LOCALSTORAGE MIGRATION (FEAT-03)
+      function checkLegacyMigrationNeeded() {
+        const localData = localStorage.getItem('curated_closet_vault') || localStorage.getItem('confirmedGarments');
+        if (localData) {
+          try {
+            const parsed = JSON.parse(localData);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              const migrateBtn = document.getElementById('migrateBtn');
+              migrateBtn.classList.remove('hidden');
+              migrateBtn.onclick = () => runMigration(parsed);
+            }
+          } catch(e) { console.error("Migration check failed", e); }
+        }
+      }
 
-      DAYS.forEach((day, index) => {
-        const isToday = index === 1; // Tuesday demo default
-        const col = document.createElement('div');
-        col.className = 'bg-zinc-900 border border-zinc-800 rounded-xl p-3 flex flex-col justify-between';
+      async function runMigration(localItems) {
+        const migrateBtn = document.getElementById('migrateBtn');
+        migrateBtn.innerHTML = `<span>Importing...</span>`;
 
-        const anchorGarment = garments.find(g => g.id === activeAnchorGarmentId);
+        const rowsToInsert = localItems.map(item => ({
+          user_id: currentUser.id,
+          name: item.name || 'Tailored Item',
+          category: item.category || 'Tops',
+          sub_category: item.subCategory || item.category,
+          color: item.color || '',
+          pattern: item.pattern || '',
+          formality: item.formality || 'Executive Casual',
+          season: item.season || ['All'],
+          image_url: item.imageUrl || item.image || '',
+          wear_count: item.wearCount || 0
+        }));
 
-        col.innerHTML = `
-          <div class="flex items-center justify-between pb-2 border-b border-zinc-800/80 mb-2">
-            <div>
-              <span class="text-xs font-bold ${isToday ? 'text-brand-brass' : 'text-zinc-200'}">${day}</span>
-              ${isToday ? '<span class="ml-1 text-[9px] bg-brand-brass/20 text-brand-brass px-1 rounded">TODAY</span>' : ''}
-            </div>
-            <span class="text-[10px] text-zinc-400">54°F High</span>
-          </div>
+        const { error } = await sb.from('garments').insert(rowsToInsert);
+        if (!error) {
+          localStorage.removeItem('curated_closet_vault');
+          localStorage.removeItem('confirmedGarments');
+          migrateBtn.classList.add('hidden');
+          await fetchUserData();
+          renderVault();
+          alert('All 125 pieces successfully imported to your private cloud closet!');
+        } else {
+          alert('Import failed: ' + error.message);
+          migrateBtn.textContent = 'Retry Import';
+        }
+      }
 
-          <div class="space-y-2 py-1">
-            <!-- SLOT: TOP / ANCHOR -->
-            <div class="relative rounded-lg p-2 bg-zinc-950 border border-zinc-800 ${isToday && activeAnchorGarmentId ? 'hero-anchor-active' : ''}">
-              <div class="flex items-center justify-between text-[10px] text-zinc-400 mb-1">
-                <span>Top</span>
-                ${isToday && activeAnchorGarmentId ? `
-                  <span class="bg-brand-brass text-zinc-950 font-bold px-1.5 py-0.2 rounded text-[8px] tracking-wider">
-                    ◈ HERO ANCHOR
-                  </span>` : ''}
+      // 4. FETCH GARMENTS & PLANS
+      async function fetchUserData() {
+        const { data: gData } = await sb.from('garments').select('*').order('created_at', { ascending: false });
+        garments = gData || [];
+        document.getElementById('vaultCount').textContent = garments.length;
+
+        const { data: pData } = await sb.from('weekly_plans').select('*').order('created_at', { ascending: false }).limit(1);
+        weeklyPlan = pData && pData[0] ? pData[0].plan_data : null;
+      }
+
+      // 5. FEAT-01: HERO PIECE STYLING ENGINE
+      window.setHeroAnchor = function(garmentId) {
+        activeAnchorGarmentId = (activeAnchorGarmentId === garmentId) ? null : garmentId;
+        renderDaysBoard();
+        renderVault();
+      };
+
+      // 6. RENDER 7-DAY BOARD
+      function renderDaysBoard() {
+        const grid = document.getElementById('daysGrid');
+        grid.innerHTML = '';
+
+        DAYS.forEach((day, index) => {
+          const isToday = index === 1; // Tuesday demo default
+          const col = document.createElement('div');
+          col.className = 'bg-zinc-900 border border-zinc-800 rounded-xl p-3 flex flex-col justify-between';
+
+          const anchorGarment = garments.find(g => g.id === activeAnchorGarmentId);
+
+          col.innerHTML = `
+            <div class="flex items-center justify-between pb-2 border-b border-zinc-800/80 mb-2">
+              <div>
+                <span class="text-xs font-bold ${isToday ? 'text-brand-brass' : 'text-zinc-200'}">${day}</span>
+                ${isToday ? '<span class="ml-1 text-[9px] bg-brand-brass/20 text-brand-brass px-1 rounded">TODAY</span>' : ''}
               </div>
-              <p class="text-xs font-medium text-white truncate">
-                ${isToday && anchorGarment ? anchorGarment.name : 'Oxford Shirt'}
-              </p>
+              <span class="text-[10px] text-zinc-400">54°F High</span>
             </div>
 
-            <!-- SLOT: LAYER -->
-            <div class="rounded-lg p-2 bg-zinc-950 border border-zinc-800">
-              <span class="text-[10px] text-zinc-400 block mb-1">Layer</span>
-              <p class="text-xs font-medium text-white truncate">Khaki Utility Field Jacket</p>
+            <div class="space-y-2 py-1">
+              <!-- SLOT: TOP / ANCHOR -->
+              <div class="relative rounded-lg p-2 bg-zinc-950 border border-zinc-800 ${isToday && activeAnchorGarmentId ? 'hero-anchor-active' : ''}">
+                <div class="flex items-center justify-between text-[10px] text-zinc-400 mb-1">
+                  <span>Top</span>
+                  ${isToday && activeAnchorGarmentId ? `
+                    <span class="bg-brand-brass text-zinc-950 font-bold px-1.5 py-0.2 rounded text-[8px] tracking-wider">
+                      ◈ HERO ANCHOR
+                    </span>` : ''}
+                </div>
+                <p class="text-xs font-medium text-white truncate">
+                  ${isToday && anchorGarment ? anchorGarment.name : 'Green & Grey Striped Rugby'}
+                </p>
+              </div>
+
+              <!-- SLOT: LAYER -->
+              <div class="rounded-lg p-2 bg-zinc-950 border border-zinc-800">
+                <span class="text-[10px] text-zinc-400 block mb-1">Layer</span>
+                <p class="text-xs font-medium text-white truncate">Khaki Utility Field Jacket</p>
+              </div>
+
+              <!-- SLOT: BOTTOM -->
+              <div class="rounded-lg p-2 bg-zinc-950 border border-zinc-800">
+                <span class="text-[10px] text-zinc-400 block mb-1">Bottom</span>
+                <p class="text-xs font-medium text-white truncate">Charcoal 5-Pocket Trousers</p>
+              </div>
+
+              <!-- SLOT: FOOTWEAR -->
+              <div class="rounded-lg p-2 bg-zinc-950 border border-zinc-800">
+                <span class="text-[10px] text-zinc-400 block mb-1">Footwear</span>
+                <p class="text-xs font-medium text-white truncate">KOIO Capri White</p>
+              </div>
             </div>
 
-            <!-- SLOT: BOTTOM -->
-            <div class="rounded-lg p-2 bg-zinc-950 border border-zinc-800">
-              <span class="text-[10px] text-zinc-400 block mb-1">Bottom</span>
-              <p class="text-xs font-medium text-white truncate">Charcoal 5-Pocket Trousers</p>
+            <div class="pt-2 mt-2 border-t border-zinc-800/80">
+              <button class="w-full py-1 text-[11px] font-medium text-zinc-400 hover:text-brand-brass flex items-center justify-center gap-1 transition">
+                <i data-lucide="rotate-cw" class="w-3 h-3"></i>
+                <span>${isToday && activeAnchorGarmentId ? 'Style Around Anchor' : 'Re-Curate'}</span>
+              </button>
             </div>
-
-            <!-- SLOT: FOOTWEAR -->
-            <div class="rounded-lg p-2 bg-zinc-950 border border-zinc-800">
-              <span class="text-[10px] text-zinc-400 block mb-1">Footwear</span>
-              <p class="text-xs font-medium text-white truncate">KOIO Capri White</p>
-            </div>
-          </div>
-
-          <div class="pt-2 mt-2 border-t border-zinc-800/80">
-            <button class="w-full py-1 text-[11px] font-medium text-zinc-400 hover:text-brand-brass flex items-center justify-center gap-1 transition">
-              <i data-lucide="rotate-cw" class="w-3 h-3"></i>
-              <span>${isToday && activeAnchorGarmentId ? 'Style Around Anchor' : 'Re-Curate'}</span>
-            </button>
-          </div>
-        `;
-        grid.appendChild(col);
-      });
-      lucide.createIcons();
-    }
-
-    // 6. RENDER CLOSET VAULT
-    function renderVault() {
-      const grid = document.getElementById('vaultGrid');
-      grid.innerHTML = '';
-
-      garments.forEach(item => {
-        const isAnchor = item.id === activeAnchorGarmentId;
-        const card = document.createElement('div');
-        card.className = `relative bg-zinc-900 border rounded-xl overflow-hidden p-2 flex flex-col justify-between transition ${isAnchor ? 'hero-anchor-active border-brand-brass' : 'border-zinc-800'}`;
-
-        card.innerHTML = `
-          <div class="aspect-square bg-zinc-950 rounded-lg overflow-hidden flex items-center justify-center relative mb-2">
-            ${item.image_url ? 
-              `<img src="${item.image_url}" class="w-full h-full object-cover">` : 
-              `<i data-lucide="shirt" class="w-8 h-8 text-zinc-600"></i>`}
-            ${isAnchor ? `
-              <div class="absolute top-1.5 right-1.5 bg-brand-brass text-zinc-950 text-[8px] font-bold px-1.5 py-0.5 rounded shadow">
-                ◈ HERO
-              </div>` : ''}
-          </div>
-          <div>
-            <span class="text-[10px] text-brand-brass uppercase font-semibold">${item.category}</span>
-            <p class="text-xs font-medium text-white truncate">${item.name}</p>
-          </div>
-          <button onclick="setHeroAnchor('${item.id}')" 
-                  class="mt-2 w-full py-1 text-[10px] font-semibold rounded-lg border transition ${isAnchor ? 'bg-brand-brass text-zinc-950 border-brand-brass' : 'bg-zinc-800 text-zinc-300 border-zinc-700 hover:border-zinc-500'}">
-            ${isAnchor ? 'Anchor Active' : 'Set as Hero Anchor'}
-          </button>
-        `;
-        grid.appendChild(card);
-      });
-      lucide.createIcons();
-    }
-
-    // EVENT LISTENERS
-    document.getElementById('authForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('authEmail').value;
-      const submitBtn = document.getElementById('authSubmitBtn');
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Sending...';
-
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: window.location.href }
-      });
-
-      if (!error) {
-        document.getElementById('authNotice').textContent = 'Magic link sent! Check your inbox.';
-        document.getElementById('authNotice').classList.remove('hidden');
-      } else {
-        alert('Auth error: ' + error.message);
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Send Magic Link';
+          `;
+          grid.appendChild(col);
+        });
+        if (window.lucide) window.lucide.createIcons();
       }
-    });
 
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      window.location.reload();
-    });
+      // 7. RENDER CLOSET VAULT
+      function renderVault() {
+        const grid = document.getElementById('vaultGrid');
+        grid.innerHTML = '';
 
-    // Tab Switchers
-    document.getElementById('tabBoard').addEventListener('click', () => {
-      document.getElementById('viewBoard').classList.remove('hidden');
-      document.getElementById('viewVault').classList.add('hidden');
-      document.getElementById('tabBoard').className = 'px-4 py-2 rounded-xl text-xs font-semibold bg-zinc-800 text-white border border-zinc-700';
-      document.getElementById('tabVault').className = 'px-4 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white border border-transparent';
-    });
+        if (garments.length === 0) {
+          grid.innerHTML = `
+            <div class="col-span-full py-12 text-center text-zinc-500 text-xs">
+              No garments loaded. If you have legacy items, tap "Import 125 Items" in the header.
+            </div>
+          `;
+          return;
+        }
 
-    document.getElementById('tabVault').addEventListener('click', () => {
-      document.getElementById('viewVault').classList.remove('hidden');
-      document.getElementById('viewBoard').classList.add('hidden');
-      document.getElementById('tabVault').className = 'px-4 py-2 rounded-xl text-xs font-semibold bg-zinc-800 text-white border border-zinc-700';
-      document.getElementById('tabBoard').className = 'px-4 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white border border-transparent';
-    });
+        garments.forEach(item => {
+          const isAnchor = item.id === activeAnchorGarmentId;
+          const card = document.createElement('div');
+          card.className = `relative bg-zinc-900 border rounded-xl overflow-hidden p-2 flex flex-col justify-between transition ${isAnchor ? 'hero-anchor-active border-brand-brass' : 'border-zinc-800'}`;
 
-    // Initialize on load
-    initApp();
+          card.innerHTML = `
+            <div class="aspect-square bg-zinc-950 rounded-lg overflow-hidden flex items-center justify-center relative mb-2">
+              ${item.image_url ? 
+                `<img src="${item.image_url}" class="w-full h-full object-cover">` : 
+                `<i data-lucide="shirt" class="w-8 h-8 text-zinc-600"></i>`}
+              ${isAnchor ? `
+                <div class="absolute top-1.5 right-1.5 bg-brand-brass text-zinc-950 text-[8px] font-bold px-1.5 py-0.5 rounded shadow">
+                  ◈ HERO
+                </div>` : ''}
+            </div>
+            <div>
+              <span class="text-[10px] text-brand-brass uppercase font-semibold">${item.category}</span>
+              <p class="text-xs font-medium text-white truncate">${item.name}</p>
+            </div>
+            <button onclick="setHeroAnchor('${item.id}')" 
+                    class="mt-2 w-full py-1 text-[10px] font-semibold rounded-lg border transition ${isAnchor ? 'bg-brand-brass text-zinc-950 border-brand-brass' : 'bg-zinc-800 text-zinc-300 border-zinc-700 hover:border-zinc-500'}">
+              ${isAnchor ? 'Anchor Active' : 'Set as Hero Anchor'}
+            </button>
+          `;
+          grid.appendChild(card);
+        });
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      // 8. EVENT LISTENERS & AUTH DISPATCH
+      document.getElementById('authForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errBox = document.getElementById('authError');
+        const noticeBox = document.getElementById('authNotice');
+        const submitBtn = document.getElementById('authSubmitBtn');
+        const emailInput = document.getElementById('authEmail');
+
+        errBox.classList.add('hidden');
+        noticeBox.classList.add('hidden');
+
+        const email = emailInput.value.trim();
+        if (!email) return;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending Magic Link...';
+
+        try {
+          const cleanRedirectUrl = window.location.origin + window.location.pathname;
+          const { error } = await sb.auth.signInWithOtp({
+            email: email,
+            options: {
+              emailRedirectTo: cleanRedirectUrl
+            }
+          });
+
+          if (error) {
+            showAuthError(error.message);
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Magic Link';
+          } else {
+            noticeBox.textContent = '✓ Magic link sent! Please check your inbox (or spam folder).';
+            noticeBox.classList.remove('hidden');
+            submitBtn.textContent = 'Check Your Inbox';
+          }
+        } catch (err) {
+          showAuthError("Unexpected connection error: " + err.message);
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Magic Link';
+        }
+      });
+
+      document.getElementById('logoutBtn').addEventListener('click', async () => {
+        if (sb) await sb.auth.signOut();
+        window.location.reload();
+      });
+
+      // Tab Navigation
+      document.getElementById('tabBoard').addEventListener('click', () => {
+        document.getElementById('viewBoard').classList.remove('hidden');
+        document.getElementById('viewVault').classList.add('hidden');
+        document.getElementById('tabBoard').className = 'px-4 py-2 rounded-xl text-xs font-semibold bg-zinc-800 text-white border border-zinc-700';
+        document.getElementById('tabVault').className = 'px-4 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white border border-transparent';
+      });
+
+      document.getElementById('tabVault').addEventListener('click', () => {
+        document.getElementById('viewVault').classList.remove('hidden');
+        document.getElementById('viewBoard').classList.add('hidden');
+        document.getElementById('tabVault').className = 'px-4 py-2 rounded-xl text-xs font-semibold bg-zinc-800 text-white border border-zinc-700';
+        document.getElementById('tabBoard').className = 'px-4 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white border border-transparent';
+      });
+
+      initApp();
+    })();
   </script>
 </body>
 </html>
