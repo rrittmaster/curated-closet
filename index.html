@@ -2,1571 +2,406 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Curated Closet | Master Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Curated Closet</title>
+  
+  <!-- iOS PWA Standalone Configuration -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Curated Closet">
+  <meta name="theme-color" content="#18181b">
+
+  <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            serif: ['Cinzel', 'serif']
-          },
           colors: {
             brand: {
-              cream: '#FAF8F5',
-              stone: '#F2EFEB',
-              border: '#E2DCD4',
-              navy: '#131D2D',
-              slate: '#334155',
-              forest: '#1E3527',
-              terracotta: '#9E4B38',
-              espresso: '#362822',
-              olive: '#47533E',
-              khaki: '#C5B294'
+              brass: '#C5B294',
+              brassLight: '#DFD3C3',
+              navy: '#0F172A',
+              charcoal: '#1E293B',
+              stone: '#27272A'
             }
           }
         }
       }
     }
   </script>
+
   <style>
-    body { background-color: #FAF8F5; color: #1A2434; font-family: 'Inter', sans-serif; }
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #F2EFEB; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #D4CCC2; border-radius: 9999px; }
-    .img-rot-0 { transform: rotate(0deg); }
-    .img-rot-90 { transform: rotate(90deg) scale(1.2); }
-    .img-rot-180 { transform: rotate(180deg); }
-    .img-rot-270 { transform: rotate(270deg) scale(1.2); }
+    body { -webkit-tap-highlight-color: transparent; }
+    .hero-anchor-active {
+      border: 1.5px solid #C5B294 !important;
+      box-shadow: 0 0 12px rgba(197, 178, 148, 0.25);
+    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased text-stone-800">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen font-sans antialiased pb-24">
 
-  <!-- HEADER -->
-  <header class="bg-white/95 backdrop-blur-md border-b border-brand-border sticky top-0 z-40">
-    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
-      <div class="flex items-center space-x-3.5">
-        <div class="w-10 h-10 rounded-xl bg-brand-navy flex items-center justify-center text-brand-cream font-serif text-sm font-extrabold tracking-widest shadow-md">
-          CW
-        </div>
-        <div>
-          <div class="flex items-center space-x-2">
-            <h1 class="font-serif text-lg sm:text-xl tracking-wider text-brand-navy font-bold uppercase">The Curated Closet</h1>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">Sloane AI Curated</span>
-          </div>
-          <p class="text-xs text-stone-500 font-medium">Gemini-Powered Sloane Stylist &bull; Minnetonka Weather Sync &bull; Zero-Repeat Flat-Lays</p>
-        </div>
+  <!-- AUTH SCREEN (Shown if not logged in) -->
+  <div id="authScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950 px-4">
+    <div class="w-full max-w-sm p-6 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl text-center">
+      <div class="w-12 h-12 mx-auto mb-4 rounded-xl bg-zinc-800 flex items-center justify-center border border-zinc-700">
+        <i data-lucide="sparkles" class="w-6 h-6 text-brand-brass"></i>
       </div>
+      <h1 class="text-xl font-bold tracking-tight text-white mb-1">Curated Closet</h1>
+      <p class="text-xs text-zinc-400 mb-6">Executive Wardrobe Architecture</p>
       
-      <!-- Key Management & Navigation -->
-      <div class="flex items-center space-x-2">
-        <button onclick="toggleModal('api-key-modal', true)" class="px-3 py-1.5 rounded-xl border border-brand-border bg-brand-stone hover:bg-stone-200 text-brand-navy text-xs font-semibold flex items-center space-x-1.5 transition">
-          <span id="api-key-indicator" class="w-2 h-2 rounded-full bg-rose-500"></span>
-          <span>Vision API Key</span>
+      <form id="authForm" class="space-y-3">
+        <input type="email" id="authEmail" required placeholder="Enter your work email" 
+               class="w-full px-4 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-brand-brass text-white placeholder-zinc-500">
+        <button type="submit" id="authSubmitBtn" 
+                class="w-full py-2.5 bg-brand-brass hover:bg-brand-brassLight text-zinc-950 font-medium text-sm rounded-xl transition duration-150">
+          Send Magic Link
         </button>
-
-        <nav class="flex space-x-1.5 bg-brand-stone p-1 rounded-xl border border-brand-border text-xs sm:text-sm font-medium">
-          <button id="tab-btn-planner" onclick="switchView('planner')" class="px-4 py-2 rounded-lg bg-white text-brand-navy shadow-sm font-semibold flex items-center space-x-1.5 transition">
-            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            <span>7-Day Board</span>
-          </button>
-          <button id="tab-btn-wardrobe" onclick="switchView('wardrobe')" class="px-4 py-2 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            <span>Closet Vault (<span id="nav-vault-count">0</span>)</span>
-          </button>
-          <button id="tab-btn-build" onclick="switchView('build')" class="px-4 py-2 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5 transition">
-            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-            <span>Intake Studio (<span id="nav-pending-count">0</span>)</span>
-          </button>
-        </nav>
-      </div>
-    </div>
-  </header>
-
-  <!-- NOTIFICATION TOAST -->
-  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
-    <div class="bg-brand-navy text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 border border-stone-700">
-      <span id="toast-icon">✓</span>
-      <span id="toast-msg" class="text-xs sm:text-sm font-medium"></span>
+      </form>
+      <div id="authNotice" class="text-xs text-emerald-400 mt-4 hidden"></div>
     </div>
   </div>
 
-  <main class="flex-grow max-w-[1700px] mx-auto w-full px-3 sm:px-6 py-6">
-
-    <!-- VIEW 1: 7-DAY FLAT-LAY BOARD (POWERED BY SLOANE AI) -->
-    <section id="view-planner" class="space-y-6">
-      <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-4">
-        <div>
-          <div class="flex items-center space-x-2">
-            <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Sloane Weather-Adaptive 7-Day Board</h2>
-            <span id="weather-status-badge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 font-semibold">Minnetonka, MN Synced</span>
-          </div>
-          <p class="text-xs text-stone-500 mt-0.5">Sloane AI pairs collar structure, texture friction, and local weather forecasts across your week.</p>
+  <!-- MAIN APP CONTAINER -->
+  <div id="appContainer" class="hidden max-w-5xl mx-auto px-4 pt-6">
+    
+    <!-- HEADER -->
+    <header class="flex items-center justify-between pb-6 border-b border-zinc-800">
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-lg font-bold text-white tracking-wide">CURATED CLOSET</h1>
+          <span class="text-[10px] tracking-widest px-2 py-0.5 rounded-full bg-zinc-800 text-brand-brass uppercase font-semibold border border-zinc-700">
+            Sloane Engine
+          </span>
         </div>
-        <div class="flex items-center space-x-3 w-full lg:w-auto">
-          <button id="btn-sloane-curate" onclick="smartGenerateWeek()" class="flex-1 lg:flex-none px-5 py-2.5 bg-gradient-to-r from-indigo-900 via-brand-navy to-indigo-950 hover:opacity-95 text-white text-xs font-semibold rounded-xl shadow-sm transition flex items-center justify-center space-x-2">
-            <svg id="sloane-sparkle-icon" class="w-4 h-4 text-amber-300 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-            <span id="sloane-btn-label">✨ Sloane Curate All 7 Days</span>
-          </button>
-          <button onclick="clearWeekPlan()" class="px-3 py-2.5 border border-brand-border hover:bg-brand-stone text-stone-600 text-xs font-medium rounded-xl transition-colors">
-            Reset Week
-          </button>
-        </div>
+        <p id="userEmailDisplay" class="text-xs text-zinc-400 mt-0.5"></p>
       </div>
 
-      <div id="seven-day-flatlay-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4"></div>
+      <div class="flex items-center gap-2">
+        <!-- Migration Indicator -->
+        <button id="migrateBtn" class="hidden text-xs bg-amber-500/10 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+          <i data-lucide="cloud-upload" class="w-3.5 h-3.5"></i>
+          <span>Import 125 Items</span>
+        </button>
+        <button id="logoutBtn" class="text-xs text-zinc-400 hover:text-white px-2 py-1">Sign Out</button>
+      </div>
+    </header>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="flex gap-2 my-5">
+      <button id="tabBoard" class="px-4 py-2 rounded-xl text-xs font-semibold bg-zinc-800 text-white border border-zinc-700">
+        7-Day Board
+      </button>
+      <button id="tabVault" class="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white border border-transparent">
+        Closet Vault (<span id="vaultCount">0</span>)
+      </button>
+    </nav>
+
+    <!-- VIEW 1: 7-DAY BOARD -->
+    <section id="viewBoard" class="space-y-4">
+      <div class="flex items-center justify-between bg-zinc-900/60 p-4 rounded-xl border border-zinc-800">
+        <div>
+          <h2 class="text-sm font-semibold text-white">Minnetonka, MN Forecast Sync</h2>
+          <p class="text-xs text-zinc-400" id="forecastSummary">Loading weather...</p>
+        </div>
+        <button id="curateWeekBtn" class="bg-brand-brass hover:bg-brand-brassLight text-zinc-950 font-semibold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          <span>Curate Week with Sloane</span>
+        </button>
+      </div>
+
+      <!-- Days Grid -->
+      <div id="daysGrid" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <!-- Injected via JavaScript -->
+      </div>
     </section>
 
     <!-- VIEW 2: CLOSET VAULT -->
-    <section id="view-wardrobe" class="space-y-6 hidden">
-      <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-4">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div class="flex items-center space-x-2">
-              <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Closet Vault Inventory</h2>
-              <span id="vault-count-badge" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold">0 Confirmed</span>
-            </div>
-            <p class="text-xs text-stone-500 mt-0.5">Click any garment card to edit categories, Sloane notes, or rotate images 90°.</p>
-          </div>
-          
-          <div class="flex flex-wrap items-center gap-2">
-            <button onclick="document.getElementById('direct-file-input').click()" class="px-3.5 py-2 bg-indigo-50 border border-indigo-200 text-indigo-900 hover:bg-indigo-100 rounded-xl text-xs font-bold transition">
-              📸 Upload New Piece
-            </button>
-            <button onclick="switchView('build')" class="px-3.5 py-2 bg-brand-navy hover:bg-stone-900 text-white text-xs font-semibold rounded-xl shadow-sm transition">
-              Queue Intake (<span id="btn-pending-subcount">0</span> left)
-            </button>
-            <button onclick="exportFullWardrobeBackup()" class="px-3 py-2 border border-brand-border hover:bg-brand-stone text-brand-navy text-xs font-semibold rounded-xl transition">
-              💾 Export Backup
-            </button>
-            <button onclick="clearVaultConfirm()" class="px-3 py-2 text-rose-600 hover:bg-rose-50 border border-rose-200 text-xs font-semibold rounded-xl transition">
-              🧹 Clear Vault
-            </button>
-          </div>
-        </div>
-
-        <div id="wardrobe-grid-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+    <section id="viewVault" class="hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-zinc-300">Wardrobe Catalog</h2>
+        <button id="addItemBtn" class="bg-zinc-800 hover:bg-zinc-700 text-white text-xs px-3 py-1.5 rounded-lg border border-zinc-700 flex items-center gap-1">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>Add Piece</span>
+        </button>
+      </div>
+      <div id="vaultGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <!-- Injected via JavaScript -->
       </div>
     </section>
 
-    <!-- VIEW 3: INTAKE STUDIO -->
-    <section id="view-build" class="space-y-6 hidden">
-      <div class="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-3">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h2 class="font-serif text-lg font-bold text-brand-navy tracking-tight">Intake Studio</h2>
-            <p class="text-xs text-stone-500">Capture purchases, orient photos, and write Sloane styling pairing notes.</p>
-          </div>
-          
-          <div class="flex items-center space-x-3">
-            <input type="file" id="direct-file-input" accept="image/*" class="hidden" onchange="handleDirectUpload(event)">
-            
-            <button onclick="document.getElementById('direct-file-input').click()" class="px-4 py-2 bg-indigo-50 border border-indigo-200 text-indigo-900 hover:bg-indigo-100 rounded-xl text-xs font-bold flex items-center space-x-2 transition shadow-2xs">
-              <svg class="w-4 h-4 text-indigo-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-              <span>📸 Snap / Upload New Piece</span>
-            </button>
-
-            <span class="text-xs font-mono font-bold text-brand-navy" id="intake-progress-label">0 Pending</span>
-            <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold" id="vault-total-badge">0 Pieces Confirmed</span>
-          </div>
-        </div>
-
-        <div class="w-full bg-stone-100 h-2 rounded-full overflow-hidden border border-brand-border">
-          <div id="intake-progress-bar" class="bg-brand-navy h-full transition-all duration-300" style="width: 0%;"></div>
-        </div>
-      </div>
-
-      <!-- COMPLETION SCREEN -->
-      <div id="intake-complete-banner" class="hidden bg-white border border-brand-border rounded-3xl p-12 text-center space-y-4 shadow-sm">
-        <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto text-2xl font-bold">✓</div>
-        <h3 class="font-serif text-2xl font-bold text-brand-navy">Batch Queue Complete!</h3>
-        <p class="text-sm text-stone-500 max-w-md mx-auto">All items are confirmed in your Closet Vault. Use the upload button anytime to add new pieces.</p>
-        <div class="pt-2 flex justify-center space-x-3">
-          <button onclick="document.getElementById('direct-file-input').click()" class="px-5 py-2.5 bg-indigo-700 text-white text-xs font-semibold rounded-xl hover:bg-indigo-800 transition">
-            📸 Snap / Upload New Piece
-          </button>
-          <button onclick="switchView('wardrobe')" class="px-5 py-2.5 bg-brand-navy text-white text-xs font-semibold rounded-xl hover:bg-stone-900 transition">
-            View Closet Vault (<span id="complete-vault-count">0</span>)
-          </button>
-        </div>
-      </div>
-
-      <!-- Main Intake Workbench -->
-      <div id="intake-workbench" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
-        <!-- Left Stage: Image, Rotation & Action Bar -->
-        <div class="lg:col-span-5 bg-white border border-brand-border rounded-3xl p-5 shadow-sm flex flex-col items-center space-y-4">
-          <div class="w-full aspect-4/5 rounded-2xl overflow-hidden bg-stone-100 border border-brand-border relative flex items-center justify-center">
-            <img id="intake-photo-img" src="" class="w-full h-full object-cover transition-transform duration-200">
-            
-            <div id="badge-upload-indicator" class="absolute top-3 left-3 bg-indigo-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow hidden">
-              NEW UPLOAD
-            </div>
-
-            <button type="button" onclick="rotateCurrentIntake()" class="absolute top-3 right-3 p-2 rounded-xl bg-stone-900/80 backdrop-blur-md text-white hover:bg-stone-900 text-xs shadow-md transition" title="Rotate 90 degrees">
-              🔄 Rotate 90°
-            </button>
-
-            <div class="absolute bottom-3 right-3 bg-stone-900/80 backdrop-blur-md text-white font-mono text-xs px-2.5 py-1 rounded-lg" id="intake-filename-badge">
-              IMG_6219.jpg
-            </div>
-          </div>
-
-          <button id="btn-trigger-ai" onclick="runGeminiVisionAnalysis()" class="w-full py-3 px-4 bg-gradient-to-r from-indigo-900 via-brand-navy to-indigo-950 hover:opacity-95 text-white rounded-xl shadow-md font-semibold text-xs flex items-center justify-center space-x-2 transition">
-            <svg id="ai-icon-sparkle" class="w-4 h-4 text-amber-300 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-            <span id="ai-btn-text">✨ Auto-Draft Details with Vision AI</span>
-          </button>
-
-          <div id="batch-navigation-bar" class="flex items-center justify-between w-full pt-1">
-            <button onclick="navigateIntake(-1)" class="px-4 py-2 border border-brand-border hover:bg-brand-stone text-stone-700 text-xs font-semibold rounded-xl transition">
-              &larr; Previous
-            </button>
-            <button onclick="skipPhoto()" class="px-4 py-2 text-stone-500 hover:text-stone-800 text-xs font-semibold">
-              Skip Photo &rarr;
-            </button>
-            <button onclick="navigateIntake(1)" class="px-4 py-2 border border-brand-border hover:bg-brand-stone text-stone-700 text-xs font-semibold rounded-xl transition">
-              Next &rarr;
-            </button>
-          </div>
-
-          <button id="btn-cancel-upload" onclick="cancelDirectUpload()" class="w-full py-2 border border-stone-300 hover:bg-stone-100 text-stone-600 rounded-xl text-xs font-semibold hidden transition">
-            &larr; Return to Batch Queue
-          </button>
-        </div>
-
-        <!-- Right Stage: Form & Presets -->
-        <div class="lg:col-span-7 space-y-5">
-          
-          <div class="bg-white border border-brand-border rounded-3xl p-5 shadow-sm space-y-3">
-            <div class="flex items-center justify-between border-b border-brand-border pb-2">
-              <span class="text-xs font-bold text-brand-navy uppercase tracking-wider">Quick Presets (1-Click Fill)</span>
-              <span class="text-[10px] text-stone-400">Click to bypass API for signature pieces</span>
-            </div>
-            <div id="intake-preset-chips" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto custom-scrollbar p-1"></div>
-          </div>
-
-          <div class="bg-white border border-brand-border rounded-3xl p-6 shadow-sm space-y-4">
-            <div class="border-b border-brand-border pb-3 flex items-center justify-between">
-              <div>
-                <span class="text-[10px] font-mono text-stone-400 font-bold uppercase">Garment Specifications</span>
-                <h3 class="font-serif font-bold text-brand-navy text-base">Card Details for Current Photo</h3>
-              </div>
-              <span class="text-xs font-mono font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-lg" id="intake-status-tag">Drafting</span>
-            </div>
-
-            <form id="intake-form" onsubmit="handleConfirmGarment(event)" class="space-y-4 text-xs">
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div class="sm:col-span-2">
-                  <label class="block font-semibold text-stone-700 mb-1">Item Title & Brand</label>
-                  <input type="text" id="intake-name" required placeholder="e.g. Oatmeal Herringbone Patch-Pocket Blazer" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-semibold text-brand-navy focus:outline-none focus:ring-1 focus:ring-brand-navy">
-                </div>
-                <div>
-                  <label class="block font-semibold text-stone-700 mb-1">Purchase Date</label>
-                  <input type="date" id="intake-purchased-date" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-mono text-stone-700">
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div>
-                  <label class="block font-semibold text-stone-700 mb-1">Category</label>
-                  <select id="intake-category" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-medium">
-                    <option value="Layer">Jackets & 3rd Layers</option>
-                    <option value="Woven">Shirts & Wovens</option>
-                    <option value="Knitwear">Knits & Sweaters</option>
-                    <option value="Tee">Tees & Base Layers</option>
-                    <option value="Polo">Polos & Casual Knits</option>
-                    <option value="Pants">Pants & Bottoms</option>
-                    <option value="Shorts">Shorts</option>
-                    <option value="Footwear">Footwear Anchors</option>
-                    <option value="Athletic">Athleisure & Sport</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block font-semibold text-stone-700 mb-1">Curation Tier</label>
-                  <select id="intake-tier" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-medium">
-                    <option value="Anchor">Anchor (Core Wear)</option>
-                    <option value="Potential">Potential (Secondary)</option>
-                    <option value="Active">Matchday / Sport</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block font-semibold text-stone-700 mb-1">Color Palette</label>
-                  <select id="intake-palette" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-medium">
-                    <option value="neutral">Warm Neutral / Grey</option>
-                    <option value="earth">Earth Tone / Khaki</option>
-                    <option value="blue">Blue Spectrum / Navy</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block font-semibold text-stone-700 mb-1">Thermal Weight</label>
-                  <select id="intake-weight" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-medium">
-                    <option value="mid">Midweight</option>
-                    <option value="heavy">Heavy / Winter</option>
-                    <option value="light">Lightweight / Summer</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label class="block font-semibold text-stone-700 mb-1">Fabric & Texture</label>
-                <input type="text" id="intake-texture" placeholder="e.g. Slub Cotton Jersey, Heavy French Terry, Hopsack Wool" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
-              </div>
-
-              <div>
-                <label class="block font-semibold text-stone-700 mb-1">Styling Notes for Sloane</label>
-                <textarea id="intake-notes" rows="2" placeholder="e.g. Core client presentation piece. Sloane rule: pair over ecru crew tee with dark raw denim and clean white KOIOs." class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone custom-scrollbar"></textarea>
-              </div>
-
-              <div class="pt-3 border-t border-brand-border flex items-center justify-end">
-                <button type="submit" class="px-6 py-3 bg-brand-navy hover:bg-stone-900 text-white font-bold rounded-xl shadow-md transition text-xs">
-                  ✓ Confirm & Add to Vault
-                </button>
-              </div>
-            </form>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-  </main>
-
-  <!-- MODAL: EDIT GARMENT & ROTATE PHOTO -->
-  <div id="edit-garment-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-brand-border space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
-      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
-        <div>
-          <h3 class="font-serif font-bold text-brand-navy text-base">Edit Garment & Sloane Notes</h3>
-          <p class="text-[11px] text-stone-400">Rotate photo, adjust category, or update pairing blueprints</p>
-        </div>
-        <button onclick="toggleModal('edit-garment-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
-      </div>
-
-      <div class="flex items-center space-x-4 bg-brand-stone/60 p-3 rounded-2xl border border-brand-border">
-        <div class="w-24 h-24 rounded-xl overflow-hidden bg-white border border-brand-border relative flex items-center justify-center">
-          <img id="edit-modal-img" src="" class="w-full h-full object-cover transition-transform duration-200">
-        </div>
-        <div class="flex-1 space-y-1.5">
-          <span class="text-xs font-bold text-brand-navy block">Image Orientation</span>
-          <button type="button" onclick="rotateModalImage()" class="px-3 py-1.5 bg-white border border-brand-border hover:bg-brand-stone text-brand-navy rounded-xl text-xs font-semibold shadow-2xs transition flex items-center space-x-1.5">
-            <span>🔄 Rotate 90° Clockwise</span>
-          </button>
-          <span class="text-[10px] text-stone-400 block" id="edit-modal-rot-label">Orientation: 0°</span>
-        </div>
-      </div>
-
-      <form id="edit-garment-form" onsubmit="handleSaveVaultEdit(event)" class="space-y-3.5 text-xs">
-        <input type="hidden" id="edit-modal-id">
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div class="sm:col-span-2">
-            <label class="block font-semibold text-stone-700 mb-1">Item Title & Brand</label>
-            <input type="text" id="edit-modal-name" required class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-semibold text-brand-navy">
-          </div>
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Purchase Date</label>
-            <input type="date" id="edit-modal-date" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-mono">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Category</label>
-            <select id="edit-modal-category" class="w-full p-2 rounded-xl border border-brand-border bg-brand-stone">
-              <option value="Layer">Jackets & Layers</option>
-              <option value="Woven">Wovens</option>
-              <option value="Knitwear">Knits</option>
-              <option value="Tee">Tees</option>
-              <option value="Polo">Polos</option>
-              <option value="Pants">Pants</option>
-              <option value="Shorts">Shorts</option>
-              <option value="Footwear">Footwear</option>
-              <option value="Athletic">Athletic</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Tier</label>
-            <select id="edit-modal-tier" class="w-full p-2 rounded-xl border border-brand-border bg-brand-stone">
-              <option value="Anchor">Anchor</option>
-              <option value="Potential">Potential</option>
-              <option value="Active">Active</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Palette</label>
-            <select id="edit-modal-palette" class="w-full p-2 rounded-xl border border-brand-border bg-brand-stone">
-              <option value="neutral">Neutral</option>
-              <option value="earth">Earth</option>
-              <option value="blue">Blue</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-stone-700 mb-1">Weight</label>
-            <select id="edit-modal-weight" class="w-full p-2 rounded-xl border border-brand-border bg-brand-stone">
-              <option value="mid">Midweight</option>
-              <option value="heavy">Heavy</option>
-              <option value="light">Light</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block font-semibold text-stone-700 mb-1">Fabric & Texture</label>
-          <input type="text" id="edit-modal-texture" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone">
-        </div>
-
-        <div>
-          <label class="block font-semibold text-stone-700 mb-1">Styling Notes for Sloane</label>
-          <textarea id="edit-modal-notes" rows="3" class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone custom-scrollbar"></textarea>
-        </div>
-
-        <div class="pt-3 border-t border-brand-border flex items-center justify-between">
-          <button type="button" onclick="deleteFromModal()" class="text-rose-600 hover:text-rose-800 font-semibold text-xs">
-            Remove from Vault
-          </button>
-          <div class="flex space-x-2">
-            <button type="button" onclick="toggleModal('edit-garment-modal', false)" class="px-4 py-2 text-stone-600 text-xs">Cancel</button>
-            <button type="submit" class="px-5 py-2 bg-brand-navy hover:bg-stone-900 text-white text-xs font-semibold rounded-xl">Save Changes</button>
-          </div>
-        </div>
-      </form>
-    </div>
   </div>
 
-  <!-- MODAL: GOOGLE AI STUDIO API KEY CONFIGURATION -->
-  <div id="api-key-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-brand-border space-y-4">
-      <div class="flex items-center justify-between pb-3 border-b border-brand-border">
-        <h3 class="font-serif font-bold text-brand-navy text-base">Google Gemini Vision Key</h3>
-        <button onclick="toggleModal('api-key-modal', false)" class="text-stone-400 hover:text-stone-600 text-xl font-bold">&times;</button>
-      </div>
-
-      <p class="text-xs text-stone-600 leading-relaxed">
-        Paste your Gemini API key from <a href="https://aistudio.google.com/" target="_blank" class="text-indigo-600 underline font-semibold">Google AI Studio</a>. It is stored solely in your local browser storage.
-      </p>
-
-      <div class="space-y-2">
-        <label class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider">Gemini API Key</label>
-        <input type="password" id="input-api-key" placeholder="AQ.Ab8..." class="w-full p-2.5 rounded-xl border border-brand-border bg-brand-stone font-mono text-xs">
-      </div>
-
-      <div class="pt-2 flex items-center justify-between">
-        <button type="button" onclick="clearApiKey()" class="text-rose-600 text-xs font-semibold hover:underline">Remove Key</button>
-        <div class="flex space-x-2">
-          <button type="button" onclick="toggleModal('api-key-modal', false)" class="px-4 py-2 text-stone-600 text-xs">Cancel</button>
-          <button type="button" onclick="saveApiKey()" class="px-5 py-2 bg-brand-navy text-white text-xs font-semibold rounded-xl hover:bg-stone-900 transition">Save Key</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  <!-- JAVASCRIPT ARCHITECTURE -->
   <script>
-    const STORAGE_KEY_ITEMS = "curated_closet_confirmed_vault";
-    const STORAGE_KEY_PLAN = "curated_closet_confirmed_plan";
-    const STORAGE_KEY_API = "closet_gemini_api_key";
+    // Supabase Credentials
+    const SUPABASE_URL = 'https://rqiuuzeatlhyxfgwvuaa.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxaXV1emVhdGxoeXhmZ3d2dWFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NTU5ODEsImV4cCI6MjEwODEzMTk4MX0.X7-YIKjHCpoL2W_aEJVWOlr1UwGT_fawxiTqR-J4I0s';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-    const VERIFIED_FILES = [
-      "IMG_6219.jpg","IMG_6221.jpg","IMG_6222.jpg","IMG_6223.jpg","IMG_6224.jpg","IMG_6225.jpg","IMG_6226.jpg",
-      "IMG_6227.jpg","IMG_6228.jpg","IMG_6229.jpg","IMG_6230.jpg","IMG_6231.jpg","IMG_6232.jpg","IMG_6233.jpg",
-      "IMG_6234.jpg","IMG_6235.jpg","IMG_6236.jpg","IMG_6237.jpg","IMG_6238.jpg","IMG_6239.jpg","IMG_6240.jpg",
-      "IMG_6241.jpg","IMG_6242.jpg","IMG_6243.jpg","IMG_6244.jpg","IMG_6245.jpg","IMG_6246.jpg","IMG_6247.jpg",
-      "IMG_6248.jpg","IMG_6249.jpg","IMG_6250.jpg","IMG_6254.jpg","IMG_6255.jpg","IMG_6256.jpg","IMG_6257.jpg",
-      "IMG_6258.jpg","IMG_6259.jpg","IMG_6260.jpg","IMG_6261.jpg","IMG_6262.jpg","IMG_6263.jpg","IMG_6264.jpg",
-      "IMG_6265.jpg","IMG_6266.jpg","IMG_6267.jpg","IMG_6268.jpg","IMG_6269.jpg","IMG_6270.jpg","IMG_6271.jpg",
-      "IMG_6272.jpg","IMG_6273.jpg","IMG_6274.jpg","IMG_6275.jpg","IMG_6276.jpg","IMG_6277.jpg","IMG_6278.jpg",
-      "IMG_6279.jpg","IMG_6280.jpg","IMG_6281.jpg","IMG_6282.jpg","IMG_6283.jpg","IMG_6284.jpg","IMG_6285.jpg",
-      "IMG_6286.jpg","IMG_6287.jpg","IMG_6288.jpg","IMG_6289.jpg","IMG_6290.jpg","IMG_6291.jpg","IMG_6292.jpg",
-      "IMG_6293.jpg","IMG_6294.jpg","IMG_6295.jpg","IMG_6325.jpg","IMG_6328.jpg","IMG_6329.jpg","IMG_6330.jpg",
-      "IMG_6331.jpg","IMG_6332.jpg","IMG_6333.jpg","IMG_6334.jpg","IMG_6335.jpg","IMG_6336.jpg","IMG_6337.jpg",
-      "IMG_6338.jpg","IMG_6340.jpg","IMG_6341.jpg","IMG_6342.jpg","IMG_6343.jpg","IMG_6344.jpg","IMG_6346.jpg",
-      "IMG_6347.jpg","IMG_6349.jpg","IMG_6350.jpg","IMG_6351.jpg","IMG_6352.jpg","IMG_6353.jpg","IMG_6354.jpg",
-      "IMG_6355.jpg","IMG_6356.jpg","IMG_6357.jpg","IMG_6358.jpg","IMG_6359.jpg","IMG_6361.jpg","IMG_6362.jpg",
-      "IMG_6363.jpg","IMG_6364.jpg","IMG_6365.jpg","IMG_6366.jpg","IMG_6367.jpg","IMG_6368.jpg","IMG_6369.jpg",
-      "IMG_6370.jpg","IMG_6371.jpg","IMG_6372.jpg","IMG_6374.jpg","IMG_6375.jpg","IMG_6376.jpg","IMG_6377.jpg",
-      "IMG_6379.jpg","IMG_6380.jpg","IMG_6381.jpg","IMG_6382.jpg","IMG_6383.jpg","IMG_6384.jpg","IMG_6385.jpg"
-    ];
+    let currentUser = null;
+    let garments = [];
+    let activeAnchorGarmentId = null; // FEAT-01 Hero Anchor
+    let weeklyPlan = null;
 
-    const CATALOG_PRESETS = [
-      { name: "Oatmeal Herringbone Patch-Pocket Blazer", category: "Layer", tier: "Anchor", palette: "neutral", weight: "mid", texture: "Soft Herringbone Wool", notes: "Core client presentation jacket. Pair over white/oatmeal tees with dark wash denim and minimal leather sneakers." },
-      { name: "Charcoal Donegal Fleck Tweed Blazer", category: "Layer", tier: "Anchor", palette: "neutral", weight: "heavy", texture: "Donegal Tweed", notes: "Textured winter client jacket. Sloane rule: keep bottom layers clean to balance tweed flecking." },
-      { name: "Grey Herringbone Tweed Sport Coat", category: "Layer", tier: "Anchor", palette: "neutral", weight: "heavy", texture: "Wool Tweed", notes: "Structured winter sport coat. Great over fine merino knitwear." },
-      { name: "Slate Blue Micro-Hopsack Blazer", category: "Layer", tier: "Anchor", palette: "blue", weight: "mid", texture: "Textured Hopsack", notes: "Unstructured client casual jacket. Pairs effortlessly with khaki or grey chinos." },
-      { name: "BR Blackwatch Tartan Check Blazer", category: "Layer", tier: "Anchor", palette: "earth", weight: "heavy", texture: "Wool Blend Tartan", notes: "Deep forest/navy check. Excellent elevated casual holiday and winter dinner jacket." },
-      { name: "BR Classic Tailored Navy Blazer", category: "Layer", tier: "Anchor", palette: "blue", weight: "mid", texture: "Smooth Wool", notes: "Formal presentation blazer. The definitive anchor for board and executive meetings." },
-      { name: "Khaki Cotton Chino Blazer", category: "Layer", tier: "Potential", palette: "earth", weight: "mid", texture: "Structured Cotton Twill", notes: "Warm weather tailored coat. Excellent for summer outdoor gatherings." },
-      { name: "KOIO Capri Triple White Leather Sneaker", category: "Footwear", tier: "Anchor", palette: "neutral", weight: "mid", texture: "Italian Calfskin", notes: "Smart-casual presentation anchor shoe. Sloane rule: keep clean and uncreased for executive wear." },
-      { name: "Puma Retro Light Grey Suede Gum-Sole", category: "Footwear", tier: "Active", palette: "neutral", weight: "mid", texture: "Suede / Gum Sole", notes: "Retro terrace low sneaker. Elevates casual shorts and denim outfits." },
-      { name: "Nike Air Max 1 Grey Corduroy & Suede", category: "Footwear", tier: "Active", palette: "neutral", weight: "mid", texture: "Corduroy / Suede", notes: "Textured travel runner. Pairs with athleisure midlayers and casual joggers." },
-      { name: "Air Jordan 1 Low Sanddrift / Linen", category: "Footwear", tier: "Active", palette: "earth", weight: "mid", texture: "Tumbled Leather", notes: "Elevated warm neutral court low. Excellent tone match for khaki chinos and earth jackets." },
-      { name: "Khaki Utility Field Chore Jacket", category: "Layer", tier: "Anchor", palette: "earth", weight: "heavy", texture: "Cotton Canvas", notes: "Structured utility workwear jacket. Perfect mid-layer over striped tees." },
-      { name: "Washed Denim Workwear Overshirt", category: "Layer", tier: "Anchor", palette: "blue", weight: "heavy", texture: "Washed Denim", notes: "Rugged casual overshirt. Layer open over vintage tees." },
-      { name: "Classic Khaki 7\" Flat-Front Chino Shorts", category: "Shorts", tier: "Anchor", palette: "earth", weight: "light", texture: "Stretch Chino Twill", notes: "Tailored summer short anchor. Pair with polos or casual knits." },
-      { name: "Heritage Red & White Striped Crew Tee", category: "Tee", tier: "Anchor", palette: "earth", weight: "mid", texture: "Jersey Cotton", notes: "Nautical graphic pop. Wear under utility chore jackets." },
-      { name: "Solid Washed Vintage Navy Crew Tee", category: "Tee", tier: "Anchor", palette: "blue", weight: "light", texture: "Washed Cotton", notes: "Everyday foundation base layer. Pairs under blazers and field coats." }
-    ];
+    // Days structure
+    const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-    const ACTIVITIES = [
-      "Client In-Person",
-      "WFH Video Calls",
-      "Elevated Casual",
-      "Date Night",
-      "Active Weekend",
-      "Downtime",
-      "Travel / Flight"
-    ];
-
-    let currentPendingIndex = 0;
-    let wardrobe = [];
-    let weeklyPlan = {};
-    let weatherForecast = [];
-    let isAnalyzing = false;
-    let isSloaneCurating = false;
-    let directUploadItem = null;
-    let currentIntakeRotation = 0;
-    let currentModalRotation = 0;
-
-    const DAYS_CONFIG = [
-      { key: "mon", name: "Monday", defaultTemplate: "Client In-Person" },
-      { key: "tue", name: "Tuesday", defaultTemplate: "WFH Video Calls" },
-      { key: "wed", name: "Wednesday", defaultTemplate: "Client In-Person" },
-      { key: "thu", name: "Thursday", defaultTemplate: "WFH Video Calls" },
-      { key: "fri", name: "Friday", defaultTemplate: "Elevated Casual" },
-      { key: "sat", name: "Saturday", defaultTemplate: "Active Weekend" },
-      { key: "sun", name: "Sunday", defaultTemplate: "Downtime" }
-    ];
-
-    function getThreeYearWarning(dateString) {
-      if (!dateString) return null;
-      const purchaseTime = new Date(dateString).getTime();
-      if (isNaN(purchaseTime)) return null;
-      const yearsElapsed = (Date.now() - purchaseTime) / (1000 * 60 * 60 * 24 * 365.25);
-      if (yearsElapsed >= 3) {
-        return `${Math.floor(yearsElapsed)}y+ Old (Audit / Refresh)`;
-      }
-      return null;
-    }
-
-    function getRotationClass(deg) {
-      deg = (deg || 0) % 360;
-      if (deg === 90) return "img-rot-90";
-      if (deg === 180) return "img-rot-180";
-      if (deg === 270) return "img-rot-270";
-      return "img-rot-0";
-    }
-
-    function isTailoredJacket(item) {
-      if (!item) return false;
-      const text = ((item.name || "") + " " + (item.texture || "") + " " + (item.notes || "")).toLowerCase();
-      return text.includes("blazer") || text.includes("sport coat") || text.includes("tweed") || text.includes("hopsack") || text.includes("suit coat");
-    }
-
-    function getPendingFiles() {
-      const confirmedRefs = new Set(wardrobe.map(w => w.fileRef));
-      return VERIFIED_FILES.filter(filename => {
-        const cleanRef = filename.replace(/\.(jpe?g|png)$/i, '');
-        return !confirmedRefs.has(cleanRef) && !confirmedRefs.has(filename);
-      });
-    }
-
-    async function fetchMinnetonkaWeather() {
-      try {
-        const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=44.9212&longitude=-93.4687&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&temperature_unit=fahrenheit&timezone=America%2FChicago");
-        if (!res.ok) return;
-        const data = await res.json();
-        if (data && data.daily) {
-          weatherForecast = data.daily.time.map((t, idx) => ({
-            date: t,
-            maxTemp: Math.round(data.daily.temperature_2m_max[idx]),
-            minTemp: Math.round(data.daily.temperature_2m_min[idx]),
-            rainProb: data.daily.precipitation_probability_max[idx] || 0,
-            code: data.daily.weathercode[idx]
-          }));
-          render7DayBoard();
-        }
-      } catch (e) {
-        console.warn("Weather fetch failed; using seasonal defaults.", e);
-      }
-    }
-
-    function getWeatherEmoji(code) {
-      if (code === 0) return "☀️ Clear";
-      if (code === 1 || code === 2) return "⛅ P. Cloudy";
-      if (code === 3) return "☁️ Overcast";
-      if ([51, 53, 55, 61, 63, 65, 80, 81].includes(code)) return "🌧️ Rain";
-      if ([71, 73, 75, 85].includes(code)) return "❄️ Snow";
-      return "🌤️ Mild";
-    }
-
-    function initApp() {
-      const savedVault = localStorage.getItem(STORAGE_KEY_ITEMS);
-      if (savedVault) {
-        try { wardrobe = JSON.parse(savedVault); } catch(e) { wardrobe = []; }
-      }
-      weeklyPlan = JSON.parse(localStorage.getItem(STORAGE_KEY_PLAN)) || {};
-
-      checkApiKeyStatus();
-      renderPresetChips();
-      updateVaultCounts();
-      loadIntakePhoto(0);
-      renderWardrobeList();
-      render7DayBoard();
-      fetchMinnetonkaWeather();
-    }
-
-    function checkApiKeyStatus() {
-      const key = localStorage.getItem(STORAGE_KEY_API);
-      const indicator = document.getElementById('api-key-indicator');
-      if (key && key.trim().length > 10) {
-        indicator.className = "w-2 h-2 rounded-full bg-emerald-500 shadow-sm";
-        document.getElementById('input-api-key').value = key;
-      } else {
-        indicator.className = "w-2 h-2 rounded-full bg-rose-500 animate-pulse";
-      }
-    }
-
-    function saveApiKey() {
-      const val = document.getElementById('input-api-key').value.trim();
-      if (!val) {
-        alert("Please enter a valid Gemini API key.");
-        return;
-      }
-      localStorage.setItem(STORAGE_KEY_API, val);
-      checkApiKeyStatus();
-      toggleModal('api-key-modal', false);
-      showToast("Gemini Vision API Key saved!");
-    }
-
-    function clearApiKey() {
-      localStorage.removeItem(STORAGE_KEY_API);
-      document.getElementById('input-api-key').value = "";
-      checkApiKeyStatus();
-      toggleModal('api-key-modal', false);
-      showToast("API Key removed.");
-    }
-
-    function renderPresetChips() {
-      const container = document.getElementById('intake-preset-chips');
-      container.innerHTML = '';
-      CATALOG_PRESETS.forEach(preset => {
-        const btn = document.createElement('button');
-        btn.type = "button";
-        btn.className = "px-2.5 py-1 rounded-lg border border-brand-border bg-stone-50 hover:bg-brand-navy hover:text-white text-stone-700 text-[11px] font-medium transition text-left";
-        btn.innerText = preset.name;
-        btn.onclick = () => applyPresetToIntake(preset);
-        container.appendChild(btn);
-      });
-    }
-
-    function applyPresetToIntake(p) {
-      document.getElementById('intake-name').value = p.name;
-      document.getElementById('intake-category').value = p.category;
-      document.getElementById('intake-tier').value = p.tier;
-      document.getElementById('intake-palette').value = p.palette;
-      document.getElementById('intake-weight').value = p.weight;
-      document.getElementById('intake-texture').value = p.texture || "";
-      document.getElementById('intake-notes').value = p.notes || "";
-      showToast(`Applied: ${p.name}`);
-    }
-
-    function rotateCurrentIntake() {
-      currentIntakeRotation = (currentIntakeRotation + 90) % 360;
-      const img = document.getElementById('intake-photo-img');
-      img.className = `w-full h-full object-cover transition-transform duration-200 ${getRotationClass(currentIntakeRotation)}`;
-    }
-
-    function rotateModalImage() {
-      currentModalRotation = (currentModalRotation + 90) % 360;
-      const img = document.getElementById('edit-modal-img');
-      img.className = `w-full h-full object-cover transition-transform duration-200 ${getRotationClass(currentModalRotation)}`;
-      document.getElementById('edit-modal-rot-label').innerText = `Orientation: ${currentModalRotation}°`;
-    }
-
-    async function getOptimizedBase64(imageUrl) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = () => {
-          const maxDim = 850;
-          let width = img.naturalWidth || img.width;
-          let height = img.naturalHeight || img.height;
-
-          if (width > maxDim || height > maxDim) {
-            if (width > height) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            } else {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
-            }
-          }
-
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.80);
-          resolve({
-            base64Data: dataUrl.split(',')[1],
-            dataUrl: dataUrl
-          });
-        };
-        img.onerror = () => reject(new Error("Failed to load image for compression"));
-        img.src = imageUrl;
-      });
-    }
-
-    async function handleDirectUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        try {
-          const compressed = await getOptimizedBase64(event.target.result);
-          directUploadItem = {
-            base64Data: compressed.base64Data,
-            dataUrl: compressed.dataUrl,
-            filename: file.name || `NEW_${Date.now()}.jpg`
-          };
-
-          currentIntakeRotation = 0;
-          const img = document.getElementById('intake-photo-img');
-          img.src = directUploadItem.dataUrl;
-          img.className = "w-full h-full object-cover transition-transform duration-200 img-rot-0";
-
-          document.getElementById('intake-filename-badge').innerText = directUploadItem.filename;
-          document.getElementById('badge-upload-indicator').classList.remove('hidden');
-          document.getElementById('batch-navigation-bar').classList.add('hidden');
-          document.getElementById('btn-cancel-upload').classList.remove('hidden');
-          document.getElementById('intake-status-tag').innerText = "Direct Upload";
-
-          document.getElementById('intake-name').value = "";
-          document.getElementById('intake-texture').value = "";
-          document.getElementById('intake-notes').value = "";
-          document.getElementById('intake-purchased-date').value = new Date().toISOString().slice(0, 10);
-
-          runGeminiVisionAnalysis();
-        } catch (err) {
-          showToast(`Upload error: ${err.message}`, true);
-        }
-      };
-      reader.readAsDataURL(file);
-      e.target.value = "";
-    }
-
-    function cancelDirectUpload() {
-      directUploadItem = null;
-      document.getElementById('badge-upload-indicator').classList.add('hidden');
-      document.getElementById('batch-navigation-bar').classList.remove('hidden');
-      document.getElementById('btn-cancel-upload').classList.add('hidden');
-      document.getElementById('intake-status-tag').innerText = "Drafting";
-      loadIntakePhoto(currentPendingIndex);
-      showToast("Returned to batch queue.");
-    }
-
-    async function callGeminiEndpoint(modelName, apiKey, requestBody) {
-      const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-      return await fetch(apiEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody)
-      });
-    }
-
-    async function runGeminiVisionAnalysis() {
-      const apiKey = localStorage.getItem(STORAGE_KEY_API);
-      if (!apiKey) {
-        toggleModal('api-key-modal', true);
-        return;
-      }
-
-      let base64Data = null;
-
-      if (directUploadItem) {
-        base64Data = directUploadItem.base64Data;
-      } else {
-        const pending = getPendingFiles();
-        if (pending.length === 0) return;
-        const filename = pending[currentPendingIndex];
-        const compressed = await getOptimizedBase64(filename);
-        base64Data = compressed.base64Data;
-      }
-
-      if (isAnalyzing) return;
-      isAnalyzing = true;
-
-      const btn = document.getElementById('btn-trigger-ai');
-      const btnText = document.getElementById('ai-btn-text');
-
-      btn.disabled = true;
-      btnText.innerText = "Analyzing with Vision AI...";
-
-      try {
-        const promptText = `
-You are an expert menswear stylist analyzing a photograph of a garment from an executive casual wardrobe.
-Analyze this image and return ONLY a strict JSON object with these exact keys:
-{
-  "name": "Concise, descriptive garment title (e.g., 'Heather Grey Heavy French Terry Hoodie', 'Oatmeal Herringbone Wool Blazer', 'Olive Flat-Front Chino Shorts')",
-  "category": "Must be exactly one of: 'Layer', 'Woven', 'Knitwear', 'Tee', 'Polo', 'Pants', 'Shorts', 'Footwear', 'Athletic'",
-  "tier": "Must be exactly one of: 'Anchor', 'Potential', 'Active'",
-  "palette": "Must be exactly one of: 'neutral', 'earth', 'blue'",
-  "weight": "Must be exactly one of: 'light', 'mid', 'heavy'",
-  "texture": "Brief material texture description (e.g., 'Soft slub cotton jersey', 'Textured Donegal tweed', '4-way technical stretch')",
-  "notes": "Actionable 1-sentence Sloane pairing blueprint (e.g., 'Pairs cleanly with dark wash denim and minimal leather sneakers.')"
-}
-`;
-
-        const requestBody = {
-          contents: [{
-            parts: [
-              { text: promptText },
-              {
-                inline_data: {
-                  mime_type: "image/jpeg",
-                  data: base64Data
-                }
-              }
-            ]
-          }],
-          generationConfig: {
-            responseMimeType: "application/json"
-          }
-        };
-
-        const modelChain = ["gemini-3.8-flash", "gemini-3.1-flash-lite"];
-        let successfulData = null;
-        let lastError = null;
-
-        for (const model of modelChain) {
-          btnText.innerText = `Analyzing with ${model}...`;
-          const response = await callGeminiEndpoint(model, apiKey, requestBody);
-
-          if (response.ok) {
-            successfulData = await response.json();
-            break;
-          }
-
-          const errData = await response.json().catch(() => ({}));
-          const errMsg = errData.error?.message || `HTTP ${response.status}`;
-          lastError = new Error(errMsg);
-
-          if (response.status === 429 || response.status === 503 || errMsg.toLowerCase().includes("quota") || errMsg.toLowerCase().includes("exhausted")) {
-            btnText.innerText = `Primary busy, routing to ${modelChain[1]}...`;
-            await new Promise(r => setTimeout(r, 1000));
-            continue;
-          } else {
-            break;
-          }
-        }
-
-        if (!successfulData) {
-          throw lastError || new Error("Quota limits reached. Please pause 30 seconds.");
-        }
-
-        const textResponse = successfulData.candidates?.[0]?.content?.parts?.[0]?.text;
-        const parsed = JSON.parse(textResponse);
-
-        if (parsed.name) document.getElementById('intake-name').value = parsed.name;
-        if (parsed.category) document.getElementById('intake-category').value = parsed.category;
-        if (parsed.tier) document.getElementById('intake-tier').value = parsed.tier;
-        if (parsed.palette) document.getElementById('intake-palette').value = parsed.palette;
-        if (parsed.weight) document.getElementById('intake-weight').value = parsed.weight;
-        if (parsed.texture) document.getElementById('intake-texture').value = parsed.texture;
-        if (parsed.notes) document.getElementById('intake-notes').value = parsed.notes;
-
-        showToast("AI drafted card details successfully!");
-      } catch (err) {
-        showToast(`AI Notice: ${err.message}`, true);
-      } finally {
-        isAnalyzing = false;
-        btn.disabled = false;
-        btnText.innerText = "✨ Auto-Draft Details with Vision AI";
-      }
-    }
-
-    function loadIntakePhoto(index) {
-      if (directUploadItem) return;
-
-      const pending = getPendingFiles();
-      const workbench = document.getElementById('intake-workbench');
-      const completeBanner = document.getElementById('intake-complete-banner');
-
-      if (pending.length === 0) {
-        workbench.classList.add('hidden');
-        completeBanner.classList.remove('hidden');
-        document.getElementById('complete-vault-count').innerText = wardrobe.length;
-        document.getElementById('intake-progress-label').innerText = `Batch Queue Complete`;
-        document.getElementById('intake-progress-bar').style.width = `100%`;
-        return;
-      }
-
-      workbench.classList.remove('hidden');
-      completeBanner.classList.add('hidden');
-
-      if (index < 0) index = 0;
-      if (index >= pending.length) index = pending.length - 1;
-      currentPendingIndex = index;
-
-      const filename = pending[currentPendingIndex];
-      const cleanRef = filename.replace('.jpg', '');
-
-      currentIntakeRotation = 0;
-      const img = document.getElementById('intake-photo-img');
-      img.src = filename;
-      img.className = "w-full h-full object-cover transition-transform duration-200 img-rot-0";
-      img.onerror = () => { img.src = `${cleanRef}.JPG`; };
-
-      document.getElementById('badge-upload-indicator').classList.add('hidden');
-      document.getElementById('batch-navigation-bar').classList.remove('hidden');
-      document.getElementById('btn-cancel-upload').classList.add('hidden');
-      document.getElementById('intake-filename-badge').innerText = filename;
-      document.getElementById('intake-status-tag').innerText = "Drafting";
-      document.getElementById('intake-progress-label').innerText = `Item ${currentPendingIndex + 1} of ${pending.length} Remaining`;
+    // 1. AUTHENTICATION LIFECYCLE
+    async function initApp() {
+      lucide.createIcons();
+      const { data: { session } } = await supabase.auth.getSession();
       
-      const confirmedCount = wardrobe.length;
-      const totalCount = VERIFIED_FILES.length;
-      const pct = Math.round((confirmedCount / totalCount) * 100);
-      document.getElementById('intake-progress-bar').style.width = `${pct}%`;
-
-      document.getElementById('intake-name').value = "";
-      document.getElementById('intake-texture').value = "";
-      document.getElementById('intake-notes').value = "";
-      document.getElementById('intake-purchased-date').value = "";
-    }
-
-    function navigateIntake(delta) {
-      if (directUploadItem) return;
-      const pending = getPendingFiles();
-      if (pending.length === 0) return;
-      let next = currentPendingIndex + delta;
-      if (next < 0) next = pending.length - 1;
-      if (next >= pending.length) next = 0;
-      loadIntakePhoto(next);
-    }
-
-    function skipPhoto() {
-      if (directUploadItem) {
-        cancelDirectUpload();
+      if (session) {
+        handleUserSignedIn(session.user);
       } else {
-        navigateIntake(1);
+        document.getElementById('authScreen').classList.remove('hidden');
+      }
+
+      supabase.auth.onAuthStateChange((_event, session) => {
+        if (session) {
+          handleUserSignedIn(session.user);
+        } else {
+          document.getElementById('authScreen').classList.remove('hidden');
+          document.getElementById('appContainer').classList.add('hidden');
+        }
+      });
+    }
+
+    async function handleUserSignedIn(user) {
+      currentUser = user;
+      document.getElementById('authScreen').classList.add('hidden');
+      document.getElementById('appContainer').classList.remove('hidden');
+      document.getElementById('userEmailDisplay').textContent = user.email;
+
+      // Check for local legacy migration
+      checkLegacyMigrationNeeded();
+
+      // Fetch user data from Supabase
+      await fetchUserData();
+      renderVault();
+      renderDaysBoard();
+      lucide.createIcons();
+    }
+
+    // 2. ONE-CLICK LOCALSTORAGE MIGRATION (FEAT-03)
+    function checkLegacyMigrationNeeded() {
+      const localData = localStorage.getItem('curated_closet_vault') || localStorage.getItem('confirmedGarments');
+      if (localData) {
+        try {
+          const parsed = JSON.parse(localData);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const migrateBtn = document.getElementById('migrateBtn');
+            migrateBtn.classList.remove('hidden');
+            migrateBtn.onclick = () => runMigration(parsed);
+          }
+        } catch(e) { console.error("Migration parse check failed", e); }
       }
     }
 
-    function handleConfirmGarment(e) {
-      e.preventDefault();
+    async function runMigration(localItems) {
+      const migrateBtn = document.getElementById('migrateBtn');
+      migrateBtn.innerHTML = `<span>Importing...</span>`;
 
-      let filename = "";
-      let cleanRef = "";
-      let imageSrc = null;
+      const rowsToInsert = localItems.map(item => ({
+        user_id: currentUser.id,
+        name: item.name || 'Tailored Item',
+        category: item.category || 'Tops',
+        sub_category: item.subCategory || item.category,
+        color: item.color || '',
+        pattern: item.pattern || '',
+        formality: item.formality || 'Executive Casual',
+        season: item.season || ['All'],
+        image_url: item.imageUrl || item.image || '',
+        wear_count: item.wearCount || 0
+      }));
 
-      if (directUploadItem) {
-        filename = directUploadItem.filename;
-        cleanRef = `CUSTOM_${Date.now()}`;
-        imageSrc = directUploadItem.dataUrl;
+      const { data, error } = await supabase.from('garments').insert(rowsToInsert);
+      if (!error) {
+        localStorage.removeItem('curated_closet_vault');
+        localStorage.removeItem('confirmedGarments');
+        migrateBtn.classList.add('hidden');
+        await fetchUserData();
+        renderVault();
+        alert('All 125 pieces successfully imported to your private cloud closet!');
       } else {
-        const pending = getPendingFiles();
-        if (pending.length === 0) return;
-        filename = pending[currentPendingIndex];
-        cleanRef = filename.replace('.jpg', '');
+        alert('Import failed: ' + error.message);
+        migrateBtn.textContent = 'Retry Import';
       }
+    }
 
-      const name = document.getElementById('intake-name').value.trim();
-      const purchasedDate = document.getElementById('intake-purchased-date').value;
-      const category = document.getElementById('intake-category').value;
-      const tier = document.getElementById('intake-tier').value;
-      const palette = document.getElementById('intake-palette').value;
-      const weight = document.getElementById('intake-weight').value;
-      const texture = document.getElementById('intake-texture').value.trim();
-      const notes = document.getElementById('intake-notes').value.trim();
+    // 3. FETCH GARMENTS & PLANS
+    async function fetchUserData() {
+      const { data: gData } = await supabase.from('garments').select('*').order('created_at', { ascending: false });
+      garments = gData || [];
+      document.getElementById('vaultCount').textContent = garments.length;
 
-      const garmentObj = {
-        id: Date.now(),
-        fileRef: cleanRef,
-        filename: filename,
-        imageSrc: imageSrc,
-        rotation: currentIntakeRotation || 0,
-        name,
-        purchasedDate: purchasedDate || null,
-        category,
-        tier,
-        palette,
-        weight,
-        texture,
-        notes,
-        confirmedAt: new Date().toISOString()
-      };
+      const { data: pData } = await supabase.from('weekly_plans').select('*').order('created_at', { ascending: false }).limit(1);
+      weeklyPlan = pData && pData[0] ? pData[0].plan_data : null;
+    }
 
-      wardrobe.push(garmentObj);
-      localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
-
-      updateVaultCounts();
-      renderWardrobeList();
-      showToast(`Confirmed: "${name}" added to Vault!`);
-
-      if (directUploadItem) {
-        directUploadItem = null;
-        document.getElementById('badge-upload-indicator').classList.add('hidden');
-        document.getElementById('batch-navigation-bar').classList.remove('hidden');
-        document.getElementById('btn-cancel-upload').classList.add('hidden');
+    // 4. FEAT-01: HERO PIECE STYLING ENGINE
+    window.setHeroAnchor = function(garmentId) {
+      if (activeAnchorGarmentId === garmentId) {
+        activeAnchorGarmentId = null; // Toggle off
+      } else {
+        activeAnchorGarmentId = garmentId;
       }
+      renderDaysBoard();
+      renderVault();
+    };
 
-      const newPending = getPendingFiles();
-      if (currentPendingIndex >= newPending.length) {
-        currentPendingIndex = Math.max(0, newPending.length - 1);
-      }
-      loadIntakePhoto(currentPendingIndex);
-    }
-
-    function openEditModal(garmentId) {
-      const item = wardrobe.find(w => w.id === garmentId);
-      if (!item) return;
-
-      currentModalRotation = item.rotation || 0;
-      const modalImg = document.getElementById('edit-modal-img');
-      modalImg.src = item.imageSrc || `${item.fileRef}.jpg`;
-      modalImg.className = `w-full h-full object-cover transition-transform duration-200 ${getRotationClass(currentModalRotation)}`;
-      document.getElementById('edit-modal-rot-label').innerText = `Orientation: ${currentModalRotation}°`;
-
-      document.getElementById('edit-modal-id').value = item.id;
-      document.getElementById('edit-modal-name').value = item.name;
-      document.getElementById('edit-modal-date').value = item.purchasedDate || "";
-      document.getElementById('edit-modal-category').value = item.category;
-      document.getElementById('edit-modal-tier').value = item.tier;
-      document.getElementById('edit-modal-palette').value = item.palette;
-      document.getElementById('edit-modal-weight').value = item.weight;
-      document.getElementById('edit-modal-texture').value = item.texture || "";
-      document.getElementById('edit-modal-notes').value = item.notes || "";
-
-      toggleModal('edit-garment-modal', true);
-    }
-
-    function handleSaveVaultEdit(e) {
-      e.preventDefault();
-      const id = Number(document.getElementById('edit-modal-id').value);
-      const item = wardrobe.find(w => w.id === id);
-      if (!item) return;
-
-      item.name = document.getElementById('edit-modal-name').value.trim();
-      item.purchasedDate = document.getElementById('edit-modal-date').value || null;
-      item.rotation = currentModalRotation;
-      item.category = document.getElementById('edit-modal-category').value;
-      item.tier = document.getElementById('edit-modal-tier').value;
-      item.palette = document.getElementById('edit-modal-palette').value;
-      item.weight = document.getElementById('edit-modal-weight').value;
-      item.texture = document.getElementById('edit-modal-texture').value.trim();
-      item.notes = document.getElementById('edit-modal-notes').value.trim();
-
-      localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
-      renderWardrobeList();
-      render7DayBoard();
-      toggleModal('edit-garment-modal', false);
-      showToast(`Updated "${item.name}"`);
-    }
-
-    function deleteFromModal() {
-      const id = Number(document.getElementById('edit-modal-id').value);
-      wardrobe = wardrobe.filter(w => w.id !== id);
-      localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
-      updateVaultCounts();
-      renderWardrobeList();
-      render7DayBoard();
-      toggleModal('edit-garment-modal', false);
-      loadIntakePhoto(currentPendingIndex);
-      showToast("Removed piece from Vault.");
-    }
-
-    function returnToPending(garmentId) {
-      wardrobe = wardrobe.filter(w => w.id !== garmentId);
-      localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(wardrobe));
-      updateVaultCounts();
-      renderWardrobeList();
-      render7DayBoard();
-      loadIntakePhoto(currentPendingIndex);
-      showToast("Returned piece back to Intake Studio!");
-    }
-
-    function updateVaultCounts() {
-      const count = wardrobe.length;
-      const pending = getPendingFiles();
-      document.getElementById('nav-vault-count').innerText = count;
-      document.getElementById('nav-pending-count').innerText = pending.length;
-      document.getElementById('btn-pending-subcount').innerText = pending.length;
-      document.getElementById('vault-total-badge').innerText = `${count} Confirmed (${pending.length} Left)`;
-      document.getElementById('vault-count-badge').innerText = `${count} Confirmed`;
-    }
-
-    function renderWardrobeList() {
-      const grid = document.getElementById('wardrobe-grid-container');
+    // 5. RENDER 7-DAY BOARD
+    function renderDaysBoard() {
+      const grid = document.getElementById('daysGrid');
       grid.innerHTML = '';
 
-      if (wardrobe.length === 0) {
-        grid.innerHTML = `
-          <div class="col-span-full py-16 text-center space-y-3">
-            <p class="text-sm text-stone-400">No confirmed garments in vault yet.</p>
-            <button onclick="switchView('build')" class="px-4 py-2 bg-brand-navy text-white text-xs font-semibold rounded-xl">
-              Go to Intake Studio &rarr;
+      DAYS.forEach((day, index) => {
+        const isToday = index === 1; // Tuesday demo default
+        const col = document.createElement('div');
+        col.className = 'bg-zinc-900 border border-zinc-800 rounded-xl p-3 flex flex-col justify-between';
+
+        const anchorGarment = garments.find(g => g.id === activeAnchorGarmentId);
+
+        col.innerHTML = `
+          <div class="flex items-center justify-between pb-2 border-b border-zinc-800/80 mb-2">
+            <div>
+              <span class="text-xs font-bold ${isToday ? 'text-brand-brass' : 'text-zinc-200'}">${day}</span>
+              ${isToday ? '<span class="ml-1 text-[9px] bg-brand-brass/20 text-brand-brass px-1 rounded">TODAY</span>' : ''}
+            </div>
+            <span class="text-[10px] text-zinc-400">54°F High</span>
+          </div>
+
+          <div class="space-y-2 py-1">
+            <!-- SLOT: TOP / ANCHOR -->
+            <div class="relative rounded-lg p-2 bg-zinc-950 border border-zinc-800 ${isToday && activeAnchorGarmentId ? 'hero-anchor-active' : ''}">
+              <div class="flex items-center justify-between text-[10px] text-zinc-400 mb-1">
+                <span>Top</span>
+                ${isToday && activeAnchorGarmentId ? `
+                  <span class="bg-brand-brass text-zinc-950 font-bold px-1.5 py-0.2 rounded text-[8px] tracking-wider">
+                    ◈ HERO ANCHOR
+                  </span>` : ''}
+              </div>
+              <p class="text-xs font-medium text-white truncate">
+                ${isToday && anchorGarment ? anchorGarment.name : 'Oxford Shirt'}
+              </p>
+            </div>
+
+            <!-- SLOT: LAYER -->
+            <div class="rounded-lg p-2 bg-zinc-950 border border-zinc-800">
+              <span class="text-[10px] text-zinc-400 block mb-1">Layer</span>
+              <p class="text-xs font-medium text-white truncate">Khaki Utility Field Jacket</p>
+            </div>
+
+            <!-- SLOT: BOTTOM -->
+            <div class="rounded-lg p-2 bg-zinc-950 border border-zinc-800">
+              <span class="text-[10px] text-zinc-400 block mb-1">Bottom</span>
+              <p class="text-xs font-medium text-white truncate">Charcoal 5-Pocket Trousers</p>
+            </div>
+
+            <!-- SLOT: FOOTWEAR -->
+            <div class="rounded-lg p-2 bg-zinc-950 border border-zinc-800">
+              <span class="text-[10px] text-zinc-400 block mb-1">Footwear</span>
+              <p class="text-xs font-medium text-white truncate">KOIO Capri White</p>
+            </div>
+          </div>
+
+          <div class="pt-2 mt-2 border-t border-zinc-800/80">
+            <button class="w-full py-1 text-[11px] font-medium text-zinc-400 hover:text-brand-brass flex items-center justify-center gap-1 transition">
+              <i data-lucide="rotate-cw" class="w-3 h-3"></i>
+              <span>${isToday && activeAnchorGarmentId ? 'Style Around Anchor' : 'Re-Curate'}</span>
             </button>
           </div>
         `;
-        return;
-      }
+        grid.appendChild(col);
+      });
+      lucide.createIcons();
+    }
 
-      wardrobe.forEach(item => {
-        const imgSrc = item.imageSrc || `${item.fileRef}.jpg`;
-        const warning = getThreeYearWarning(item.purchasedDate);
+    // 6. RENDER CLOSET VAULT
+    function renderVault() {
+      const grid = document.getElementById('vaultGrid');
+      grid.innerHTML = '';
 
+      garments.forEach(item => {
+        const isAnchor = item.id === activeAnchorGarmentId;
         const card = document.createElement('div');
-        card.className = "bg-white border border-brand-border rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between group hover:border-brand-navy transition cursor-pointer";
-        card.onclick = (e) => {
-          if (e.target.closest('button')) return;
-          openEditModal(item.id);
-        };
+        card.className = `relative bg-zinc-900 border rounded-xl overflow-hidden p-2 flex flex-col justify-between transition ${isAnchor ? 'hero-anchor-active border-brand-brass' : 'border-zinc-800'}`;
 
         card.innerHTML = `
-          <div class="flex flex-col h-full justify-between">
-            <div>
-              <div class="aspect-4/3 bg-stone-100 relative overflow-hidden flex items-center justify-center border-b border-brand-border">
-                <img src="${imgSrc}" onerror="this.onerror=null; this.src='${item.fileRef}.JPG';" class="w-full h-full object-cover ${getRotationClass(item.rotation)}">
-                <span class="absolute top-2 left-2 text-[9px] font-mono px-1.5 py-0.5 rounded bg-stone-900/80 text-white font-bold">#${item.fileRef}</span>
-                ${warning ? `
-                  <span class="absolute top-2 right-2 text-[9px] font-mono px-2 py-0.5 rounded bg-amber-500/90 text-white font-bold tracking-tight shadow">
-                    ⏳ ${warning}
-                  </span>
-                ` : ''}
-              </div>
-              <div class="p-3.5 space-y-1.5">
-                <div class="flex items-center justify-between text-[10px] text-stone-500 font-bold uppercase tracking-wider">
-                  <span>${item.category}</span>
-                  <span class="font-mono text-stone-400">${item.purchasedDate ? item.purchasedDate.slice(0, 7) : 'Date unset'}</span>
-                </div>
-                <h4 class="font-serif font-bold text-xs text-brand-navy leading-snug group-hover:text-indigo-900 transition">${item.name}</h4>
-                ${item.notes ? `
-                  <p class="text-[10px] text-stone-600 bg-brand-stone/60 p-2 rounded-lg leading-relaxed line-clamp-2 italic">
-                    "${item.notes}"
-                  </p>
-                ` : ''}
-              </div>
-            </div>
-            <div class="p-3 pt-0 border-t border-brand-border/40 mt-3 flex items-center justify-between">
-              <span class="text-[10px] font-semibold text-brand-navy group-hover:underline">Edit & Rotate &rarr;</span>
-              <button onclick="returnToPending(${item.id})" class="text-[10px] text-rose-600 hover:text-rose-800 font-semibold transition">
-                Return to Intake
-              </button>
-            </div>
+          <div class="aspect-square bg-zinc-950 rounded-lg overflow-hidden flex items-center justify-center relative mb-2">
+            ${item.image_url ? 
+              `<img src="${item.image_url}" class="w-full h-full object-cover">` : 
+              `<i data-lucide="shirt" class="w-8 h-8 text-zinc-600"></i>`}
+            ${isAnchor ? `
+              <div class="absolute top-1.5 right-1.5 bg-brand-brass text-zinc-950 text-[8px] font-bold px-1.5 py-0.5 rounded shadow">
+                ◈ HERO
+              </div>` : ''}
           </div>
+          <div>
+            <span class="text-[10px] text-brand-brass uppercase font-semibold">${item.category}</span>
+            <p class="text-xs font-medium text-white truncate">${item.name}</p>
+          </div>
+          <button onclick="setHeroAnchor('${item.id}')" 
+                  class="mt-2 w-full py-1 text-[10px] font-semibold rounded-lg border transition ${isAnchor ? 'bg-brand-brass text-zinc-950 border-brand-brass' : 'bg-zinc-800 text-zinc-300 border-zinc-700 hover:border-zinc-500'}">
+            ${isAnchor ? 'Anchor Active' : 'Set as Hero Anchor'}
+          </button>
         `;
         grid.appendChild(card);
       });
+      lucide.createIcons();
     }
 
-    function clearVaultConfirm() {
-      if (!confirm("Clear your confirmed Closet Vault? All items will return to the Intake Studio queue.")) return;
-      wardrobe = [];
-      localStorage.removeItem(STORAGE_KEY_ITEMS);
-      updateVaultCounts();
-      renderWardrobeList();
-      render7DayBoard();
-      loadIntakePhoto(0);
-      showToast("Closet Vault cleared. All items returned to Intake.");
-    }
+    // EVENT LISTENERS
+    document.getElementById('authForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('authEmail').value;
+      const submitBtn = document.getElementById('authSubmitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
 
-    // SLOANE AI MULTIMODAL CURATION ENGINE (APPROACH 2)
-    async function smartGenerateWeek() {
-      const apiKey = localStorage.getItem(STORAGE_KEY_API);
-      if (!apiKey) {
-        toggleModal('api-key-modal', true);
-        return;
-      }
-
-      if (wardrobe.length < 10) {
-        showToast("Confirm at least 10 garments before curating!", true);
-        return;
-      }
-
-      if (isSloaneCurating) return;
-      isSloaneCurating = true;
-
-      const btn = document.getElementById('btn-sloane-curate');
-      const label = document.getElementById('sloane-btn-label');
-      btn.disabled = true;
-      label.innerText = "Sloane is styling your week...";
-
-      // Prepare streamlined inventory payload (only text metadata; zero image token bloat)
-      const inventoryManifest = wardrobe.map(i => ({
-        id: i.id,
-        name: i.name,
-        category: i.category,
-        tier: i.tier,
-        palette: i.palette,
-        weight: i.weight,
-        texture: i.texture || "",
-        notes: i.notes || "",
-        isTailored: isTailoredJacket(i)
-      }));
-
-      // Build daily contextual schedule with real Minnetonka forecasts
-      const scheduleContext = DAYS_CONFIG.map((d, idx) => {
-        const currentActivity = (weeklyPlan[d.key] && weeklyPlan[d.key].template) || d.defaultTemplate;
-        const weather = weatherForecast[idx] || { maxTemp: 55, minTemp: 42, rainProb: 10, code: 1 };
-        return {
-          dayKey: d.key,
-          dayName: d.name,
-          activity: currentActivity,
-          highTempF: weather.maxTemp,
-          lowTempF: weather.minTemp,
-          rainProbability: weather.rainProb
-        };
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.href }
       });
 
-      const promptText = `
-You are Sloane, an elite menswear personal stylist specialized in elevated executive casual with an elevated J.Crew aesthetic.
-You are curating a 7-day flat-lay board for Rick Rittmaster in Minnetonka, MN using strictly his confirmed closet inventory.
-
-CORE STYLING RULES & FORMALITY LAWS:
-1. COLLAR & LAPEL HARMONY: Tailored blazers and sport coats are strictly reserved for 'Client In-Person', 'Date Night', or 'Travel / Flight'. Under ANY sport coat or blazer, you MUST pair a structured collar (category 'Woven' Oxford/button-down or refined knitwear). NEVER put a thin distressed crewneck tee under a blazer.
-2. WFH VIDEO CALLS & ELEVATED CASUAL: NEVER assign a sport coat or blazer. Dress waist-up executive and waist-down comfort: use canvas chore jackets, overshirts, sweaters, or knit cardigans over tees or polos.
-3. SHORTS LOCKOUT: If daily high temperature is under 68°F, do NOT assign shorts to ANY day. Workdays ('Client In-Person', 'WFH Video Calls', 'Elevated Casual') NEVER receive shorts regardless of weather.
-4. FOOTWEAR ALIGNMENT: Minimalist white leather sneakers (KOIO Capri) anchor blazers and raw denim. Retro terrace lows (Puma gum-sole, Jordan 1 Low) anchor chore jackets and chinos. Athletic runners belong strictly to Downtime / Active Weekend.
-5. ZERO-REPEAT LAW: Every selected garment ID must be 100% unique across the entire 7-day board. Do NOT repeat any piece.
-6. TEXTURE & TONAL FRICTION: Avoid flat monochrome cotton; pair textured layers (herringbone, tweed, washed denim, canvas) with clean foundations.
-
-INPUT INVENTORY:
-${JSON.stringify(inventoryManifest)}
-
-7-DAY SCHEDULE & FORECAST:
-${JSON.stringify(scheduleContext)}
-
-Return ONLY a strict JSON object mapping each dayKey ("mon", "tue", "wed", "thu", "fri", "sat", "sun") to its curated outfit IDs and a concise 1-sentence Sloane styling rationale:
-{
-  "mon": { "layerId": <id>, "shirtId": <id>, "bottomId": <id>, "footwearId": <id>, "rationale": "1-sentence Sloane styling blueprint" },
-  "tue": { "layerId": <id>, "shirtId": <id>, "bottomId": <id>, "footwearId": <id>, "rationale": "..." },
-  "wed": { "layerId": <id>, "shirtId": <id>, "bottomId": <id>, "footwearId": <id>, "rationale": "..." },
-  "thu": { "layerId": <id>, "shirtId": <id>, "bottomId": <id>, "footwearId": <id>, "rationale": "..." },
-  "fri": { "layerId": <id>, "shirtId": <id>, "bottomId": <id>, "footwearId": <id>, "rationale": "..." },
-  "sat": { "layerId": <id>, "shirtId": <id>, "bottomId": <id>, "footwearId": <id>, "rationale": "..." },
-  "sun": { "layerId": <id>, "shirtId": <id>, "bottomId": <id>, "footwearId": <id>, "rationale": "..." }
-}
-`;
-
-      const requestBody = {
-        contents: [{ parts: [{ text: promptText }] }],
-        generationConfig: {
-          responseMimeType: "application/json"
-        }
-      };
-
-      try {
-        const modelChain = ["gemini-3.8-flash", "gemini-3.1-flash-lite"];
-        let successfulData = null;
-        let lastError = null;
-
-        for (const model of modelChain) {
-          label.innerText = `Sloane styling with ${model}...`;
-          const response = await callGeminiEndpoint(model, apiKey, requestBody);
-
-          if (response.ok) {
-            successfulData = await response.json();
-            break;
-          }
-
-          const errData = await response.json().catch(() => ({}));
-          const errMsg = errData.error?.message || `HTTP ${response.status}`;
-          lastError = new Error(errMsg);
-
-          if (response.status === 429 || response.status === 503 || errMsg.toLowerCase().includes("quota") || errMsg.toLowerCase().includes("exhausted")) {
-            label.innerText = `Routing Sloane to ${modelChain[1]}...`;
-            await new Promise(r => setTimeout(r, 1000));
-            continue;
-          } else {
-            break;
-          }
-        }
-
-        if (!successfulData) {
-          throw lastError || new Error("Sloane could not connect. Please try again in 30 seconds.");
-        }
-
-        const textResponse = successfulData.candidates?.[0]?.content?.parts?.[0]?.text;
-        const curatedPlan = JSON.parse(textResponse);
-
-        // Merge Sloane's recommendations into weekly plan
-        DAYS_CONFIG.forEach(d => {
-          const dayPick = curatedPlan[d.key];
-          const currentActivity = (weeklyPlan[d.key] && weeklyPlan[d.key].template) || d.defaultTemplate;
-          if (dayPick) {
-            weeklyPlan[d.key] = {
-              template: currentActivity,
-              layerId: dayPick.layerId || "",
-              shirtId: dayPick.shirtId || "",
-              bottomId: dayPick.bottomId || "",
-              footwearId: dayPick.footwearId || "",
-              rationale: dayPick.rationale || ""
-            };
-          }
-        });
-
-        localStorage.setItem(STORAGE_KEY_PLAN, JSON.stringify(weeklyPlan));
-        render7DayBoard();
-        showToast("✨ Sloane curated your week with elevated J.Crew blueprints!");
-      } catch (err) {
-        showToast(`Sloane notice: ${err.message}`, true);
-      } finally {
-        isSloaneCurating = false;
-        btn.disabled = false;
-        label.innerText = "✨ Sloane Curate All 7 Days";
-      }
-    }
-
-    async function curateSingleDay(dayKey) {
-      const apiKey = localStorage.getItem(STORAGE_KEY_API);
-      if (!apiKey) {
-        toggleModal('api-key-modal', true);
-        return;
-      }
-
-      const dayIdx = DAYS_CONFIG.findIndex(d => d.key === dayKey);
-      const d = DAYS_CONFIG[dayIdx];
-      const currentActivity = (weeklyPlan[dayKey] && weeklyPlan[dayKey].template) || d.defaultTemplate;
-      const weather = weatherForecast[dayIdx] || { maxTemp: 55, minTemp: 42, rainProb: 10, code: 1 };
-
-      // Collect IDs used on other days to prevent duplicate wear
-      const usedOnOtherDays = new Set();
-      Object.keys(weeklyPlan).forEach(k => {
-        if (k !== dayKey) {
-          const p = weeklyPlan[k];
-          if (p.layerId) usedOnOtherDays.add(Number(p.layerId));
-          if (p.shirtId) usedOnOtherDays.add(Number(p.shirtId));
-          if (p.bottomId) usedOnOtherDays.add(Number(p.bottomId));
-          if (p.footwearId) usedOnOtherDays.add(Number(p.footwearId));
-        }
-      });
-
-      const availableItems = wardrobe.filter(i => !usedOnOtherDays.has(i.id)).map(i => ({
-        id: i.id,
-        name: i.name,
-        category: i.category,
-        tier: i.tier,
-        palette: i.palette,
-        weight: i.weight,
-        texture: i.texture || "",
-        notes: i.notes || "",
-        isTailored: isTailoredJacket(i)
-      }));
-
-      const promptText = `
-You are Sloane, an elite menswear personal stylist specialized in elevated executive casual with an elevated J.Crew aesthetic.
-Curate an outfit for ${d.name} for Rick Rittmaster in Minnetonka, MN.
-
-CONTEXT FOR ${d.name.toUpperCase()}:
-- Activity: ${currentActivity}
-- High Temp: ${weather.maxTemp}°F, Low Temp: ${weather.minTemp}°F, Rain Probability: ${weather.rainProb}%
-
-RULES:
-1. Tailored blazers/sport coats are for Client In-Person, Date Night, or Travel. If blazer is selected, pair an Oxford or knitwear collar underneath.
-2. WFH Video Calls & Elevated Casual: NEVER assign blazers/sport coats. Assign chore jackets, denim overshirts, or cardigans.
-3. Shorts are strictly locked out under 68°F and never permitted on workdays.
-4. Minimalist white sneakers anchor blazers/denim; retro court shoes anchor casual chore jackets/chinos.
-
-AVAILABLE UNUSED INVENTORY:
-${JSON.stringify(availableItems)}
-
-Return ONLY a strict JSON object:
-{
-  "layerId": <id>,
-  "shirtId": <id>,
-  "bottomId": <id>,
-  "footwearId": <id>,
-  "rationale": "1-sentence styling rationale"
-}
-`;
-
-      try {
-        showToast(`Sloane is styling ${d.name}...`);
-        const response = await callGeminiEndpoint("gemini-3.8-flash", apiKey, {
-          contents: [{ parts: [{ text: promptText }] }],
-          generationConfig: { responseMimeType: "application/json" }
-        });
-
-        if (!response.ok) throw new Error("Gemini API call failed");
-        const data = await response.json();
-        const pick = JSON.parse(data.candidates?.[0]?.content?.parts?.[0]?.text);
-
-        weeklyPlan[dayKey] = {
-          template: currentActivity,
-          layerId: pick.layerId || "",
-          shirtId: pick.shirtId || "",
-          bottomId: pick.bottomId || "",
-          footwearId: pick.footwearId || "",
-          rationale: pick.rationale || ""
-        };
-
-        localStorage.setItem(STORAGE_KEY_PLAN, JSON.stringify(weeklyPlan));
-        render7DayBoard();
-        showToast(`Sloane styled ${d.name} for ${currentActivity}!`);
-      } catch (e) {
-        showToast(`Could not adapt: ${e.message}`, true);
-      }
-    }
-
-    function handleDayActivityChange(dayKey, newActivity) {
-      if (!weeklyPlan[dayKey]) {
-        weeklyPlan[dayKey] = { template: newActivity, layerId: "", shirtId: "", bottomId: "", footwearId: "" };
+      if (!error) {
+        document.getElementById('authNotice').textContent = 'Magic link sent! Check your inbox.';
+        document.getElementById('authNotice').classList.remove('hidden');
       } else {
-        weeklyPlan[dayKey].template = newActivity;
+        alert('Auth error: ' + error.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Magic Link';
       }
-      localStorage.setItem(STORAGE_KEY_PLAN, JSON.stringify(weeklyPlan));
-      curateSingleDay(dayKey);
-    }
+    });
 
-    function render7DayBoard() {
-      const container = document.getElementById('seven-day-flatlay-grid');
-      container.innerHTML = '';
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.reload();
+    });
 
-      DAYS_CONFIG.forEach((d, idx) => {
-        const plan = weeklyPlan[d.key] || { template: d.defaultTemplate, layerId: "", shirtId: "", bottomId: "", footwearId: "", rationale: "" };
-        const layer = wardrobe.find(i => i.id == plan.layerId);
-        const top = wardrobe.find(i => i.id == plan.shirtId);
-        const bottom = wardrobe.find(i => i.id == plan.bottomId);
-        const shoes = wardrobe.find(i => i.id == plan.footwearId);
+    // Tab Switchers
+    document.getElementById('tabBoard').addEventListener('click', () => {
+      document.getElementById('viewBoard').classList.remove('hidden');
+      document.getElementById('viewVault').classList.add('hidden');
+      document.getElementById('tabBoard').className = 'px-4 py-2 rounded-xl text-xs font-semibold bg-zinc-800 text-white border border-zinc-700';
+      document.getElementById('tabVault').className = 'px-4 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white border border-transparent';
+    });
 
-        const weather = weatherForecast[idx] || null;
+    document.getElementById('tabVault').addEventListener('click', () => {
+      document.getElementById('viewVault').classList.remove('hidden');
+      document.getElementById('viewBoard').classList.add('hidden');
+      document.getElementById('tabVault').className = 'px-4 py-2 rounded-xl text-xs font-semibold bg-zinc-800 text-white border border-zinc-700';
+      document.getElementById('tabBoard').className = 'px-4 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white border border-transparent';
+    });
 
-        const col = document.createElement('div');
-        col.className = "bg-white rounded-2xl border border-brand-border p-3.5 shadow-sm space-y-3 flex flex-col justify-between";
-
-        col.innerHTML = `
-          <div class="space-y-2">
-            <!-- Day Header & Weather Sync -->
-            <div class="border-b border-brand-border pb-2.5 space-y-1.5">
-              <div class="flex items-center justify-between">
-                <span class="font-serif font-bold text-sm text-brand-navy">${d.name}</span>
-                ${weather ? `
-                  <span class="text-[10px] font-mono font-bold text-stone-700 bg-stone-100 px-1.5 py-0.5 rounded border border-brand-border" title="${weather.rainProb}% rain probability">
-                    ${weather.maxTemp}° /${weather.minTemp}°F
-                  </span>
-                ` : `
-                  <span class="text-[9px] text-stone-400 font-mono">Syncing...</span>
-                `}
-              </div>
-
-              ${weather ? `
-                <div class="flex items-center justify-between text-[10px] text-stone-500">
-                  <span>${getWeatherEmoji(weather.code)}</span>${weather.rainProb >= 30 ? `<span class="text-blue-600 font-medium">🌧️ ${weather.rainProb}% rain</span>` : `<span class="text-stone-400">Dry</span>`}
-                </div>
-              ` : ''}
-
-              <!-- Activity Dropdown & Single Day Sloane Button -->
-              <div class="flex items-center space-x-1.5 pt-1">
-                <select onchange="handleDayActivityChange('${d.key}', this.value)" class="flex-1 text-[11px] font-medium bg-brand-stone border border-brand-border rounded-lg p-1.5 text-brand-navy focus:outline-none">
-                  ${ACTIVITIES.map(act => `
-                    <option value="${act}" ${act === plan.template ? 'selected' : ''}>${act}</option>
-                  `).join('')}
-                </select>
-                <button onclick="curateSingleDay('${d.key}')" class="p-1.5 text-stone-500 hover:text-brand-navy border border-brand-border hover:bg-brand-stone rounded-lg text-xs" title="Have Sloane re-style this day">
-                  ↺
-                </button>
-              </div>
-            </div>
-
-            <!-- Flat-Lay Stack -->
-            <div class="space-y-1.5 bg-brand-stone/40 p-2 rounded-xl border border-brand-border/60">
-              ${renderFlatLaySlot(layer, '3rd Layer', 'h-24')}
-              ${renderFlatLaySlot(top, 'Top / Base', 'h-28')}
-              ${renderFlatLaySlot(bottom, 'Bottom', 'h-32')}
-              ${renderFlatLaySlot(shoes, 'Footwear', 'h-16')}
-            </div>
-          </div>
-
-          <!-- Sloane Rationale Box -->
-          ${plan.rationale ? `
-            <div class="mt-2 bg-indigo-50/70 border border-indigo-100 p-2 rounded-xl text-[10px] text-indigo-950 leading-relaxed italic">
-              <span class="font-bold text-indigo-900 not-italic">Sloane:</span> "${plan.rationale}"
-            </div>
-          ` : ''}
-        `;
-        container.appendChild(col);
-      });
-    }
-
-    function renderFlatLaySlot(item, title, heightClass) {
-      if (!item) {
-        return `
-          <div class="${heightClass} w-full rounded-lg border border-dashed border-stone-300 bg-white flex items-center justify-center text-[10px] text-stone-400 uppercase">
-            + ${title}
-          </div>
-        `;
-      }
-      const imgSrc = item.imageSrc || `${item.fileRef}.jpg`;
-      const warning = getThreeYearWarning(item.purchasedDate);
-
-      return `
-        <div class="relative ${heightClass} w-full rounded-lg overflow-hidden border border-brand-border bg-white shadow-2xs">
-          <img src="${imgSrc}" onerror="this.onerror=null; this.src='${item.fileRef}.JPG';" class="w-full h-full object-cover ${getRotationClass(item.rotation)}">
-          ${warning ? `
-            <span class="absolute top-1 right-1 text-[7px] font-mono px-1 py-0.5 rounded bg-amber-500 text-white font-bold shadow">
-              ⏳ 3y+
-            </span>
-          ` : ''}
-          <div class="absolute bottom-1 left-1 right-1 px-1.5 py-0.5 rounded bg-stone-900/80 text-white text-[8px] truncate font-medium">
-            ${item.name}
-          </div>
-        </div>
-      `;
-    }
-
-    function clearWeekPlan() {
-      weeklyPlan = {};
-      localStorage.removeItem(STORAGE_KEY_PLAN);
-      render7DayBoard();
-      showToast("Cleared rotation.");
-    }
-
-    function switchView(viewName) {
-      ['planner', 'wardrobe', 'build'].forEach(v => {
-        document.getElementById(`view-${v}`).classList.add('hidden');
-        const btn = document.getElementById(`tab-btn-${v}`);
-        if (btn) btn.className = "px-4 py-2 rounded-lg text-stone-600 hover:text-brand-navy font-semibold flex items-center space-x-1.5 transition";
-      });
-      document.getElementById(`view-${viewName}`).classList.remove('hidden');
-      document.getElementById(`tab-btn-${viewName}`).className = "px-4 py-2 rounded-lg bg-white text-brand-navy shadow-sm font-semibold flex items-center space-x-1.5 transition";
-      if (viewName === 'wardrobe') renderWardrobeList();
-      if (viewName === 'planner') render7DayBoard();
-      if (viewName === 'build') loadIntakePhoto(currentPendingIndex);
-    }
-
-    function exportFullWardrobeBackup() {
-      const payload = { exportedAt: new Date().toISOString(), wardrobe, weeklyPlan };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `curated_closet_backup_${new Date().toISOString().slice(0, 10)}.json`;
-      a.click();
-      showToast("Backup exported!");
-    }
-
-    function toggleModal(id, open) {
-      document.getElementById(id).classList.toggle('hidden', !open);
-    }
-
-    function showToast(msg, isAlert = false) {
-      const toast = document.getElementById('toast');
-      document.getElementById('toast-msg').innerText = msg;
-      toast.classList.remove('opacity-0', 'translate-y-20', 'pointer-events-none');
-      setTimeout(() => toast.classList.add('opacity-0', 'translate-y-20', 'pointer-events-none'), 3000);
-    }
-
-    window.onload = initApp;
+    // Initialize on load
+    initApp();
   </script>
 </body>
 </html>
