@@ -106,7 +106,7 @@
           <h2 class="text-sm font-semibold text-white">Minnetonka, MN Forecast Sync</h2>
           <p class="text-xs text-zinc-400" id="forecastSummary">54°F High · Clear Autumn Skies</p>
         </div>
-        <button id="curateWeekBtn" class="bg-brand-brass hover:bg-brand-brassLight text-zinc-950 font-semibold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition">
+        <button id="curateWeekBtn" class="bg-brand-brass hover:bg-brand-brassLight text-zinc-950 font-semibold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition active:scale-95 shadow">
           <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
           <span>Curate Week with Sloane</span>
         </button>
@@ -121,7 +121,7 @@
     <section id="viewVault" class="hidden space-y-4">
       <div class="flex items-center justify-between">
         <h2 class="text-sm font-semibold text-zinc-300">Wardrobe Catalog</h2>
-        <button id="addPieceBtn" class="bg-brand-brass hover:bg-brand-brassLight text-zinc-950 font-semibold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow transition">
+        <button id="addPieceBtn" class="bg-brand-brass hover:bg-brand-brassLight text-zinc-950 font-semibold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow transition active:scale-95">
           <i data-lucide="camera" class="w-3.5 h-3.5"></i>
           <span>Add Piece</span>
         </button>
@@ -152,11 +152,11 @@
 
       <!-- Preview & Vision Status -->
       <div class="relative aspect-video rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800 flex items-center justify-center">
-        <img id="intakePreview" class="w-full h-full object-cover hidden">
+        <img id="intakePreview" class="w-full h-full object-cover hidden" alt="Garment Preview">
         <div id="intakeLoadingState" class="flex flex-col items-center gap-2 text-center p-4">
           <i data-lucide="loader-2" class="w-6 h-6 text-brand-brass animate-spin"></i>
           <p class="text-xs text-zinc-300 font-medium">Extracting Brand & Architecture...</p>
-          <p class="text-[10px] text-zinc-500">Compressing flat-lay and querying Gemini Vision</p>
+          <p class="text-[10px] text-zinc-500">Compressing flat-lay and querying Vision model</p>
         </div>
       </div>
 
@@ -203,7 +203,7 @@
           </select>
         </div>
 
-        <button id="commitPieceBtn" class="w-full py-2.5 bg-brand-brass hover:bg-brand-brassLight text-zinc-950 font-bold text-xs rounded-xl transition duration-150 flex items-center justify-center gap-1.5">
+        <button id="commitPieceBtn" class="w-full py-2.5 bg-brand-brass hover:bg-brand-brassLight text-zinc-950 font-bold text-xs rounded-xl transition duration-150 flex items-center justify-center gap-1.5 active:scale-95 shadow">
           <i data-lucide="check" class="w-4 h-4"></i>
           <span>Save to Cloud Vault</span>
         </button>
@@ -224,6 +224,7 @@
       let garments = [];
       let activeAnchorGarmentId = null;
       let pendingIntakeBlob = null;
+      let weeklyPlan = {};
 
       const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
@@ -260,6 +261,7 @@
         document.getElementById('userEmailDisplay').textContent = user.email;
 
         await fetchUserData();
+        curateBoard(); // Initial baseline curation
         renderVault();
         renderDaysBoard();
         if (window.lucide) window.lucide.createIcons();
@@ -281,11 +283,50 @@
       // 3. HERO ANCHOR ENGINE
       window.setHeroAnchor = function(garmentId) {
         activeAnchorGarmentId = (activeAnchorGarmentId === garmentId) ? null : garmentId;
+        
+        // Re-align Tuesday (today) around the anchor if set
+        if (activeAnchorGarmentId) {
+          curateBoard(1);
+        }
         renderDaysBoard();
         renderVault();
       };
 
-      // 4. RENDER 7-DAY BOARD
+      // 4. SLOANE ALGORITHMIC CURATION ENGINE
+      function curateBoard(dayIndex = null) {
+        if (!garments || garments.length === 0) return;
+
+        const tops = garments.filter(g => g.category === 'Top');
+        const layers = garments.filter(g => g.category === 'Layer');
+        const bottoms = garments.filter(g => g.category === 'Bottom');
+        const footwear = garments.filter(g => g.category === 'Footwear');
+
+        const getRandom = (arr) => arr.length > 0 ? arr[Math.floor(Math.random() * arr.length)] : null;
+
+        const targetDays = dayIndex !== null ? [DAYS[dayIndex]] : DAYS;
+
+        targetDays.forEach(day => {
+          const isToday = (day === 'Tuesday');
+          const anchor = (isToday && activeAnchorGarmentId) 
+            ? garments.find(g => g.id === activeAnchorGarmentId) 
+            : null;
+
+          weeklyPlan[day] = {
+            top: (anchor && anchor.category === 'Top') ? anchor : getRandom(tops),
+            layer: (anchor && anchor.category === 'Layer') ? anchor : getRandom(layers),
+            bottom: (anchor && anchor.category === 'Bottom') ? anchor : getRandom(bottoms),
+            footwear: (anchor && anchor.category === 'Footwear') ? anchor : getRandom(footwear)
+          };
+        });
+
+        renderDaysBoard();
+      }
+
+      window.recurateDay = function(dayIndex) {
+        curateBoard(dayIndex);
+      };
+
+      // 5. RENDER 7-DAY BOARD
       function renderDaysBoard() {
         const grid = document.getElementById('daysGrid');
         grid.innerHTML = '';
@@ -295,7 +336,11 @@
           const col = document.createElement('div');
           col.className = 'bg-zinc-900 border border-zinc-800 rounded-xl p-3 flex flex-col justify-between';
 
-          const anchorGarment = garments.find(g => g.id === activeAnchorGarmentId);
+          const plan = weeklyPlan[day] || {};
+          const topItem = plan.top;
+          const layerItem = plan.layer;
+          const bottomItem = plan.bottom;
+          const footwearItem = plan.footwear;
 
           col.innerHTML = `
             <div class="flex items-center justify-between pb-2 border-b border-zinc-800/80 mb-2">
@@ -307,37 +352,57 @@
             </div>
 
             <div class="space-y-2 py-1">
-              <div class="relative rounded-lg p-2 bg-zinc-950 border border-zinc-800 ${isToday && activeAnchorGarmentId ? 'hero-anchor-active' : ''}">
-                <div class="flex items-center justify-between text-[10px] text-zinc-400 mb-1">
+              <div class="relative rounded-lg p-2 bg-zinc-950 border border-zinc-800 ${isToday && activeAnchorGarmentId && topItem && topItem.id === activeAnchorGarmentId ? 'hero-anchor-active' : ''}">
+                <div class="flex items-center justify-between text-[10px] text-zinc-400 mb-0.5">
                   <span>Top</span>
-                  ${isToday && activeAnchorGarmentId ? `
-                    <span class="bg-brand-brass text-zinc-950 font-bold px-1.5 py-0.2 rounded text-[8px] tracking-wider">
+                  ${isToday && activeAnchorGarmentId && topItem && topItem.id === activeAnchorGarmentId ? `
+                    <span class="bg-brand-brass text-zinc-950 font-bold px-1.5 rounded text-[8px] tracking-wider">
                       ◈ HERO ANCHOR
                     </span>` : ''}
                 </div>
-                <p class="text-xs font-medium text-white truncate">
-                  ${isToday && anchorGarment ? anchorGarment.name : 'Green & Grey Striped Rugby'}
-                </p>
+                <p class="text-xs font-medium text-white truncate">${topItem ? topItem.name : 'Select Top'}</p>
+                ${topItem && topItem.brand ? `<span class="text-[9px] text-zinc-500 block truncate">${topItem.brand}</span>` : ''}
               </div>
 
-              <div class="rounded-lg p-2 bg-zinc-950 border border-zinc-800">
-                <span class="text-[10px] text-zinc-400 block mb-1">Layer</span>
-                <p class="text-xs font-medium text-white truncate">Khaki Utility Field Jacket</p>
+              <div class="relative rounded-lg p-2 bg-zinc-950 border border-zinc-800 ${isToday && activeAnchorGarmentId && layerItem && layerItem.id === activeAnchorGarmentId ? 'hero-anchor-active' : ''}">
+                <div class="flex items-center justify-between text-[10px] text-zinc-400 mb-0.5">
+                  <span>Layer</span>
+                  ${isToday && activeAnchorGarmentId && layerItem && layerItem.id === activeAnchorGarmentId ? `
+                    <span class="bg-brand-brass text-zinc-950 font-bold px-1.5 rounded text-[8px] tracking-wider">
+                      ◈ HERO ANCHOR
+                    </span>` : ''}
+                </div>
+                <p class="text-xs font-medium text-white truncate">${layerItem ? layerItem.name : 'Select Layer'}</p>
+                ${layerItem && layerItem.brand ? `<span class="text-[9px] text-zinc-500 block truncate">${layerItem.brand}</span>` : ''}
               </div>
 
-              <div class="rounded-lg p-2 bg-zinc-950 border border-zinc-800">
-                <span class="text-[10px] text-zinc-400 block mb-1">Bottom</span>
-                <p class="text-xs font-medium text-white truncate">Charcoal 5-Pocket Trousers</p>
+              <div class="relative rounded-lg p-2 bg-zinc-950 border border-zinc-800 ${isToday && activeAnchorGarmentId && bottomItem && bottomItem.id === activeAnchorGarmentId ? 'hero-anchor-active' : ''}">
+                <div class="flex items-center justify-between text-[10px] text-zinc-400 mb-0.5">
+                  <span>Bottom</span>
+                  ${isToday && activeAnchorGarmentId && bottomItem && bottomItem.id === activeAnchorGarmentId ? `
+                    <span class="bg-brand-brass text-zinc-950 font-bold px-1.5 rounded text-[8px] tracking-wider">
+                      ◈ HERO ANCHOR
+                    </span>` : ''}
+                </div>
+                <p class="text-xs font-medium text-white truncate">${bottomItem ? bottomItem.name : 'Select Bottom'}</p>
+                ${bottomItem && bottomItem.brand ? `<span class="text-[9px] text-zinc-500 block truncate">${bottomItem.brand}</span>` : ''}
               </div>
 
-              <div class="rounded-lg p-2 bg-zinc-950 border border-zinc-800">
-                <span class="text-[10px] text-zinc-400 block mb-1">Footwear</span>
-                <p class="text-xs font-medium text-white truncate">KOIO Capri White</p>
+              <div class="relative rounded-lg p-2 bg-zinc-950 border border-zinc-800 ${isToday && activeAnchorGarmentId && footwearItem && footwearItem.id === activeAnchorGarmentId ? 'hero-anchor-active' : ''}">
+                <div class="flex items-center justify-between text-[10px] text-zinc-400 mb-0.5">
+                  <span>Footwear</span>
+                  ${isToday && activeAnchorGarmentId && footwearItem && footwearItem.id === activeAnchorGarmentId ? `
+                    <span class="bg-brand-brass text-zinc-950 font-bold px-1.5 rounded text-[8px] tracking-wider">
+                      ◈ HERO ANCHOR
+                    </span>` : ''}
+                </div>
+                <p class="text-xs font-medium text-white truncate">${footwearItem ? footwearItem.name : 'Select Footwear'}</p>
+                ${footwearItem && footwearItem.brand ? `<span class="text-[9px] text-zinc-500 block truncate">${footwearItem.brand}</span>` : ''}
               </div>
             </div>
 
             <div class="pt-2 mt-2 border-t border-zinc-800/80">
-              <button class="w-full py-1 text-[11px] font-medium text-zinc-400 hover:text-brand-brass flex items-center justify-center gap-1 transition">
+              <button onclick="recurateDay(${index})" class="w-full py-1 text-[11px] font-medium text-zinc-400 hover:text-brand-brass flex items-center justify-center gap-1 transition active:scale-95">
                 <i data-lucide="rotate-cw" class="w-3 h-3"></i>
                 <span>${isToday && activeAnchorGarmentId ? 'Style Around Anchor' : 'Re-Curate'}</span>
               </button>
@@ -348,7 +413,7 @@
         if (window.lucide) window.lucide.createIcons();
       }
 
-      // 5. RENDER CLOSET VAULT (Lazy Loading Enabled)
+      // 6. RENDER CLOSET VAULT (Lazy Loading Enabled)
       function renderVault() {
         const grid = document.getElementById('vaultGrid');
         grid.innerHTML = '';
@@ -399,7 +464,7 @@
         if (window.lucide) window.lucide.createIcons();
       }
 
-      // 6. CLIENT-SIDE COMPRESSOR (HTML5 Canvas downsampler)
+      // 7. CLIENT-SIDE COMPRESSOR (HTML5 Canvas downsampler)
       function compressImage(file, maxDimension = 1000, quality = 0.82) {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -440,7 +505,7 @@
         });
       }
 
-      // 7. FEAT-08: CAMERA INTAKE PIPELINE
+      // 8. FEAT-08: CAMERA INTAKE PIPELINE
       const addPieceBtn = document.getElementById('addPieceBtn');
       const cameraInput = document.getElementById('cameraInput');
       const intakeDrawer = document.getElementById('intakeDrawer');
@@ -475,12 +540,21 @@
           intakePreview.src = base64Data;
           intakePreview.classList.remove('hidden');
 
-          // B. Dispatch to tag-garment Edge Function
+          // B. Dispatch to tag-garment Edge Function with detailed error catch
           const { data: tags, error } = await sb.functions.invoke('tag-garment', {
             body: { imageBase64: base64Data }
           });
 
-          if (error) throw error;
+          if (error) {
+            let detail = error.message;
+            try {
+              if (error.context && typeof error.context.json === 'function') {
+                const errBody = await error.context.json();
+                if (errBody && errBody.error) detail = errBody.error;
+              }
+            } catch (_) {}
+            throw new Error(detail);
+          }
 
           // C. Pre-populate Review Drawer
           document.getElementById('intakeBrand').value = tags.brand || '';
@@ -496,7 +570,7 @@
 
         } catch (err) {
           console.error("Vision Tagging error:", err);
-          alert("Auto-tagging error: " + err.message + ". You can fill in the fields manually.");
+          alert("Auto-tagging notification: " + err.message + "\nYou can verify or enter the details manually.");
           intakeLoadingState.classList.add('hidden');
           intakeFields.classList.remove('hidden');
         }
@@ -507,7 +581,7 @@
         pendingIntakeBlob = null;
       });
 
-      // 8. SAVE PIECE TO SUPABASE CLOUD
+      // 9. SAVE PIECE TO SUPABASE CLOUD
       commitPieceBtn.addEventListener('click', async () => {
         if (!pendingIntakeBlob || !currentUser) return;
 
@@ -544,7 +618,7 @@
             wear_count: 0
           };
 
-          // D. Defensive DB Insert (handles schema gracefully)
+          // D. Defensive DB Insert
           let { error: dbError } = await sb.from('garments').insert([record]);
           if (dbError && dbError.message.includes('brand')) {
             delete record.brand;
@@ -570,7 +644,14 @@
         }
       });
 
-      // 9. EVENT LISTENERS
+      // 10. EVENT LISTENERS
+      document.getElementById('curateWeekBtn').addEventListener('click', () => {
+        const btn = document.getElementById('curateWeekBtn');
+        btn.classList.add('opacity-75');
+        curateBoard();
+        setTimeout(() => btn.classList.remove('opacity-75'), 200);
+      });
+
       document.getElementById('authForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const errBox = document.getElementById('authError');
