@@ -10,13 +10,12 @@
       --bg: #0d0e11;
       --card-bg: #15171c;
       --card-border: #222630;
-      --row-hover: #1a1d24;
+      --row-bg: #101217;
       --accent: #c49d64; /* Sartorial Warm Cognac */
       --accent-dim: rgba(196, 157, 100, 0.12);
       --text: #f3f4f6;
       --text-muted: #8b92a0;
       --pill-bg: #1d212a;
-      --danger: #ef4444;
       --font-serif: "Playfair Display", Georgia, serif;
       --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
     }
@@ -52,7 +51,7 @@
       margin-top: 2px;
     }
 
-    /* Fixed Navigation Bar with Safe Area Clearance */
+    /* Fixed Navigation Bar */
     .nav-bar {
       position: fixed;
       bottom: 0;
@@ -135,7 +134,7 @@
       font-style: italic;
     }
 
-    /* Primary Curation Action */
+    /* Primary Action */
     .btn-curate {
       width: 100%;
       background: var(--accent);
@@ -156,7 +155,6 @@
       cursor: not-allowed;
     }
 
-    /* Notice Banner */
     .engine-notice {
       background: #1f1a14;
       border: 1px solid #4a3820;
@@ -226,7 +224,7 @@
       outline: none;
     }
 
-    /* YNAB-Style Full-Width Attire Rows */
+    /* YNAB-Style Attire Rows */
     .attire-rows-list {
       display: flex;
       flex-direction: column;
@@ -237,7 +235,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      background: #111317;
+      background: var(--row-bg);
       border: 1px solid #1c2028;
       border-radius: 10px;
       padding: 8px 10px;
@@ -266,7 +264,7 @@
     }
     .attire-info {
       flex: 1;
-      min-width: 0; /* Ensures clean ellipsis */
+      min-width: 0;
       display: flex;
       flex-direction: column;
       gap: 2px;
@@ -311,7 +309,7 @@
       line-height: 1.5;
     }
 
-    /* Closet Vault Grid */
+    /* Vault Grid */
     .vault-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -578,25 +576,36 @@
       Friday: "Client Dinner / Evening"
     };
 
-    // --- 2. WORKWEEK CALENDAR DATES ---
+    // --- 2. WORKWEEK CALENDAR DATES & ISO DATE MAPPER ---
+    let workweekISODates = {};
     function getWorkweekDates() {
       const dates = {};
+      workweekISODates = {};
       const now = new Date();
       const currentDayOfWeek = now.getDay();
-      const distanceToMonday = currentDayOfWeek === 0 ? 1 : (currentDayOfWeek === 6 ? 2 : 1 - currentDayOfWeek);
+      
+      // Calculate current week's Monday
+      const distanceToMonday = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek;
       const mondayDate = new Date(now);
       mondayDate.setDate(now.getDate() + distanceToMonday);
 
       WORKWEEK_DAYS.forEach((day, index) => {
         const d = new Date(mondayDate);
         d.setDate(mondayDate.getDate() + index);
+        
         dates[day] = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        
+        // Exact YYYY-MM-DD string to match Open-Meteo's API array
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const dayNum = String(d.getDate()).padStart(2, '0');
+        workweekISODates[day] = `${year}-${month}-${dayNum}`;
       });
       return dates;
     }
     const workweekDates = getWorkweekDates();
 
-    // --- 3. WEATHER SUBSYSTEM ---
+    // --- 3. WEATHER SUBSYSTEM (ACCURATE DATE MAPPING) ---
     function parseWeatherCode(code) {
       if (code === 0) return "Clear";
       if (code <= 3) return "Partly Cloudy";
@@ -612,12 +621,22 @@
         const res = await fetch(url);
         const data = await res.json();
         
-        if (data && data.daily) {
-          WORKWEEK_DAYS.forEach((day, idx) => {
+        if (data && data.daily && data.daily.time) {
+          const forecastByDate = {};
+          data.daily.time.forEach((dateStr, idx) => {
             const max = Math.round(data.daily.temperature_2m_max[idx]);
             const min = Math.round(data.daily.temperature_2m_min[idx]);
             const cond = parseWeatherCode(data.daily.weathercode[idx]);
-            dailyWeatherMap[day] = { max, min, cond, summary: `${max}°F / ${min}°F · ${cond}` };
+            forecastByDate[dateStr] = { max, min, cond, summary: `${max}°F / ${min}°F · ${cond}` };
+          });
+
+          WORKWEEK_DAYS.forEach(day => {
+            const iso = workweekISODates[day];
+            if (forecastByDate[iso]) {
+              dailyWeatherMap[day] = forecastByDate[iso];
+            } else {
+              dailyWeatherMap[day] = { max: 62, min: 45, cond: "Clear", summary: "62°F / 45°F · Clear" };
+            }
           });
           renderBoard();
         }
