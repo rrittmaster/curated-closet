@@ -9,7 +9,8 @@
     :root {
       --bg: #0d0e11;
       --card-bg: #15171c;
-      --card-border: #232730;
+      --card-border: #222630;
+      --row-hover: #1a1d24;
       --accent: #c49d64; /* Sartorial Warm Cognac */
       --accent-dim: rgba(196, 157, 100, 0.12);
       --text: #f3f4f6;
@@ -51,7 +52,7 @@
       margin-top: 2px;
     }
 
-    /* Navigation */
+    /* Fixed Navigation Bar with Safe Area Clearance */
     .nav-bar {
       position: fixed;
       bottom: 0;
@@ -84,7 +85,7 @@
       color: var(--accent);
     }
 
-    /* Sub-bar / Location Pill */
+    /* Subbar / Location Pill */
     .board-subbar {
       display: flex;
       justify-content: space-between;
@@ -96,9 +97,9 @@
       background: var(--pill-bg);
       border: 1px solid var(--card-border);
       color: var(--text);
-      padding: 6px 12px;
+      padding: 7px 14px;
       border-radius: 20px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 500;
       cursor: pointer;
       display: inline-flex;
@@ -106,7 +107,7 @@
       gap: 6px;
     }
     .location-hint {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--text-muted);
     }
 
@@ -128,21 +129,21 @@
     }
     .briefing-text {
       font-family: var(--font-serif);
-      font-size: 14px;
+      font-size: 15px;
       line-height: 1.6;
       color: #e5e7eb;
       font-style: italic;
     }
 
-    /* Action Button */
+    /* Primary Curation Action */
     .btn-curate {
       width: 100%;
       background: var(--accent);
       color: #0b0c0e;
       border: none;
-      border-radius: 8px;
-      padding: 13px;
-      font-size: 13px;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 14px;
       font-weight: 600;
       letter-spacing: 0.04em;
       text-transform: uppercase;
@@ -162,25 +163,26 @@
       color: #e2ba7d;
       padding: 10px 14px;
       border-radius: 8px;
-      font-size: 12px;
+      font-size: 13px;
       margin-bottom: 16px;
       display: none;
     }
 
-    /* Day Card */
+    /* YNAB-Style Day Card */
     .day-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 16px;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     }
     .day-card-header {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      border-bottom: 1px solid #1f232b;
-      padding-bottom: 12px;
+      gap: 10px;
+      border-bottom: 1px solid #20242e;
+      padding-bottom: 14px;
       margin-bottom: 12px;
     }
     .day-card-row1 {
@@ -191,24 +193,25 @@
     .day-heading-group {
       display: flex;
       align-items: baseline;
-      gap: 6px;
+      gap: 8px;
     }
     .day-name {
-      font-size: 15px;
+      font-size: 18px;
       font-weight: 600;
       letter-spacing: -0.01em;
+      color: #ffffff;
     }
     .day-date {
-      font-size: 12px;
+      font-size: 14px;
       color: var(--accent);
       font-weight: 500;
     }
     .day-weather-badge {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--text-muted);
       background: var(--pill-bg);
-      padding: 3px 8px;
-      border-radius: 12px;
+      padding: 4px 10px;
+      border-radius: 14px;
       border: 1px solid #232730;
       white-space: nowrap;
     }
@@ -218,48 +221,97 @@
       border: 1px solid #232730;
       color: var(--text);
       font-size: 16px; /* Prevents iOS auto-zoom */
-      padding: 7px 10px;
-      border-radius: 6px;
+      padding: 9px 12px;
+      border-radius: 8px;
       outline: none;
     }
 
-    .outfit-slots {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+    /* YNAB-Style Full-Width Attire Rows */
+    .attire-rows-list {
+      display: flex;
+      flex-direction: column;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
-    .slot-box {
-      background: #101216;
-      border: 1px solid #1e222a;
-      border-radius: 8px;
-      padding: 10px;
+    .attire-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #111317;
+      border: 1px solid #1c2028;
+      border-radius: 10px;
+      padding: 8px 10px;
     }
-    .slot-label {
+    .attire-thumb-container {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      background: #1a1e26;
+      border: 1px solid #262c38;
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .attire-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .attire-thumb-fallback {
+      font-size: 18px;
+      opacity: 0.6;
+    }
+    .attire-info {
+      flex: 1;
+      min-width: 0; /* Ensures clean ellipsis */
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .attire-meta-top {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .attire-slot-pill {
       font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
+      font-weight: 600;
       color: var(--accent);
-      margin-bottom: 2px;
+      background: rgba(196, 157, 100, 0.1);
+      padding: 1px 6px;
+      border-radius: 4px;
     }
-    .slot-value {
-      font-size: 12px;
+    .attire-brand {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .attire-item-name {
+      font-size: 15px;
       font-weight: 500;
       color: var(--text);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
     .day-rationale {
-      font-size: 12px;
+      font-size: 13px;
       color: #9ca3af;
       font-style: italic;
       border-left: 2px solid var(--accent);
-      padding-left: 8px;
-      margin-top: 6px;
+      padding-left: 10px;
+      margin-top: 8px;
+      line-height: 1.5;
     }
 
-    /* Vault Grid */
+    /* Closet Vault Grid */
     .vault-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -270,24 +322,25 @@
       border: 1px solid var(--card-border);
       border-radius: 10px;
       overflow: hidden;
-      padding: 10px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
     }
     .garment-brand {
-      font-size: 10px;
+      font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--accent);
+      font-weight: 600;
     }
     .garment-name {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 600;
       line-height: 1.3;
     }
     .garment-meta {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--text-muted);
     }
     .anchor-btn {
@@ -295,9 +348,9 @@
       background: #1a1e26;
       border: 1px solid #2a303c;
       color: #cbd5e1;
-      padding: 5px;
+      padding: 7px;
       border-radius: 6px;
-      font-size: 11px;
+      font-size: 12px;
       cursor: pointer;
     }
     .anchor-btn.locked {
@@ -307,12 +360,13 @@
       border-color: var(--accent);
     }
 
-    /* Modal */
+    /* Modals & Lightbox */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.78);
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       display: none;
       align-items: flex-end;
       z-index: 1000;
@@ -332,24 +386,42 @@
       margin-bottom: 14px;
     }
     .form-group {
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
     .form-group label {
       display: block;
-      font-size: 11px;
+      font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--text-muted);
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
     .form-group input, .form-group select {
       width: 100%;
       background: #0f1014;
       border: 1px solid #262a34;
       color: var(--text);
-      padding: 9px 12px;
-      border-radius: 6px;
+      padding: 10px 12px;
+      border-radius: 8px;
       font-size: 16px; /* Prevents iOS auto-zoom */
+    }
+
+    /* Lightbox Modal */
+    #image-lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+    #image-lightbox img {
+      max-width: 90%;
+      max-height: 80vh;
+      border-radius: 12px;
+      border: 1px solid #333;
     }
   </style>
 </head>
@@ -392,9 +464,9 @@
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
       <div>
         <h2 style="font-size:18px; font-weight:600;">Wardrobe Vault</h2>
-        <p style="font-size:12px; color:var(--text-muted);" id="vault-count">0 Garments Indexed</p>
+        <p style="font-size:13px; color:var(--text-muted);" id="vault-count">0 Garments Indexed</p>
       </div>
-      <button onclick="openAddModal()" style="background:var(--accent); color:#000; border:none; padding:8px 14px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer;">
+      <button onclick="openAddModal()" style="background:var(--accent); color:#000; border:none; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;">
         + Add Piece
       </button>
     </div>
@@ -407,9 +479,9 @@
   <!-- ADD PIECE / VISION MODAL -->
   <div id="add-modal" class="modal-backdrop">
     <div class="modal-sheet">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
         <h3 class="modal-title">Intake Garment</h3>
-        <button onclick="closeAddModal()" style="background:none; border:none; color:var(--text-muted); font-size:18px; cursor:pointer;">✕</button>
+        <button onclick="closeAddModal()" style="background:none; border:none; color:var(--text-muted); font-size:20px; cursor:pointer;">✕</button>
       </div>
 
       <div class="form-group">
@@ -417,7 +489,7 @@
         <input type="file" id="camera-file-input" accept="image/*" capture="environment" onchange="handleImageIntake(event)">
       </div>
 
-      <div id="vision-status" style="font-size:11px; color:var(--accent); margin-bottom:10px; display:none;">
+      <div id="vision-status" style="font-size:12px; color:var(--accent); margin-bottom:12px; display:none;">
         Analyzing garment geometry and fabric signatures...
       </div>
 
@@ -460,26 +532,31 @@
         </select>
       </div>
 
-      <button onclick="saveGarment()" style="width:100%; background:var(--accent); color:#000; border:none; padding:12px; border-radius:6px; font-weight:600; cursor:pointer; margin-top:8px;">
+      <button onclick="saveGarment()" style="width:100%; background:var(--accent); color:#000; border:none; padding:13px; border-radius:8px; font-weight:600; font-size:14px; cursor:pointer; margin-top:8px;">
         Save to Vault
       </button>
     </div>
   </div>
 
+  <!-- LIGHTBOX MODAL -->
+  <div id="image-lightbox" onclick="closeLightbox()">
+    <img id="lightbox-img" src="" alt="Garment Preview">
+  </div>
+
   <!-- BOTTOM NAVIGATION -->
   <nav class="nav-bar">
     <button class="nav-btn active" id="btn-nav-board" onclick="switchTab('board')">
-      <span>🗓️</span>
+      <span style="font-size:18px;">🗓️</span>
       <span>7-Day Board</span>
     </button>
     <button class="nav-btn" id="btn-nav-vault" onclick="switchTab('vault')">
-      <span>👔</span>
+      <span style="font-size:18px;">👔</span>
       <span>Closet Vault</span>
     </button>
   </nav>
 
   <script>
-    // --- 1. SUPABASE CLIENT & AUTH CONFIGURATION ---
+    // --- 1. SUPABASE CLIENT & STATE ---
     const SUPABASE_URL = "https://rqiuuzeatlhyxfgwvuaa.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxaXV1emVhdGloeXhmZ3d2dWFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODc3MzksImV4cCI6MjA1NTk2MzczOX0.8N8_eUj0Nq5U-L4w2J9L3Wk5mZ6L2B5U7T3S4Q2K1E8";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -487,12 +564,12 @@
     const WORKWEEK_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
     const DEFAULT_LOCATION = { name: "Minnetonka, MN", lat: 44.9133, lon: -93.4708 };
 
-    // State Variables
     let wardrobe = [];
     let currentCuration = null;
     let heroAnchor = null;
     let currentLocation = JSON.parse(localStorage.getItem("curated_closet_location")) || DEFAULT_LOCATION;
     let dailyWeatherMap = {};
+    let currentPhotoBase64 = null;
     let dailyActivities = JSON.parse(localStorage.getItem("curated_closet_activities")) || {
       Monday: "Executive Casual / Office",
       Tuesday: "In-Person Meeting",
@@ -501,13 +578,11 @@
       Friday: "Client Dinner / Evening"
     };
 
-    // --- 2. DYNAMIC WORKWEEK DATE CALCULATOR ---
+    // --- 2. WORKWEEK CALENDAR DATES ---
     function getWorkweekDates() {
       const dates = {};
       const now = new Date();
-      const currentDayOfWeek = now.getDay(); // 0 is Sunday, 1 is Monday...
-      
-      // Target next Monday if today is Sat/Sun, otherwise current week's Monday
+      const currentDayOfWeek = now.getDay();
       const distanceToMonday = currentDayOfWeek === 0 ? 1 : (currentDayOfWeek === 6 ? 2 : 1 - currentDayOfWeek);
       const mondayDate = new Date(now);
       mondayDate.setDate(now.getDate() + distanceToMonday);
@@ -521,7 +596,7 @@
     }
     const workweekDates = getWorkweekDates();
 
-    // --- 3. WEATHER & LOCATION SUBSYSTEM ---
+    // --- 3. WEATHER SUBSYSTEM ---
     function parseWeatherCode(code) {
       if (code === 0) return "Clear";
       if (code <= 3) return "Partly Cloudy";
@@ -581,14 +656,12 @@
       localStorage.setItem("curated_closet_activities", JSON.stringify(dailyActivities));
     }
 
-    // --- 4. RESILIENT WARDROBE VAULT LOADER ---
+    // --- 4. WARDROBE VAULT LOADER ---
     async function loadWardrobe() {
       try {
-        // Attempt authenticated session load first, fallback gracefully to open view
         let { data, error } = await supabaseClient.from("garments").select("*").order("created_at", { ascending: false });
 
         if (error || !data || data.length === 0) {
-          // If RLS blocked anon query, retrieve from public view or session cache
           const session = (await supabaseClient.auth.getSession())?.data?.session;
           if (session) {
             const res = await supabaseClient.from("garments").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false });
@@ -609,7 +682,7 @@
       const container = document.getElementById("vault-grid");
       if (!container) return;
       if (wardrobe.length === 0) {
-        container.innerHTML = `<p style="grid-column:span 2; font-size:12px; color:var(--text-muted); text-align:center; padding:20px;">Vault empty. Tap + Add Piece to index your attire.</p>`;
+        container.innerHTML = `<p style="grid-column:span 2; font-size:13px; color:var(--text-muted); text-align:center; padding:24px;">Vault empty. Tap + Add Piece to index your attire.</p>`;
         return;
       }
 
@@ -618,7 +691,7 @@
           <div class="garment-brand">${g.brand || 'Unbranded'}</div>
           <div class="garment-name">${g.name}</div>
           <div class="garment-meta">${g.category} · ${g.color || ''}</div>
-          <div class="garment-meta" style="font-size:10px; color:#6b7280;">${g.formality || 'Executive Casual'}</div>
+          <div class="garment-meta" style="font-size:11px; color:#6b7280;">${g.formality || 'Executive Casual'}</div>
           <button class="anchor-btn ${heroAnchor?.garmentId === g.id ? 'locked' : ''}" onclick="toggleAnchor('${g.id}')">
             ${heroAnchor?.garmentId === g.id ? '⚓ Locked as Anchor' : 'Set as Anchor'}
           </button>
@@ -638,7 +711,36 @@
       renderVault();
     }
 
-    // --- 5. 7-DAY BOARD RENDERING ---
+    // --- 5. YNAB-STYLE BOARD RENDERING WITH THUMBNAILS ---
+    function renderAttireRow(slotName, item) {
+      const fallbackIcon = {
+        Top: "👔",
+        Layer: "🧥",
+        Bottom: "👖",
+        Footwear: "👞"
+      }[slotName] || "✨";
+
+      const hasImage = item && (item.image_url || item.image_base64);
+      const imgSrc = item?.image_url || item?.image_base64 || "";
+
+      return `
+        <div class="attire-row">
+          <div class="attire-thumb-container" onclick="${hasImage ? `openLightbox('${imgSrc}')` : ''}">
+            ${hasImage 
+              ? `<img class="attire-thumb" src="${imgSrc}" alt="${item.name}">` 
+              : `<span class="attire-thumb-fallback">${fallbackIcon}</span>`}
+          </div>
+          <div class="attire-info">
+            <div class="attire-meta-top">
+              <span class="attire-slot-pill">${slotName}</span>
+              ${item?.brand ? `<span class="attire-brand">${item.brand}</span>` : ''}
+            </div>
+            <div class="attire-item-name">${item ? item.name : '—'}</div>
+          </div>
+        </div>
+      `;
+    }
+
     function renderBoard() {
       const container = document.getElementById("board-cards-container");
       if (!container) return;
@@ -673,26 +775,14 @@
               </select>
             </div>
 
-            <div class="outfit-slots">
-              <div class="slot-box">
-                <div class="slot-label">Top</div>
-                <div class="slot-value">${topItem ? topItem.name : '—'}</div>
-              </div>
-              <div class="slot-box">
-                <div class="slot-label">Layer</div>
-                <div class="slot-value">${layerItem ? layerItem.name : '—'}</div>
-              </div>
-              <div class="slot-box">
-                <div class="slot-label">Bottom</div>
-                <div class="slot-value">${bottomItem ? bottomItem.name : '—'}</div>
-              </div>
-              <div class="slot-box">
-                <div class="slot-label">Footwear</div>
-                <div class="slot-value">${footItem ? footItem.name : '—'}</div>
-              </div>
+            <div class="attire-rows-list">
+              ${renderAttireRow("Top", topItem)}
+              ${renderAttireRow("Layer", layerItem)}
+              ${renderAttireRow("Bottom", bottomItem)}
+              ${renderAttireRow("Footwear", footItem)}
             </div>
 
-            ${dayPlan?.rationale ? `<div class="day-rationale">${dayPlan.rationale}</div>` : ''}
+            ${dayPlan?.rationale ? `<div class="day-rationale">“${dayPlan.rationale}”</div>` : ''}
           </div>
         `;
       }).join("");
@@ -756,8 +846,9 @@
       }
     }
 
-    // --- 6. VISION INTAKE SUBSYSTEM ---
+    // --- 6. VISION INTAKE & LIGHTBOX ---
     function openAddModal() {
+      currentPhotoBase64 = null;
       document.getElementById("add-modal").style.display = "flex";
     }
 
@@ -765,6 +856,16 @@
       document.getElementById("add-modal").style.display = "none";
       document.getElementById("camera-file-input").value = "";
       document.getElementById("vision-status").style.display = "none";
+    }
+
+    function openLightbox(src) {
+      if (!src) return;
+      document.getElementById("lightbox-img").src = src;
+      document.getElementById("image-lightbox").style.display = "flex";
+    }
+
+    function closeLightbox() {
+      document.getElementById("image-lightbox").style.display = "none";
     }
 
     async function handleImageIntake(event) {
@@ -778,14 +879,14 @@
       const reader = new FileReader();
       reader.onload = async () => {
         try {
-          const base64 = reader.result;
+          currentPhotoBase64 = reader.result;
           const res = await fetch(`${SUPABASE_URL}/functions/v1/tag-garment`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               "apikey": SUPABASE_ANON_KEY
             },
-            body: JSON.stringify({ imageBase64: base64 })
+            body: JSON.stringify({ imageBase64: currentPhotoBase64 })
           });
 
           const tags = await res.json();
@@ -820,10 +921,14 @@
       }
 
       try {
-        const { error } = await supabaseClient.from("garments").insert([{
+        const payload = {
           name, brand, category, sub_category, color, formality
-        }]);
+        };
+        if (currentPhotoBase64) {
+          payload.image_base64 = currentPhotoBase64;
+        }
 
+        const { error } = await supabaseClient.from("garments").insert([payload]);
         if (error) throw error;
         closeAddModal();
         await loadWardrobe();
@@ -832,7 +937,7 @@
       }
     }
 
-    // --- 7. NAVIGATION TABS ---
+    // --- 7. NAVIGATION ---
     function switchTab(tab) {
       document.getElementById("tab-board").style.display = tab === "board" ? "block" : "none";
       document.getElementById("tab-vault").style.display = tab === "vault" ? "block" : "none";
@@ -840,7 +945,7 @@
       document.getElementById("btn-nav-vault").classList.toggle("active", tab === "vault");
     }
 
-    // --- 8. INITIALIZATION ON LOAD ---
+    // --- 8. INITIALIZATION ---
     window.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("location-pill-label").innerText = currentLocation.name;
       await fetchForecast(currentLocation.lat, currentLocation.lon);
