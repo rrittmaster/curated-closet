@@ -309,8 +309,8 @@
       line-height: 1.5;
     }
 
-    /* Vault Grid */
-    .vault-grid {
+    /* Wardrobe Grid with Images */
+    .wardrobe-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
@@ -318,12 +318,37 @@
     .garment-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 10px;
+      border-radius: 12px;
       overflow: hidden;
-      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+    }
+    .garment-img-box {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #121419;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .garment-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .garment-img-fallback {
+      font-size: 32px;
+      opacity: 0.4;
+    }
+    .garment-details {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
     }
     .garment-brand {
       font-size: 11px;
@@ -336,13 +361,14 @@
       font-size: 14px;
       font-weight: 600;
       line-height: 1.3;
+      color: #ffffff;
     }
     .garment-meta {
       font-size: 12px;
       color: var(--text-muted);
     }
     .anchor-btn {
-      margin-top: 6px;
+      margin-top: auto;
       background: #1a1e26;
       border: 1px solid #2a303c;
       color: #cbd5e1;
@@ -457,20 +483,20 @@
     </div>
   </main>
 
-  <!-- TAB 2: CLOSET VAULT -->
-  <main id="tab-vault" style="display:none;">
+  <!-- TAB 2: WARDROBE (Formerly Closet Vault) -->
+  <main id="tab-wardrobe" style="display:none;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
       <div>
-        <h2 style="font-size:18px; font-weight:600;">Wardrobe Vault</h2>
-        <p style="font-size:13px; color:var(--text-muted);" id="vault-count">0 Garments Indexed</p>
+        <h2 style="font-size:18px; font-weight:600;">Wardrobe</h2>
+        <p style="font-size:13px; color:var(--text-muted);" id="wardrobe-count">0 Garments Indexed</p>
       </div>
       <button onclick="openAddModal()" style="background:var(--accent); color:#000; border:none; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;">
         + Add Piece
       </button>
     </div>
 
-    <div id="vault-grid" class="vault-grid">
-      <!-- Catalog items render dynamically -->
+    <div id="wardrobe-grid" class="wardrobe-grid">
+      <!-- Catalog items with images render dynamically -->
     </div>
   </main>
 
@@ -531,7 +557,7 @@
       </div>
 
       <button onclick="saveGarment()" style="width:100%; background:var(--accent); color:#000; border:none; padding:13px; border-radius:8px; font-weight:600; font-size:14px; cursor:pointer; margin-top:8px;">
-        Save to Vault
+        Save to Wardrobe
       </button>
     </div>
   </div>
@@ -547,9 +573,9 @@
       <span style="font-size:18px;">🗓️</span>
       <span>7-Day Board</span>
     </button>
-    <button class="nav-btn" id="btn-nav-vault" onclick="switchTab('vault')">
+    <button class="nav-btn" id="btn-nav-wardrobe" onclick="switchTab('wardrobe')">
       <span style="font-size:18px;">👔</span>
-      <span>Closet Vault</span>
+      <span>Wardrobe</span>
     </button>
   </nav>
 
@@ -584,7 +610,6 @@
       const now = new Date();
       const currentDayOfWeek = now.getDay();
       
-      // Calculate current week's Monday
       const distanceToMonday = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek;
       const mondayDate = new Date(now);
       mondayDate.setDate(now.getDate() + distanceToMonday);
@@ -595,7 +620,6 @@
         
         dates[day] = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
         
-        // Exact YYYY-MM-DD string to match Open-Meteo's API array
         const year = d.getFullYear();
         const month = String(d.getMonth() + 1).padStart(2, '0');
         const dayNum = String(d.getDate()).padStart(2, '0');
@@ -675,7 +699,7 @@
       localStorage.setItem("curated_closet_activities", JSON.stringify(dailyActivities));
     }
 
-    // --- 4. WARDROBE VAULT LOADER ---
+    // --- 4. WARDROBE LOADER & VISUAL GRID ---
     async function loadWardrobe() {
       try {
         let { data, error } = await supabaseClient.from("garments").select("*").order("created_at", { ascending: false });
@@ -689,33 +713,53 @@
         }
 
         wardrobe = data || [];
-        document.getElementById("vault-count").innerText = `${wardrobe.length} Garments Indexed`;
-        renderVault();
+        document.getElementById("wardrobe-count").innerText = `${wardrobe.length} Garments Indexed`;
+        renderWardrobe();
         renderBoard();
       } catch (err) {
         console.error("Failed to load wardrobe:", err);
       }
     }
 
-    function renderVault() {
-      const container = document.getElementById("vault-grid");
+    function renderWardrobe() {
+      const container = document.getElementById("wardrobe-grid");
       if (!container) return;
       if (wardrobe.length === 0) {
-        container.innerHTML = `<p style="grid-column:span 2; font-size:13px; color:var(--text-muted); text-align:center; padding:24px;">Vault empty. Tap + Add Piece to index your attire.</p>`;
+        container.innerHTML = `<p style="grid-column:span 2; font-size:13px; color:var(--text-muted); text-align:center; padding:24px;">Wardrobe empty. Tap + Add Piece to index your attire.</p>`;
         return;
       }
 
-      container.innerHTML = wardrobe.map(g => `
-        <div class="garment-card">
-          <div class="garment-brand">${g.brand || 'Unbranded'}</div>
-          <div class="garment-name">${g.name}</div>
-          <div class="garment-meta">${g.category} · ${g.color || ''}</div>
-          <div class="garment-meta" style="font-size:11px; color:#6b7280;">${g.formality || 'Executive Casual'}</div>
-          <button class="anchor-btn ${heroAnchor?.garmentId === g.id ? 'locked' : ''}" onclick="toggleAnchor('${g.id}')">
-            ${heroAnchor?.garmentId === g.id ? '⚓ Locked as Anchor' : 'Set as Anchor'}
-          </button>
-        </div>
-      `).join("");
+      const fallbackIcon = {
+        Top: "👔",
+        Layer: "🧥",
+        Bottom: "👖",
+        Footwear: "👞"
+      };
+
+      container.innerHTML = wardrobe.map(g => {
+        const hasImg = Boolean(g.image_url || g.image_base64);
+        const imgSrc = g.image_url || g.image_base64 || "";
+        const icon = fallbackIcon[g.category] || "✨";
+
+        return `
+          <div class="garment-card">
+            <div class="garment-img-box" onclick="${hasImg ? `openLightbox('${imgSrc}')` : ''}">
+              ${hasImg 
+                ? `<img class="garment-img" src="${imgSrc}" alt="${g.name}">` 
+                : `<span class="garment-img-fallback">${icon}</span>`}
+            </div>
+            <div class="garment-details">
+              <div class="garment-brand">${g.brand || 'Unbranded'}</div>
+              <div class="garment-name">${g.name}</div>
+              <div class="garment-meta">${g.category} · ${g.color || ''}</div>
+              <div class="garment-meta" style="font-size:11px; color:#6b7280;">${g.formality || 'Executive Casual'}</div>
+              <button class="anchor-btn ${heroAnchor?.garmentId === g.id ? 'locked' : ''}" onclick="toggleAnchor('${g.id}')">
+                ${heroAnchor?.garmentId === g.id ? '⚓ Locked as Anchor' : 'Set as Anchor'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
     }
 
     function toggleAnchor(garmentId) {
@@ -727,7 +771,7 @@
           heroAnchor = { day: targetDay, garmentId: garmentId };
         }
       }
-      renderVault();
+      renderWardrobe();
     }
 
     // --- 5. YNAB-STYLE BOARD RENDERING WITH THUMBNAILS ---
@@ -813,7 +857,7 @@
       noticeBar.style.display = "none";
 
       if (wardrobe.length < 5) {
-        alert("Please add at least 5-10 garments to the Closet Vault before curating.");
+        alert("Please add at least 5-10 garments to your Wardrobe before curating.");
         return;
       }
 
@@ -959,9 +1003,9 @@
     // --- 7. NAVIGATION ---
     function switchTab(tab) {
       document.getElementById("tab-board").style.display = tab === "board" ? "block" : "none";
-      document.getElementById("tab-vault").style.display = tab === "vault" ? "block" : "none";
+      document.getElementById("tab-wardrobe").style.display = tab === "wardrobe" ? "block" : "none";
       document.getElementById("btn-nav-board").classList.toggle("active", tab === "board");
-      document.getElementById("btn-nav-vault").classList.toggle("active", tab === "vault");
+      document.getElementById("btn-nav-wardrobe").classList.toggle("active", tab === "wardrobe");
     }
 
     // --- 8. INITIALIZATION ---
