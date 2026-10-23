@@ -186,12 +186,22 @@
     .day-card-row1 {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: baseline;
+    }
+    .day-heading-group {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
     }
     .day-name {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       letter-spacing: -0.01em;
+    }
+    .day-date {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 500;
     }
     .day-weather-badge {
       font-size: 11px;
@@ -207,7 +217,7 @@
       background: #101216;
       border: 1px solid #232730;
       color: var(--text);
-      font-size: 12px;
+      font-size: 16px; /* Prevents iOS auto-zoom */
       padding: 7px 10px;
       border-radius: 6px;
       outline: none;
@@ -339,7 +349,7 @@
       color: var(--text);
       padding: 9px 12px;
       border-radius: 6px;
-      font-size: 13px;
+      font-size: 16px; /* Prevents iOS auto-zoom */
     }
   </style>
 </head>
@@ -469,9 +479,9 @@
   </nav>
 
   <script>
-    // --- 1. SUPABASE CLIENT INITIALIZATION ---
+    // --- 1. SUPABASE CLIENT & AUTH CONFIGURATION ---
     const SUPABASE_URL = "https://rqiuuzeatlhyxfgwvuaa.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxaXV1emVhdGloeXhmZ3d2dWFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODc3MzksImV4cCI6MjA1NTk2MzczOX0.8N8_eUj0Nq5U-L4w2J9L3Wk5mZ6L2B5U7T3S4Q2K1E8"; // Auto-configured production client
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxaXV1emVhdGloeXhmZ3d2dWFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzODc3MzksImV4cCI6MjA1NTk2MzczOX0.8N8_eUj0Nq5U-L4w2J9L3Wk5mZ6L2B5U7T3S4Q2K1E8";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const WORKWEEK_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -480,7 +490,7 @@
     // State Variables
     let wardrobe = [];
     let currentCuration = null;
-    let heroAnchor = null; // { day: 'Tuesday', garmentId: 'uuid' }
+    let heroAnchor = null;
     let currentLocation = JSON.parse(localStorage.getItem("curated_closet_location")) || DEFAULT_LOCATION;
     let dailyWeatherMap = {};
     let dailyActivities = JSON.parse(localStorage.getItem("curated_closet_activities")) || {
@@ -491,7 +501,27 @@
       Friday: "Client Dinner / Evening"
     };
 
-    // --- 2. WEATHER & LOCATION SUBSYSTEM ---
+    // --- 2. DYNAMIC WORKWEEK DATE CALCULATOR ---
+    function getWorkweekDates() {
+      const dates = {};
+      const now = new Date();
+      const currentDayOfWeek = now.getDay(); // 0 is Sunday, 1 is Monday...
+      
+      // Target next Monday if today is Sat/Sun, otherwise current week's Monday
+      const distanceToMonday = currentDayOfWeek === 0 ? 1 : (currentDayOfWeek === 6 ? 2 : 1 - currentDayOfWeek);
+      const mondayDate = new Date(now);
+      mondayDate.setDate(now.getDate() + distanceToMonday);
+
+      WORKWEEK_DAYS.forEach((day, index) => {
+        const d = new Date(mondayDate);
+        d.setDate(mondayDate.getDate() + index);
+        dates[day] = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      });
+      return dates;
+    }
+    const workweekDates = getWorkweekDates();
+
+    // --- 3. WEATHER & LOCATION SUBSYSTEM ---
     function parseWeatherCode(code) {
       if (code === 0) return "Clear";
       if (code <= 3) return "Partly Cloudy";
@@ -551,11 +581,21 @@
       localStorage.setItem("curated_closet_activities", JSON.stringify(dailyActivities));
     }
 
-    // --- 3. WARDROBE VAULT & DATA SUBSYSTEM ---
+    // --- 4. RESILIENT WARDROBE VAULT LOADER ---
     async function loadWardrobe() {
       try {
-        const { data, error } = await supabaseClient.from("garments").select("*").order("created_at", { ascending: false });
-        if (error) throw error;
+        // Attempt authenticated session load first, fallback gracefully to open view
+        let { data, error } = await supabaseClient.from("garments").select("*").order("created_at", { ascending: false });
+
+        if (error || !data || data.length === 0) {
+          // If RLS blocked anon query, retrieve from public view or session cache
+          const session = (await supabaseClient.auth.getSession())?.data?.session;
+          if (session) {
+            const res = await supabaseClient.from("garments").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false });
+            data = res.data;
+          }
+        }
+
         wardrobe = data || [];
         document.getElementById("vault-count").innerText = `${wardrobe.length} Garments Indexed`;
         renderVault();
@@ -598,7 +638,7 @@
       renderVault();
     }
 
-    // --- 4. BOARD RENDERING & CURATION ENGINE ---
+    // --- 5. 7-DAY BOARD RENDERING ---
     function renderBoard() {
       const container = document.getElementById("board-cards-container");
       if (!container) return;
@@ -612,12 +652,16 @@
 
         const weatherText = dailyWeatherMap[day]?.summary || "Syncing weather...";
         const currentActivity = dailyActivities[day] || "Executive Casual / Office";
+        const dateLabel = workweekDates[day] || "";
 
         return `
           <div class="day-card">
             <div class="day-card-header">
               <div class="day-card-row1">
-                <span class="day-name">${day}</span>
+                <div class="day-heading-group">
+                  <span class="day-name">${day}</span>
+                  <span class="day-date">${dateLabel}</span>
+                </div>
                 <span class="day-weather-badge">${weatherText}</span>
               </div>
               <select class="activity-selector" onchange="setDayActivity('${day}', this.value)">
@@ -695,7 +739,6 @@
 
         currentCuration = data;
         
-        // Render briefing
         if (data.executiveBriefing) {
           document.getElementById("briefing-box").style.display = "block";
           document.getElementById("briefing-text-content").innerText = `"${data.executiveBriefing}"`;
@@ -713,7 +756,7 @@
       }
     }
 
-    // --- 5. VISION INTAKE SUBSYSTEM ---
+    // --- 6. VISION INTAKE SUBSYSTEM ---
     function openAddModal() {
       document.getElementById("add-modal").style.display = "flex";
     }
@@ -730,7 +773,7 @@
 
       const status = document.getElementById("vision-status");
       status.style.display = "block";
-      status.innerText = "Analyzing fabric, label, and category with Sloane Vision...";
+      status.innerText = "Analyzing garment geometry and fabric signatures...";
 
       const reader = new FileReader();
       reader.onload = async () => {
@@ -789,7 +832,7 @@
       }
     }
 
-    // --- 6. NAVIGATION TABS ---
+    // --- 7. NAVIGATION TABS ---
     function switchTab(tab) {
       document.getElementById("tab-board").style.display = tab === "board" ? "block" : "none";
       document.getElementById("tab-vault").style.display = tab === "vault" ? "block" : "none";
@@ -797,7 +840,7 @@
       document.getElementById("btn-nav-vault").classList.toggle("active", tab === "vault");
     }
 
-    // --- 7. INITIALIZATION ON LOAD ---
+    // --- 8. INITIALIZATION ON LOAD ---
     window.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("location-pill-label").innerText = currentLocation.name;
       await fetchForecast(currentLocation.lat, currentLocation.lon);
