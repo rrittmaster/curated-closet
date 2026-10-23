@@ -78,7 +78,7 @@
         <div class="flex items-center gap-2">
           <h1 class="text-lg font-bold text-white tracking-wide">CURATED CLOSET</h1>
           <span class="text-[10px] tracking-widest px-2 py-0.5 rounded-full bg-zinc-800 text-brand-brass uppercase font-semibold border border-zinc-700">
-            Sloane Engine
+            Sloane Intelligence
           </span>
         </div>
         <p id="userEmailDisplay" class="text-xs text-zinc-400 mt-0.5"></p>
@@ -101,17 +101,31 @@
 
     <!-- VIEW 1: 7-DAY BOARD -->
     <section id="viewBoard" class="space-y-4">
-      <div class="flex items-center justify-between bg-zinc-900/60 p-4 rounded-xl border border-zinc-800">
+      
+      <!-- Top Action Bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-900/60 p-4 rounded-xl border border-zinc-800">
         <div>
           <h2 class="text-sm font-semibold text-white">Minnetonka, MN Forecast Sync</h2>
           <p class="text-xs text-zinc-400" id="forecastSummary">54°F High · Clear Autumn Skies</p>
         </div>
-        <button id="curateWeekBtn" class="bg-brand-brass hover:bg-brand-brassLight text-zinc-950 font-semibold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition active:scale-95 shadow">
-          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-          <span>Curate Week with Sloane</span>
+        <button id="curateWeekBtn" class="bg-brand-brass hover:bg-brand-brassLight text-zinc-950 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition active:scale-95 shadow">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span id="curateBtnText">Curate Week with Sloane</span>
         </button>
       </div>
 
+      <!-- Sloane's Executive Briefing Panel -->
+      <div id="sloaneBriefingBox" class="p-4 rounded-xl bg-zinc-900 border border-brand-brass/40 relative overflow-hidden">
+        <div class="flex items-center gap-2 mb-1.5">
+          <i data-lucide="feather" class="w-4 h-4 text-brand-brass"></i>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-brand-brass">Sloane's Sartorial Direction</h3>
+        </div>
+        <p id="sloaneBriefingText" class="text-xs text-zinc-300 leading-relaxed italic">
+          Tap "Curate Week with Sloane" to analyze your 125 vault pieces against this week's 54°F Minnetonka autumn forecast and synthesize cohesive, non-repeating executive daily boards.
+        </p>
+      </div>
+
+      <!-- 5-Day Outfits Grid -->
       <div id="daysGrid" class="grid grid-cols-1 md:grid-cols-5 gap-3">
         <!-- Injected via JavaScript -->
       </div>
@@ -133,10 +147,27 @@
 
   </div>
 
-  <!-- NATIVE CAMERA FILE INPUT (Direct iOS Viewfinder Trigger) -->
+  <!-- HERO ANCHOR DAY PICKER MODAL -->
+  <div id="dayPickerModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 max-w-sm w-full space-y-4 text-center shadow-2xl">
+      <h3 class="text-sm font-bold text-white uppercase tracking-wider">Select Day for Hero Anchor</h3>
+      <p id="pickerGarmentTitle" class="text-xs text-brand-brass font-medium"></p>
+      <p class="text-[11px] text-zinc-400">Lock this piece into a specific day. Sloane will style around it and remove it from other days to guarantee zero repeats.</p>
+      
+      <div class="grid grid-cols-1 gap-2 pt-1" id="dayPickerOptions">
+        <!-- Injected buttons -->
+      </div>
+
+      <button id="cancelDayPickerBtn" class="w-full py-2 text-xs text-zinc-400 hover:text-white border border-zinc-800 rounded-xl">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- NATIVE CAMERA FILE INPUT -->
   <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
 
-  <!-- INTAKE & REVIEW DRAWER (Elena Tactile Architecture) -->
+  <!-- INTAKE & REVIEW DRAWER -->
   <div id="intakeDrawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center">
     <div class="bg-zinc-900 border border-zinc-800 w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 max-h-[92vh] overflow-y-auto space-y-4 shadow-2xl">
       
@@ -150,7 +181,6 @@
         </button>
       </div>
 
-      <!-- Preview & Vision Status -->
       <div class="relative aspect-video rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800 flex items-center justify-center">
         <img id="intakePreview" class="w-full h-full object-cover hidden" alt="Garment Preview">
         <div id="intakeLoadingState" class="flex flex-col items-center gap-2 text-center p-4">
@@ -160,7 +190,6 @@
         </div>
       </div>
 
-      <!-- Editable Extracted Fields -->
       <div id="intakeFields" class="space-y-3 hidden">
         <div class="grid grid-cols-2 gap-2">
           <div>
@@ -222,9 +251,10 @@
 
       let currentUser = null;
       let garments = [];
-      let activeAnchorGarmentId = null;
+      let activeAnchor = null; // { id: string, day: string }
       let pendingIntakeBlob = null;
       let weeklyPlan = {};
+      let pendingAnchorGarmentId = null;
 
       const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
@@ -261,7 +291,7 @@
         document.getElementById('userEmailDisplay').textContent = user.email;
 
         await fetchUserData();
-        curateBoard(); // Initial baseline curation
+        initDefaultPlan();
         renderVault();
         renderDaysBoard();
         if (window.lucide) window.lucide.createIcons();
@@ -280,51 +310,150 @@
         document.getElementById('vaultCount').textContent = garments.length;
       }
 
-      // 3. HERO ANCHOR ENGINE
-      window.setHeroAnchor = function(garmentId) {
-        activeAnchorGarmentId = (activeAnchorGarmentId === garmentId) ? null : garmentId;
-        
-        // Re-align Tuesday (today) around the anchor if set
-        if (activeAnchorGarmentId) {
-          curateBoard(1);
+      // 3. DAY-SPECIFIC HERO ANCHOR TRIGGER
+      window.promptHeroAnchor = function(garmentId) {
+        if (activeAnchor && activeAnchor.id === garmentId) {
+          activeAnchor = null;
+          renderVault();
+          renderDaysBoard();
+          return;
         }
-        renderDaysBoard();
-        renderVault();
+
+        const item = garments.find(g => g.id === garmentId);
+        if (!item) return;
+
+        pendingAnchorGarmentId = garmentId;
+        document.getElementById('pickerGarmentTitle').textContent = `"${item.name}" (${item.category})`;
+
+        const optContainer = document.getElementById('dayPickerOptions');
+        optContainer.innerHTML = '';
+
+        DAYS.forEach(day => {
+          const btn = document.createElement('button');
+          btn.className = 'w-full py-2 bg-zinc-950 border border-zinc-800 hover:border-brand-brass text-white rounded-xl text-xs font-semibold flex items-center justify-between px-4 transition';
+          btn.innerHTML = `<span>${day}</span><span class="text-[10px] text-zinc-500">Lock for this day</span>`;
+          btn.onclick = () => {
+            activeAnchor = { id: pendingAnchorGarmentId, day: day };
+            document.getElementById('dayPickerModal').classList.add('hidden');
+            renderVault();
+            // Automatically curate the week incorporating this anchor
+            invokeSloaneCuration();
+          };
+          optContainer.appendChild(btn);
+        });
+
+        document.getElementById('dayPickerModal').classList.remove('hidden');
       };
 
-      // 4. SLOANE ALGORITHMIC CURATION ENGINE
-      function curateBoard(dayIndex = null) {
-        if (!garments || garments.length === 0) return;
+      document.getElementById('cancelDayPickerBtn').addEventListener('click', () => {
+        document.getElementById('dayPickerModal').classList.add('hidden');
+        pendingAnchorGarmentId = null;
+      });
 
-        const tops = garments.filter(g => g.category === 'Top');
-        const layers = garments.filter(g => g.category === 'Layer');
-        const bottoms = garments.filter(g => g.category === 'Bottom');
-        const footwear = garments.filter(g => g.category === 'Footwear');
+      // 4. SLOANE SERVERLESS AI CURATION ENGINE
+      async function invokeSloaneCuration() {
+        if (!garments || garments.length === 0) {
+          alert("Please add garments to your vault first.");
+          return;
+        }
 
-        const getRandom = (arr) => arr.length > 0 ? arr[Math.floor(Math.random() * arr.length)] : null;
+        const btn = document.getElementById('curateWeekBtn');
+        const btnText = document.getElementById('curateBtnText');
+        btn.disabled = true;
+        btnText.textContent = "Sloane is Curating...";
 
-        const targetDays = dayIndex !== null ? [DAYS[dayIndex]] : DAYS;
+        try {
+          const { data: aiPlan, error } = await sb.functions.invoke('curate-week', {
+            body: {
+              garments: garments,
+              heroAnchor: activeAnchor,
+              weatherForecast: "54°F High · Clear Autumn Skies, Minnetonka, MN"
+            }
+          });
 
-        targetDays.forEach(day => {
-          const isToday = (day === 'Tuesday');
-          const anchor = (isToday && activeAnchorGarmentId) 
-            ? garments.find(g => g.id === activeAnchorGarmentId) 
-            : null;
+          if (error) {
+            let detail = error.message;
+            try {
+              if (error.context && typeof error.context.json === 'function') {
+                const errBody = await error.context.json();
+                if (errBody && errBody.error) detail = errBody.error;
+              }
+            } catch (_) {}
+            throw new Error(detail);
+          }
+
+          if (aiPlan.executiveBriefing) {
+            document.getElementById('sloaneBriefingText').textContent = `"${aiPlan.executiveBriefing}"`;
+          }
+
+          // Map LLM IDs to full garment objects
+          if (aiPlan.days) {
+            DAYS.forEach(day => {
+              const d = aiPlan.days[day];
+              if (d) {
+                weeklyPlan[day] = {
+                  top: garments.find(g => g.id === d.top_id) || null,
+                  layer: garments.find(g => g.id === d.layer_id) || null,
+                  bottom: garments.find(g => g.id === d.bottom_id) || null,
+                  footwear: garments.find(g => g.id === d.footwear_id) || null,
+                  rationale: d.rationale || ""
+                };
+              }
+            });
+          }
+
+          renderDaysBoard();
+
+        } catch (err) {
+          console.error("Sloane curation error:", err);
+          alert("Sloane engine notice: " + err.message + "\nFalling back to deterministic styling matrix.");
+          runAlgorithmicFallback();
+        } finally {
+          btn.disabled = false;
+          btnText.textContent = "Curate Week with Sloane";
+        }
+      }
+
+      // Algorithmic fallback with strict single-day anchor and no repeats
+      function runAlgorithmicFallback() {
+        const usedIds = new Set();
+        if (activeAnchor) usedIds.add(activeAnchor.id);
+
+        DAYS.forEach(day => {
+          const isAnchorDay = activeAnchor && activeAnchor.day === day;
+          const anchorItem = isAnchorDay ? garments.find(g => g.id === activeAnchor.id) : null;
+
+          const pickPiece = (cat) => {
+            if (anchorItem && anchorItem.category === cat) return anchorItem;
+            const available = garments.filter(g => g.category === cat && !usedIds.has(g.id));
+            const pick = available[Math.floor(Math.random() * available.length)] || garments.find(g => g.category === cat);
+            if (pick) usedIds.add(pick.id);
+            return pick;
+          };
 
           weeklyPlan[day] = {
-            top: (anchor && anchor.category === 'Top') ? anchor : getRandom(tops),
-            layer: (anchor && anchor.category === 'Layer') ? anchor : getRandom(layers),
-            bottom: (anchor && anchor.category === 'Bottom') ? anchor : getRandom(bottoms),
-            footwear: (anchor && anchor.category === 'Footwear') ? anchor : getRandom(footwear)
+            top: pickPiece('Top'),
+            layer: pickPiece('Layer'),
+            bottom: pickPiece('Bottom'),
+            footwear: pickPiece('Footwear'),
+            rationale: isAnchorDay ? `Styled around the ${anchorItem.name} hero anchor.` : "Harmonized neutral executive palette."
           };
         });
 
         renderDaysBoard();
       }
 
-      window.recurateDay = function(dayIndex) {
-        curateBoard(dayIndex);
-      };
+      function initDefaultPlan() {
+        DAYS.forEach(day => {
+          weeklyPlan[day] = {
+            top: garments.find(g => g.category === 'Top') || null,
+            layer: garments.find(g => g.category === 'Layer') || null,
+            bottom: garments.find(g => g.category === 'Bottom') || null,
+            footwear: garments.find(g => g.category === 'Footwear') || null,
+            rationale: "Initial layout. Tap Curate Week to activate Sloane."
+          };
+        });
+      }
 
       // 5. RENDER 7-DAY BOARD
       function renderDaysBoard() {
@@ -332,79 +461,55 @@
         grid.innerHTML = '';
 
         DAYS.forEach((day, index) => {
-          const isToday = index === 1;
+          const isToday = index === 3; // Thursday
+          const isAnchorDay = activeAnchor && activeAnchor.day === day;
+          const plan = weeklyPlan[day] || {};
+
+          const renderItemRow = (category, item) => {
+            const isAnchoredThisItem = isAnchorDay && activeAnchor.id === item?.id;
+            return `
+              <div class="relative rounded-lg p-2 bg-zinc-950 border ${isAnchoredThisItem ? 'hero-anchor-active border-brand-brass' : 'border-zinc-800'}">
+                <div class="flex items-center justify-between text-[10px] text-zinc-400 mb-0.5">
+                  <span>${category}</span>
+                  ${isAnchoredThisItem ? `
+                    <span class="bg-brand-brass text-zinc-950 font-bold px-1.5 rounded text-[8px] tracking-wider">
+                      ◈ HERO ANCHOR
+                    </span>` : ''}
+                </div>
+                <p class="text-xs font-medium text-white truncate">${item ? item.name : `Select ${category}`}</p>
+                ${item && item.brand ? `<span class="text-[9px] text-zinc-500 block truncate">${item.brand}</span>` : ''}
+              </div>
+            `;
+          };
+
           const col = document.createElement('div');
           col.className = 'bg-zinc-900 border border-zinc-800 rounded-xl p-3 flex flex-col justify-between';
 
-          const plan = weeklyPlan[day] || {};
-          const topItem = plan.top;
-          const layerItem = plan.layer;
-          const bottomItem = plan.bottom;
-          const footwearItem = plan.footwear;
-
           col.innerHTML = `
-            <div class="flex items-center justify-between pb-2 border-b border-zinc-800/80 mb-2">
-              <div>
-                <span class="text-xs font-bold ${isToday ? 'text-brand-brass' : 'text-zinc-200'}">${day}</span>
-                ${isToday ? '<span class="ml-1 text-[9px] bg-brand-brass/20 text-brand-brass px-1 rounded">TODAY</span>' : ''}
-              </div>
-              <span class="text-[10px] text-zinc-400">54°F High</span>
-            </div>
-
-            <div class="space-y-2 py-1">
-              <div class="relative rounded-lg p-2 bg-zinc-950 border border-zinc-800 ${isToday && activeAnchorGarmentId && topItem && topItem.id === activeAnchorGarmentId ? 'hero-anchor-active' : ''}">
-                <div class="flex items-center justify-between text-[10px] text-zinc-400 mb-0.5">
-                  <span>Top</span>
-                  ${isToday && activeAnchorGarmentId && topItem && topItem.id === activeAnchorGarmentId ? `
-                    <span class="bg-brand-brass text-zinc-950 font-bold px-1.5 rounded text-[8px] tracking-wider">
-                      ◈ HERO ANCHOR
-                    </span>` : ''}
+            <div>
+              <div class="flex items-center justify-between pb-2 border-b border-zinc-800/80 mb-2">
+                <div>
+                  <span class="text-xs font-bold ${isToday ? 'text-brand-brass' : 'text-zinc-200'}">${day}</span>
+                  ${isToday ? '<span class="ml-1 text-[9px] bg-brand-brass/20 text-brand-brass px-1 rounded">TODAY</span>' : ''}
                 </div>
-                <p class="text-xs font-medium text-white truncate">${topItem ? topItem.name : 'Select Top'}</p>
-                ${topItem && topItem.brand ? `<span class="text-[9px] text-zinc-500 block truncate">${topItem.brand}</span>` : ''}
+                <span class="text-[10px] text-zinc-400">54°F High</span>
               </div>
 
-              <div class="relative rounded-lg p-2 bg-zinc-950 border border-zinc-800 ${isToday && activeAnchorGarmentId && layerItem && layerItem.id === activeAnchorGarmentId ? 'hero-anchor-active' : ''}">
-                <div class="flex items-center justify-between text-[10px] text-zinc-400 mb-0.5">
-                  <span>Layer</span>
-                  ${isToday && activeAnchorGarmentId && layerItem && layerItem.id === activeAnchorGarmentId ? `
-                    <span class="bg-brand-brass text-zinc-950 font-bold px-1.5 rounded text-[8px] tracking-wider">
-                      ◈ HERO ANCHOR
-                    </span>` : ''}
-                </div>
-                <p class="text-xs font-medium text-white truncate">${layerItem ? layerItem.name : 'Select Layer'}</p>
-                ${layerItem && layerItem.brand ? `<span class="text-[9px] text-zinc-500 block truncate">${layerItem.brand}</span>` : ''}
-              </div>
-
-              <div class="relative rounded-lg p-2 bg-zinc-950 border border-zinc-800 ${isToday && activeAnchorGarmentId && bottomItem && bottomItem.id === activeAnchorGarmentId ? 'hero-anchor-active' : ''}">
-                <div class="flex items-center justify-between text-[10px] text-zinc-400 mb-0.5">
-                  <span>Bottom</span>
-                  ${isToday && activeAnchorGarmentId && bottomItem && bottomItem.id === activeAnchorGarmentId ? `
-                    <span class="bg-brand-brass text-zinc-950 font-bold px-1.5 rounded text-[8px] tracking-wider">
-                      ◈ HERO ANCHOR
-                    </span>` : ''}
-                </div>
-                <p class="text-xs font-medium text-white truncate">${bottomItem ? bottomItem.name : 'Select Bottom'}</p>
-                ${bottomItem && bottomItem.brand ? `<span class="text-[9px] text-zinc-500 block truncate">${bottomItem.brand}</span>` : ''}
-              </div>
-
-              <div class="relative rounded-lg p-2 bg-zinc-950 border border-zinc-800 ${isToday && activeAnchorGarmentId && footwearItem && footwearItem.id === activeAnchorGarmentId ? 'hero-anchor-active' : ''}">
-                <div class="flex items-center justify-between text-[10px] text-zinc-400 mb-0.5">
-                  <span>Footwear</span>
-                  ${isToday && activeAnchorGarmentId && footwearItem && footwearItem.id === activeAnchorGarmentId ? `
-                    <span class="bg-brand-brass text-zinc-950 font-bold px-1.5 rounded text-[8px] tracking-wider">
-                      ◈ HERO ANCHOR
-                    </span>` : ''}
-                </div>
-                <p class="text-xs font-medium text-white truncate">${footwearItem ? footwearItem.name : 'Select Footwear'}</p>
-                ${footwearItem && footwearItem.brand ? `<span class="text-[9px] text-zinc-500 block truncate">${footwearItem.brand}</span>` : ''}
+              <div class="space-y-2 py-1">
+                ${renderItemRow('Top', plan.top)}
+                ${renderItemRow('Layer', plan.layer)}
+                ${renderItemRow('Bottom', plan.bottom)}
+                ${renderItemRow('Footwear', plan.footwear)}
               </div>
             </div>
 
-            <div class="pt-2 mt-2 border-t border-zinc-800/80">
-              <button onclick="recurateDay(${index})" class="w-full py-1 text-[11px] font-medium text-zinc-400 hover:text-brand-brass flex items-center justify-center gap-1 transition active:scale-95">
+            <div class="pt-2 mt-3 border-t border-zinc-800/80">
+              <p class="text-[10px] text-zinc-400 italic mb-2 line-clamp-2">
+                ${plan.rationale || "Autumn Minnetonka sync."}
+              </p>
+              <button onclick="recurateSingleDay('${day}')" class="w-full py-1 text-[11px] font-medium text-zinc-400 hover:text-brand-brass flex items-center justify-center gap-1 transition active:scale-95">
                 <i data-lucide="rotate-cw" class="w-3 h-3"></i>
-                <span>${isToday && activeAnchorGarmentId ? 'Style Around Anchor' : 'Re-Curate'}</span>
+                <span>${isAnchorDay ? 'Re-Style Day Around Anchor' : 'Re-Curate Day'}</span>
               </button>
             </div>
           `;
@@ -413,7 +518,38 @@
         if (window.lucide) window.lucide.createIcons();
       }
 
-      // 6. RENDER CLOSET VAULT (Lazy Loading Enabled)
+      window.recurateSingleDay = function(day) {
+        const isAnchorDay = activeAnchor && activeAnchor.day === day;
+        const anchorItem = isAnchorDay ? garments.find(g => g.id === activeAnchor.id) : null;
+
+        // Gather all pieces used in other days to strictly avoid duplicates
+        const usedOtherDays = new Set();
+        DAYS.forEach(d => {
+          if (d !== day && weeklyPlan[d]) {
+            ['top', 'layer', 'bottom', 'footwear'].forEach(cat => {
+              if (weeklyPlan[d][cat]) usedOtherDays.add(weeklyPlan[d][cat].id);
+            });
+          }
+        });
+
+        const pickAlternative = (cat) => {
+          if (anchorItem && anchorItem.category === cat) return anchorItem;
+          const candidates = garments.filter(g => g.category === cat && !usedOtherDays.has(g.id));
+          return candidates[Math.floor(Math.random() * candidates.length)] || garments.find(g => g.category === cat);
+        };
+
+        weeklyPlan[day] = {
+          top: pickAlternative('Top'),
+          layer: pickAlternative('Layer'),
+          bottom: pickAlternative('Bottom'),
+          footwear: pickAlternative('Footwear'),
+          rationale: isAnchorDay ? `Alternative harmony around the ${anchorItem.name} anchor.` : "Refreshed alternative executive pairing."
+        };
+
+        renderDaysBoard();
+      };
+
+      // 6. RENDER CLOSET VAULT
       function renderVault() {
         const grid = document.getElementById('vaultGrid');
         grid.innerHTML = '';
@@ -428,7 +564,7 @@
         }
 
         garments.forEach(item => {
-          const isAnchor = item.id === activeAnchorGarmentId;
+          const isAnchor = activeAnchor && activeAnchor.id === item.id;
           const card = document.createElement('div');
           card.className = `relative bg-zinc-900 border rounded-xl overflow-hidden p-2 flex flex-col justify-between transition ${isAnchor ? 'hero-anchor-active border-brand-brass' : 'border-zinc-800'}`;
 
@@ -444,19 +580,19 @@
                 `<i data-lucide="shirt" class="w-8 h-8 text-zinc-600"></i>`}
               ${isAnchor ? `
                 <div class="absolute top-1.5 right-1.5 bg-brand-brass text-zinc-950 text-[8px] font-bold px-1.5 py-0.5 rounded shadow">
-                  ◈ HERO
+                  ◈ ${activeAnchor.day.toUpperCase()} ANCHOR
                 </div>` : ''}
             </div>
             <div>
               <div class="flex items-center justify-between">
                 <span class="text-[10px] text-brand-brass uppercase font-semibold">${item.category}</span>
-                ${item.brand ? `<span class="text-[9px] text-zinc-400 font-medium">${item.brand}</span>` : ''}
+                ${item.brand ? `<span class="text-[9px] text-zinc-400 font-medium truncate ml-1">${item.brand}</span>` : ''}
               </div>
               <p class="text-xs font-medium text-white truncate" title="${item.name}">${item.name}</p>
             </div>
-            <button onclick="setHeroAnchor('${item.id}')" 
+            <button onclick="promptHeroAnchor('${item.id}')" 
                     class="mt-2 w-full py-1 text-[10px] font-semibold rounded-lg border transition ${isAnchor ? 'bg-brand-brass text-zinc-950 border-brand-brass' : 'bg-zinc-800 text-zinc-300 border-zinc-700 hover:border-zinc-500'}">
-              ${isAnchor ? 'Anchor Active' : 'Set as Hero Anchor'}
+              ${isAnchor ? `Anchor Active (${activeAnchor.day})` : 'Set as Hero Anchor'}
             </button>
           `;
           grid.appendChild(card);
@@ -464,7 +600,7 @@
         if (window.lucide) window.lucide.createIcons();
       }
 
-      // 7. CLIENT-SIDE COMPRESSOR (HTML5 Canvas downsampler)
+      // 7. CLIENT-SIDE COMPRESSOR
       function compressImage(file, maxDimension = 1000, quality = 0.82) {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -505,7 +641,7 @@
         });
       }
 
-      // 8. FEAT-08: CAMERA INTAKE PIPELINE
+      // 8. CAMERA INTAKE PIPELINE
       const addPieceBtn = document.getElementById('addPieceBtn');
       const cameraInput = document.getElementById('cameraInput');
       const intakeDrawer = document.getElementById('intakeDrawer');
@@ -524,7 +660,6 @@
         const file = e.target.files[0];
         if (!file) return;
 
-        // Open Drawer in Loading State
         intakeDrawer.classList.remove('hidden');
         intakePreview.classList.add('hidden');
         intakeLoadingState.classList.remove('hidden');
@@ -532,15 +667,12 @@
         if (window.lucide) window.lucide.createIcons();
 
         try {
-          // A. Local downsampling
           const { blob, base64Data } = await compressImage(file, 1000, 0.82);
           pendingIntakeBlob = blob;
 
-          // Render Preview
           intakePreview.src = base64Data;
           intakePreview.classList.remove('hidden');
 
-          // B. Dispatch to tag-garment Edge Function with detailed error catch
           const { data: tags, error } = await sb.functions.invoke('tag-garment', {
             body: { imageBase64: base64Data }
           });
@@ -556,7 +688,6 @@
             throw new Error(detail);
           }
 
-          // C. Pre-populate Review Drawer
           document.getElementById('intakeBrand').value = tags.brand || '';
           document.getElementById('intakeName').value = tags.name || file.name.replace(/\.[^/.]+$/, "");
           document.getElementById('intakeCategory').value = tags.category || 'Top';
@@ -570,7 +701,7 @@
 
         } catch (err) {
           console.error("Vision Tagging error:", err);
-          alert("Auto-tagging notification: " + err.message + "\nYou can verify or enter the details manually.");
+          alert("Auto-tagging notice: " + err.message + "\nYou can verify or enter the details manually.");
           intakeLoadingState.classList.add('hidden');
           intakeFields.classList.remove('hidden');
         }
@@ -591,19 +722,16 @@
         try {
           const fileName = `${currentUser.id}/${Date.now()}_garment.jpg`;
 
-          // A. Upload compressed photo to Supabase Storage
           const { error: uploadError } = await sb.storage
             .from('closet-images')
             .upload(fileName, pendingIntakeBlob, { contentType: 'image/jpeg' });
 
           if (uploadError) throw uploadError;
 
-          // B. Get Public CDN URL
           const { data: { publicUrl } } = sb.storage
             .from('closet-images')
             .getPublicUrl(fileName);
 
-          // C. Build Record
           const brandVal = document.getElementById('intakeBrand').value.trim();
           const record = {
             user_id: currentUser.id,
@@ -618,7 +746,6 @@
             wear_count: 0
           };
 
-          // D. Defensive DB Insert
           let { error: dbError } = await sb.from('garments').insert([record]);
           if (dbError && dbError.message.includes('brand')) {
             delete record.brand;
@@ -629,7 +756,6 @@
 
           if (dbError) throw dbError;
 
-          // Close Drawer and Refresh Vault
           intakeDrawer.classList.add('hidden');
           pendingIntakeBlob = null;
           await fetchUserData();
@@ -645,12 +771,7 @@
       });
 
       // 10. EVENT LISTENERS
-      document.getElementById('curateWeekBtn').addEventListener('click', () => {
-        const btn = document.getElementById('curateWeekBtn');
-        btn.classList.add('opacity-75');
-        curateBoard();
-        setTimeout(() => btn.classList.remove('opacity-75'), 200);
-      });
+      document.getElementById('curateWeekBtn').addEventListener('click', invokeSloaneCuration);
 
       document.getElementById('authForm').addEventListener('submit', async (e) => {
         e.preventDefault();
