@@ -1,0 +1,22 @@
+
+[functions.tag-garment]
+enabled = true
+verify_jwt = false
+import_map = "./functions/tag-garment/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/tag-garment/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/tag-garment/*.html" ]
+
+[functions.curate-week]
+enabled = true
+verify_jwt = false
+import_map = "./functions/curate-week/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/curate-week/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/curate-week/*.html" ]
