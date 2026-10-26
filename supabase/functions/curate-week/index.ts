@@ -50,24 +50,61 @@ function repairJsonStrings(json: string): string {
   return out;
 }
 
-function extractJson(rawText: string): any {
-  const unfenced = rawText.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
-  const firstBrace = unfenced.indexOf("{");
-  const lastBrace = unfenced.lastIndexOf("}");
-  if (firstBrace === -1 || lastBrace === -1) {
-    throw new Error("No JSON found in model output");
-  }
-  const candidate = unfenced.substring(firstBrace, lastBrace + 1);
-
-  try {
-    return JSON.parse(candidate);
-  } catch (firstErr) {
-    try {
-      return JSON.parse(repairJsonStrings(candidate));
-    } catch (_) {
-      throw new Error(`Curation JSON could not be parsed: ${(firstErr as Error).message}`);
+// Returns the first complete JSON object in text (from its first "{" to the "}"
+// that balances it), ignoring braces inside string values. Anything after it is dropped
+function sliceBalancedObject(text: string): string | null {
+  const start = text.indexOf("{");
+  if (start === -1) return null;
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === '"') inString = false;
+    } else if (ch === '"') {
+      inString = true;
+    } else if (ch === "{") {
+      depth++;
+    } else if (ch === "}") {
+      depth--;
+      if (depth === 0) return text.substring(start, i + 1);
     }
   }
+  return null;
+}
+
+function extractJson(rawText: string): any {
+  const unfenced = rawText.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+  if (unfenced.indexOf("{") === -1) {
+    throw new Error("No JSON found in model output");
+  }
+
+  let firstErr: Error | null = null;
+  const candidate = sliceBalancedObject(unfenced);
+  if (candidate) {
+    try {
+      return JSON.parse(candidate);
+    } catch (err) {
+      firstErr = err as Error;
+    }
+  }
+
+  // Stray quotes can throw off the brace scan, so repair first, then re-slice
+  const repaired = sliceBalancedObject(repairJsonStrings(unfenced.substring(unfenced.indexOf("{"))));
+  if (repaired) {
+    try {
+      return JSON.parse(repaired);
+    } catch (_) {
+      // fall through to the error below
+    }
+  }
+
+  throw new Error(firstErr
+    ? `Curation JSON could not be parsed: ${firstErr.message}`
+    : "Model output contained no complete JSON object");
 }
 
 serve(async (req) => {
@@ -132,7 +169,8 @@ serve(async (req) => {
  * "Travel / Transit": Versatile stretch, comfortable layering.
 5. EXECUTIVE HARMONY: Anchor outfits in elevated neutrals (navy, charcoal, tobacco, olive, grey) with at most one textured statement piece per outfit.`;
 
-    const jsonRules = `- Never wrap the JSON in markdown code fences (no \`\`\`json or \`\`\`). The first character must be { and the last must be }.
+    const jsonRules = `- Output MUST be a single raw JSON object. Do not append any commentary, explanations, or notes outside the JSON structure, and never output a second JSON object or a revised version.
+- Never wrap the JSON in markdown code fences (no \`\`\`json or \`\`\`). The first character must be { and the last must be }.
 - Never use unescaped double quotes inside string values (executiveBriefing, rationale). To quote a phrase or garment name, use single quotes ('quiet luxury'); for inch measurements write "in" instead of the " symbol.
 - Keep each string value on a single line with no line breaks.
 - Garment slots contain only the garment id. Do not add names, descriptions, or per-slot commentary.`;
