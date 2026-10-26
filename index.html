@@ -987,6 +987,7 @@
       try {
         const data = await requestCuration({ target_day: day, locked_outfits: lockedOutfits });
         if (dayRequestSeq[day] !== seq || curationVersion !== versionAtStart) return;
+        if (!data.day) throw new Error("No outfit returned for this day. Is the latest curate-week deployed?");
         currentCuration.days[day] = data.day;
       } catch (err) {
         if (dayRequestSeq[day] !== seq) return;
