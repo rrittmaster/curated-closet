@@ -610,7 +610,17 @@
       const now = new Date();
       const currentDayOfWeek = now.getDay();
       
-      const distanceToMonday = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek;
+      // Friday after 17:00, Saturday, and Sunday plan the upcoming workweek
+      let distanceToMonday;
+      if (currentDayOfWeek === 0) {
+        distanceToMonday = 1;
+      } else if (currentDayOfWeek === 6) {
+        distanceToMonday = 2;
+      } else if (currentDayOfWeek === 5 && now.getHours() >= 17) {
+        distanceToMonday = 3;
+      } else {
+        distanceToMonday = 1 - currentDayOfWeek;
+      }
       const mondayDate = new Date(now);
       mondayDate.setDate(now.getDate() + distanceToMonday);
 
@@ -641,7 +651,7 @@
 
     async function fetchForecast(lat, lon) {
       try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=auto`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=auto&forecast_days=8`;
         const res = await fetch(url);
         const data = await res.json();
         
