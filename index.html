@@ -213,6 +213,38 @@
       border: 1px solid #232730;
       white-space: nowrap;
     }
+    .day-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .day-recurate-btn {
+      background: var(--pill-bg);
+      border: 1px solid #232730;
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .day-recurate-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .day-card.is-recurating .day-recurate-btn {
+      animation: recurate-spin 0.9s linear infinite;
+      opacity: 1;
+    }
+    .day-card.is-recurating .attire-rows-list,
+    .day-card.is-recurating .day-rationale {
+      opacity: 0.45;
+      transition: opacity 0.2s;
+    }
+    @keyframes recurate-spin {
+      to { transform: rotate(360deg); }
+    }
     .activity-selector {
       width: 100%;
       background: #101216;
@@ -707,6 +739,7 @@
     function setDayActivity(day, activity) {
       dailyActivities[day] = activity;
       localStorage.setItem("curated_closet_activities", JSON.stringify(dailyActivities));
+      if (currentCuration?.days) recurateDay(day);
     }
 
     // --- 4. WARDROBE LOADER & VISUAL GRID ---
@@ -818,7 +851,16 @@
       const container = document.getElementById("board-cards-container");
       if (!container) return;
 
-      container.innerHTML = WORKWEEK_DAYS.map(day => {
+      container.innerHTML = WORKWEEK_DAYS.map(renderDayCard).join("");
+    }
+
+    // Swaps in a fresh card for one day, leaving the other cards untouched
+    function replaceDayCard(day) {
+      const card = document.getElementById(`day-card-${day}`);
+      if (card) card.outerHTML = renderDayCard(day);
+    }
+
+    function renderDayCard(day) {
         const dayPlan = currentCuration?.days?.[day];
         const topItem = wardrobe.find(g => g.id === dayPlan?.top_id);
         const layerItem = wardrobe.find(g => g.id === dayPlan?.layer_id);
@@ -828,16 +870,21 @@
         const weatherText = dailyWeatherMap[day]?.summary || "Syncing weather...";
         const currentActivity = dailyActivities[day] || "Executive Casual / Office";
         const dateLabel = workweekDates[day] || "";
+        const isRecurating = recuratingDays.has(day);
+        const canRecurate = Boolean(currentCuration?.days) && !isRecurating;
 
         return `
-          <div class="day-card">
+          <div class="day-card${isRecurating ? ' is-recurating' : ''}" id="day-card-${day}">
             <div class="day-card-header">
               <div class="day-card-row1">
                 <div class="day-heading-group">
                   <span class="day-name">${day}</span>
                   <span class="day-date">${dateLabel}</span>
                 </div>
-                <span class="day-weather-badge">${weatherText}</span>
+                <div class="day-card-actions">
+                  <span class="day-weather-badge">${weatherText}</span>
+                  <button class="day-recurate-btn" onclick="recurateDay('${day}')" title="Re-curate ${day}" ${canRecurate ? '' : 'disabled'}>↻</button>
+                </div>
               </div>
               <select class="activity-selector" onchange="setDayActivity('${day}', this.value)">
                 <option value="Executive Casual / Office" ${currentActivity === 'Executive Casual / Office' ? 'selected' : ''}>Executive Casual / Office</option>
@@ -858,7 +905,6 @@
             ${dayPlan?.rationale ? `<div class="day-rationale">“${dayPlan.rationale}”</div>` : ''}
           </div>
         `;
-      }).join("");
     }
 
     // Parses the curate-week response defensively: strips markdown fences and
@@ -877,6 +923,84 @@
       }
     }
 
+    async function requestCuration(extraBody) {
+      const dailySchedules = {};
+      WORKWEEK_DAYS.forEach(day => {
+        dailySchedules[day] = {
+          weather: dailyWeatherMap[day]?.summary || "54°F · Clear",
+          activity: dailyActivities[day] || "Executive Casual / Office"
+        };
+      });
+
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/curate-week`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify({
+          locationName: currentLocation.name,
+          garments: wardrobe,
+          heroAnchor: heroAnchor,
+          dailySchedules: dailySchedules,
+          ...extraBody
+        })
+      });
+
+      const data = parseCurationResponse(await res.text(), res.status);
+      if (data.error) throw new Error(data.error);
+      return data;
+    }
+
+    // Re-curates a single day against the other four locked days. Results are
+    // dropped if a newer request for that day, or a full-week curation, landed first
+    let curationVersion = 0;
+    const recuratingDays = new Set();
+    const dayRequestSeq = {};
+
+    async function recurateDay(day) {
+      if (!currentCuration?.days) return;
+
+      const noticeBar = document.getElementById("engine-notice-bar");
+      noticeBar.style.display = "none";
+
+      const seq = (dayRequestSeq[day] || 0) + 1;
+      dayRequestSeq[day] = seq;
+      const versionAtStart = curationVersion;
+
+      const lockedOutfits = {};
+      WORKWEEK_DAYS.filter(d => d !== day).forEach(d => {
+        const plan = currentCuration.days[d];
+        if (plan) {
+          lockedOutfits[d] = {
+            top_id: plan.top_id,
+            layer_id: plan.layer_id,
+            bottom_id: plan.bottom_id,
+            footwear_id: plan.footwear_id
+          };
+        }
+      });
+
+      recuratingDays.add(day);
+      replaceDayCard(day);
+
+      try {
+        const data = await requestCuration({ target_day: day, locked_outfits: lockedOutfits });
+        if (dayRequestSeq[day] !== seq || curationVersion !== versionAtStart) return;
+        currentCuration.days[day] = data.day;
+      } catch (err) {
+        if (dayRequestSeq[day] !== seq) return;
+        console.error(`Re-curation failure (${day}):`, err);
+        noticeBar.style.display = "block";
+        noticeBar.innerText = `Sloane engine notice (${day}): ` + err.message;
+      } finally {
+        if (dayRequestSeq[day] === seq) {
+          recuratingDays.delete(day);
+          replaceDayCard(day);
+        }
+      }
+    }
+
     async function invokeSloaneCuration() {
       const btn = document.getElementById("curate-button");
       const noticeBar = document.getElementById("engine-notice-bar");
@@ -891,32 +1015,10 @@
       btn.innerText = "Sloane is Curating Rotation...";
 
       try {
-        const dailySchedules = {};
-        WORKWEEK_DAYS.forEach(day => {
-          dailySchedules[day] = {
-            weather: dailyWeatherMap[day]?.summary || "54°F · Clear",
-            activity: dailyActivities[day] || "Executive Casual / Office"
-          };
-        });
-
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/curate-week`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_ANON_KEY
-          },
-          body: JSON.stringify({
-            locationName: currentLocation.name,
-            garments: wardrobe,
-            heroAnchor: heroAnchor,
-            dailySchedules: dailySchedules
-          })
-        });
-
-        const data = parseCurationResponse(await res.text(), res.status);
-        if (data.error) throw new Error(data.error);
+        const data = await requestCuration({});
 
         currentCuration = data;
+        curationVersion++;
         
         if (data.executiveBriefing) {
           document.getElementById("briefing-box").style.display = "block";

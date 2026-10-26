@@ -5,6 +5,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const WORKWEEK_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
 // Escapes raw control characters and stray double quotes inside JSON string values.
 // A quote is treated as closing only when the next non-space character is , } ] or :
 function repairJsonStrings(json: string): string {
@@ -74,7 +76,7 @@ serve(async (req) => {
   }
 
   try {
-    const { garments, heroAnchor, dailySchedules, locationName } = await req.json();
+    const { garments, heroAnchor, dailySchedules, locationName, target_day, locked_outfits } = await req.json();
 
     if (!garments || garments.length === 0) {
       return new Response(JSON.stringify({ error: "No garments provided" }), {
@@ -112,7 +114,30 @@ serve(async (req) => {
       Footwear: countCategory("Footwear")
     };
 
-    const systemPrompt = `You are Sloane, an elite executive wardrobe architect.
+    const isSingleDay = Boolean(target_day);
+    if (isSingleDay && !WORKWEEK_DAYS.includes(target_day)) {
+      return new Response(JSON.stringify({ error: `Invalid target_day: ${target_day}` }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    const styleRules = `4. ADAPTIVE METEOROLOGY & CONTEXT:
+- Synchronize with each day's SPECIFIC temperature and conditions (cooler temperatures mandate knits, flannels, chore jackets; milder temperatures allow lighter layers).
+- Match each day's SPECIFIC ACTIVITY:
+ * "In-Person Meeting": Tailored, elevated (blazers, structured sport coats, dress chinos/trousers, clean leather loafers/shoes).
+ * "Work From Home / Focus": Elevated comfort (merino knits, luxury tees, 5-pocket pants, elevated sneakers).
+ * "Executive Casual / Office": Refined balance (overshirts, casual blazers, oxfords, derbies/boots).
+ * "Client Dinner / Evening": Sharp, richer tones (monochrome, dark charcoal/navy, elevated boots or dress shoes).
+ * "Travel / Transit": Versatile stretch, comfortable layering.
+5. EXECUTIVE HARMONY: Anchor outfits in elevated neutrals (navy, charcoal, tobacco, olive, grey) with at most one textured statement piece per outfit.`;
+
+    const jsonRules = `- Never wrap the JSON in markdown code fences (no \`\`\`json or \`\`\`). The first character must be { and the last must be }.
+- Never use unescaped double quotes inside string values (executiveBriefing, rationale). To quote a phrase or garment name, use single quotes ('quiet luxury'); for inch measurements write "in" instead of the " symbol.
+- Keep each string value on a single line with no line breaks.
+- Garment slots contain only the garment id. Do not add names, descriptions, or per-slot commentary.`;
+
+    const weekPrompt = `You are Sloane, an elite executive wardrobe architect.
 Curate a tailored 5-day workweek board (Monday through Friday) for an executive in ${locationName || "Minnetonka, MN"}.
 
 STRICT RULES:
@@ -123,24 +148,13 @@ STRICT RULES:
 - When a piece repeats, say so in that day's rationale and explain how the restyle makes the outfit distinct.
 2. HERO ANCHOR INTEGRITY: If active, lock it to THAT SINGLE DAY ONLY in its category. Harmonize other pieces around it. Never assign that piece to any other day, even when inventory is limited.
 3. COMPLETE SCHEDULE: Always return all 5 days with all four slots (top_id, layer_id, bottom_id, footwear_id) filled with an id from the wardrobe. Never drop a day, return null, or invent an id because inventory is limited. If a category is depleted, restyle its best-matching piece with distinct complementary garments. Only if a category has zero pieces, set that slot to an empty string "" for every day and note the gap in the executiveBriefing.
-4. ADAPTIVE METEOROLOGY & CONTEXT:
-- Synchronize with each day's SPECIFIC temperature and conditions (cooler temperatures mandate knits, flannels, chore jackets; milder temperatures allow lighter layers).
-- Match each day's SPECIFIC ACTIVITY:
- * "In-Person Meeting": Tailored, elevated (blazers, structured sport coats, dress chinos/trousers, clean leather loafers/shoes).
- * "Work From Home / Focus": Elevated comfort (merino knits, luxury tees, 5-pocket pants, elevated sneakers).
- * "Executive Casual / Office": Refined balance (overshirts, casual blazers, oxfords, derbies/boots).
- * "Client Dinner / Evening": Sharp, richer tones (monochrome, dark charcoal/navy, elevated boots or dress shoes).
- * "Travel / Transit": Versatile stretch, comfortable layering.
-5. EXECUTIVE HARMONY: Anchor outfits in elevated neutrals (navy, charcoal, tobacco, olive, grey) with at most one textured statement piece per outfit.
+${styleRules}
 
 OUTPUT FORMAT:
 - Return ONLY raw JSON matching this schema exactly: the same keys, all five day keys, no extra fields, no commentary.
-- Never wrap the JSON in markdown code fences (no \`\`\`json or \`\`\`). The first character must be { and the last must be }.
-- Never use unescaped double quotes inside string values (executiveBriefing, rationale). To quote a phrase or garment name, use single quotes ('quiet luxury'); for inch measurements write "in" instead of the " symbol.
-- Keep each string value on a single line with no line breaks.
+${jsonRules}
 - Keep the executiveBriefing to 2-3 concise sentences.
 - Keep each day's rationale strictly under 2 sentences, covering only the style intent and any repeated pieces.
-- Garment slots contain only the garment id. Do not add names, descriptions, or per-slot commentary.
 {
 "executiveBriefing": "2-3 concise sentences on the weekly strategy, weather shifts, and activity adaptability.",
 "days": {
@@ -152,13 +166,45 @@ OUTPUT FORMAT:
 }
 }`;
 
-    const userPayload = JSON.stringify({
-      location: locationName || "Minnetonka, MN",
-      wardrobe: catalogSummary,
-      inventory,
-      anchor: heroAnchor || null,
-      dailySchedules: dailySchedules || null
-    });
+    const dayPrompt = `You are Sloane, an elite executive wardrobe architect.
+Re-curate ONLY ${target_day} of an existing 5-day workweek board for an executive in ${locationName || "Minnetonka, MN"}. The other days are locked and must not change.
+
+STRICT RULES:
+1. ROTATION AGAINST LOCKED DAYS: The payload includes "locked_outfits" (the garment ids already assigned to the other days) and "inventory" (distinct pieces per category).
+- Top: Must not be any top_id in locked_outfits. Only if inventory.Top is fewer than 5 may you reuse a locked top, and never one worn on a day adjacent to ${target_day}.
+- Layer, Bottom, Footwear: Prefer pieces not in locked_outfits. Only if no suitable unused piece exists, re-style a versatile staple, provided it appears on at most 1 locked day and that day is not adjacent to ${target_day}.
+- If a piece repeats, say so in the rationale.
+2. HERO ANCHOR INTEGRITY: If the anchor's day is ${target_day}, you must use the anchor piece in its category. Otherwise never use the anchor piece.
+3. COMPLETE OUTFIT: Fill all four slots with ids from the wardrobe. Never return null or invent an id. Only if a category has zero pieces, use an empty string "".
+${styleRules}
+
+OUTPUT FORMAT:
+- Return ONLY raw JSON matching this schema exactly, with no extra fields and no commentary.
+${jsonRules}
+- The rationale is exactly 1 concise sentence on the style intent and any repeated pieces.
+{
+"day": { "top_id": "UUID", "layer_id": "UUID", "bottom_id": "UUID", "footwear_id": "UUID", "rationale": "1 concise sentence." }
+}`;
+
+    const systemPrompt = isSingleDay ? dayPrompt : weekPrompt;
+
+    const userPayload = JSON.stringify(isSingleDay
+      ? {
+          location: locationName || "Minnetonka, MN",
+          wardrobe: catalogSummary,
+          inventory,
+          anchor: heroAnchor || null,
+          target_day,
+          schedule: dailySchedules?.[target_day] || null,
+          locked_outfits: locked_outfits || {}
+        }
+      : {
+          location: locationName || "Minnetonka, MN",
+          wardrobe: catalogSummary,
+          inventory,
+          anchor: heroAnchor || null,
+          dailySchedules: dailySchedules || null
+        });
 
     const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -202,6 +248,21 @@ OUTPUT FORMAT:
     }
 
     const curatedPlan = extractJson(rawText);
+
+    if (isSingleDay) {
+      const day = curatedPlan.day;
+      const validIds = new Set(catalogSummary.map((g: any) => g.id));
+      const slots = ["top_id", "layer_id", "bottom_id", "footwear_id"];
+      if (!day || slots.some((s) => day[s] !== "" && !validIds.has(day[s]))) {
+        return new Response(JSON.stringify({ error: `Re-curation for ${target_day} returned an invalid outfit` }), {
+          status: 502,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+      return new Response(JSON.stringify({ target_day, day }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
 
     return new Response(JSON.stringify(curatedPlan), {
       headers: { ...corsHeaders, "Content-Type": "application/json" }
