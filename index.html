@@ -1003,7 +1003,7 @@
           name, brand, category, sub_category, color, formality
         };
         if (currentPhotoBase64) {
-          payload.image_base64 = currentPhotoBase64;
+          payload.image_url = currentPhotoBase64;
         }
 
         const { error } = await supabaseClient.from("garments").insert([payload]);
