@@ -54,13 +54,27 @@ serve(async (req) => {
       form: g.formality || "Executive Casual"
     }));
 
+    // Inventory preflight: distinct pieces per slot, so the model knows where reuse is permitted
+    const countCategory = (cat: string) => catalogSummary.filter((g: any) => g.cat === cat).length;
+    const inventory = {
+      Top: countCategory("Top"),
+      Layer: countCategory("Layer"),
+      Bottom: countCategory("Bottom"),
+      Footwear: countCategory("Footwear")
+    };
+
     const systemPrompt = `You are Sloane, an elite executive wardrobe architect.
 Curate a tailored 5-day workweek board (Monday through Friday) for an executive in ${locationName || "Minnetonka, MN"}.
 
 STRICT RULES:
-1. ROTATION INTEGRITY: Zero repeated pieces across the entire 5 days.
-2. HERO ANCHOR INTEGRITY: If active, lock it to THAT SINGLE DAY ONLY in its category. Harmonize other pieces around it. Never assign that piece to any other day.
-3. ADAPTIVE METEOROLOGY & CONTEXT:
+1. ROTATION INTEGRITY (INVENTORY-AWARE): The payload includes "inventory", the number of distinct pieces in each category (Top, Layer, Bottom, Footwear). Apply rotation per category:
+- Tops (shirts, knits, tees): No top may repeat across Monday through Friday. Only if inventory.Top is fewer than 5 may a top be worn twice; then repeat the fewest tops possible, never on consecutive days.
+- Layers (outerwear), Bottoms (trousers, chinos), and Footwear: Prioritize variety and use every suitable distinct piece before repeating any. Only if a category has fewer distinct pieces than the 5 days require, re-style versatile staple pieces (neutral trousers, a navy blazer, brown loafers) across 2 non-consecutive days, paired with different complementary garments each time.
+- Use a repeated piece on at most 2 days. Only if a category has so few pieces that 5 days cannot be covered otherwise (e.g. 1 or 2 bottoms) may a piece appear on more days; still avoid consecutive days wherever the inventory allows.
+- When a piece repeats, say so in that day's rationale and explain how the restyle makes the outfit distinct.
+2. HERO ANCHOR INTEGRITY: If active, lock it to THAT SINGLE DAY ONLY in its category. Harmonize other pieces around it. Never assign that piece to any other day, even when inventory is limited.
+3. COMPLETE SCHEDULE: Always return all 5 days with all four slots (top_id, layer_id, bottom_id, footwear_id) filled with an id from the wardrobe. Never drop a day, return null, or invent an id because inventory is limited. If a category is depleted, restyle its best-matching piece with distinct complementary garments. Only if a category has zero pieces, set that slot to an empty string "" for every day and note the gap in the executiveBriefing.
+4. ADAPTIVE METEOROLOGY & CONTEXT:
 - Synchronize with each day's SPECIFIC temperature and conditions (cooler temperatures mandate knits, flannels, chore jackets; milder temperatures allow lighter layers).
 - Match each day's SPECIFIC ACTIVITY:
  * "In-Person Meeting": Tailored, elevated (blazers, structured sport coats, dress chinos/trousers, clean leather loafers/shoes).
@@ -68,9 +82,9 @@ STRICT RULES:
  * "Executive Casual / Office": Refined balance (overshirts, casual blazers, oxfords, derbies/boots).
  * "Client Dinner / Evening": Sharp, richer tones (monochrome, dark charcoal/navy, elevated boots or dress shoes).
  * "Travel / Transit": Versatile stretch, comfortable layering.
-4. EXECUTIVE HARMONY: Anchor outfits in elevated neutrals (navy, charcoal, tobacco, olive, grey) with at most one textured statement piece per outfit.
+5. EXECUTIVE HARMONY: Anchor outfits in elevated neutrals (navy, charcoal, tobacco, olive, grey) with at most one textured statement piece per outfit.
 
-Return ONLY this raw JSON schema:
+Return ONLY raw JSON matching this schema exactly: the same keys, all five day keys, no extra fields, no markdown fences, no commentary.
 {
 "executiveBriefing": "2 sentences summarizing the weekly sartorial strategy, local weather shifts, and activity adaptability.",
 "days": {
@@ -85,6 +99,7 @@ Return ONLY this raw JSON schema:
     const userPayload = JSON.stringify({
       location: locationName || "Minnetonka, MN",
       wardrobe: catalogSummary,
+      inventory,
       anchor: heroAnchor || null,
       dailySchedules: dailySchedules || null
     });
