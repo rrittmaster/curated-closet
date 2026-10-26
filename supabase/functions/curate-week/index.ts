@@ -204,17 +204,40 @@ ${jsonRules}
 }
 }`;
 
+    // Previous pieces that must be replaced: every non-empty slot except a hero
+    // anchor locked to this day, and except categories with only one piece
+    const SLOT_CATEGORY: Record<string, string> = { top_id: "Top", layer_id: "Layer", bottom_id: "Bottom", footwear_id: "Footwear" };
+    const anchorIdForDay = isSingleDay && heroAnchor?.day === target_day ? String(heroAnchor.garmentId) : null;
+    const forbiddenSlots = isSingleDay && previous_outfit
+      ? Object.keys(SLOT_CATEGORY).filter((s) =>
+          previous_outfit[s] &&
+          String(previous_outfit[s]) !== anchorIdForDay &&
+          inventory[SLOT_CATEGORY[s] as keyof typeof inventory] > 1)
+      : [];
+    const describeGarment = (id: string) => {
+      const g = catalogSummary.find((c: any) => String(c.id) === String(id));
+      return g ? `${id} (${g.cat}: ${g.name})` : String(id);
+    };
+    const negativeConstraint = forbiddenSlots.length
+      ? `STRICT NEGATIVE CONSTRAINT (overrides every rule below, including rotation):
+Do NOT select any of the following garment IDs for ${target_day} unless no other matching category items exist in the wardrobe:
+${forbiddenSlots.map((s) => `- ${describeGarment(previous_outfit[s])}`).join("\n")}
+Every category listed above has other items in the wardrobe, so each of these ids must be replaced. If the only alternatives are pieces already used on locked days, reuse one of those (prefer a day not adjacent to ${target_day}) rather than keeping a forbidden id.
+
+`
+      : "";
+
     const dayPrompt = `You are Sloane, an elite executive wardrobe architect.
 Re-curate ONLY ${target_day} of an existing 5-day workweek board for an executive in ${locationName || "Minnetonka, MN"}. The other days are locked and must not change.
 
-STRICT RULES:
+${negativeConstraint}STRICT RULES:
 1. ROTATION AGAINST LOCKED DAYS: The payload includes "locked_outfits" (the garment ids already assigned to the other days) and "inventory" (distinct pieces per category).
 - Top: Must not be any top_id in locked_outfits. Only if inventory.Top is fewer than 5 may you reuse a locked top, and never one worn on a day adjacent to ${target_day}.
 - Layer, Bottom, Footwear: Prefer pieces not in locked_outfits. Only if no suitable unused piece exists, re-style a versatile staple, provided it appears on at most 1 locked day and that day is not adjacent to ${target_day}.
 - If a piece repeats, say so in the rationale.
 2. HERO ANCHOR INTEGRITY: If the anchor's day is ${target_day}, you must use the anchor piece in its category. Otherwise never use the anchor piece.
 3. COMPLETE OUTFIT: Fill all four slots with ids from the wardrobe. Never return null or invent an id. Only if a category has zero pieces, use an empty string "".
-4. DIFFERENTIATION FROM PREVIOUS OUTFIT: The user is changing the activity or requesting a re-roll. You MUST select an outfit distinct from previous_outfit, adapting formality and comfort strictly to the new activity (e.g., Work From Home demands relaxed knits, casual bottoms, and sneakers rather than tailored trousers, blazers, or dress shoes). Replace every slot for which a suitable alternative exists; keep a previous piece only when its category has no other usable option.
+4. DIFFERENTIATION FROM PREVIOUS OUTFIT: The user is changing the activity or requesting a re-roll. You MUST select an outfit distinct from previous_outfit, adapting formality and comfort strictly to the new activity (e.g., Work From Home demands relaxed knits, casual bottoms, and sneakers rather than tailored trousers, blazers, or dress shoes). The STRICT NEGATIVE CONSTRAINT above, when present, lists exactly which ids are forbidden.
 ${styleRules.replace("4. ADAPTIVE", "5. ADAPTIVE").replace("5. EXECUTIVE", "6. EXECUTIVE")}
 
 OUTPUT FORMAT:
@@ -246,68 +269,67 @@ ${jsonRules}
           dailySchedules: dailySchedules || null
         });
 
-    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json"
-      },
-      body: JSON.stringify({
-        model: activeModel,
-        max_tokens: 6000,
-        system: systemPrompt,
-        messages: [{ role: "user", content: userPayload }]
-      })
-    });
-
-    const anthropicData = await anthropicRes.json();
-
-    if (anthropicData.error) {
-      return new Response(JSON.stringify({ error: `[${activeModel}] ${anthropicData.error.message}` }), {
-        status: 502,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
+    // Calls the model and returns the parsed JSON; failures carry a 502 status
+    const upstreamError = (message: string) => Object.assign(new Error(message), { status: 502 });
+    const callModel = async (payload: string) => {
+      const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          model: activeModel,
+          max_tokens: 6000,
+          system: systemPrompt,
+          messages: [{ role: "user", content: payload }]
+        })
       });
-    }
 
-    const textBlocks = anthropicData.content?.filter((b: any) => b.type === "text") || [];
-    const rawText = textBlocks.map((b: any) => b.text).join("").trim();
+      const anthropicData = await anthropicRes.json();
+      if (anthropicData.error) throw upstreamError(`[${activeModel}] ${anthropicData.error.message}`);
 
-    if (!rawText) {
-      return new Response(JSON.stringify({ error: "Empty response from curation model" }), {
-        status: 502,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
-    }
-
-    if (anthropicData.stop_reason === "max_tokens") {
-      return new Response(JSON.stringify({ error: "Curation response was truncated (max_tokens reached)" }), {
-        status: 502,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
-    }
-
-    const curatedPlan = extractJson(rawText);
+      const textBlocks = anthropicData.content?.filter((b: any) => b.type === "text") || [];
+      const rawText = textBlocks.map((b: any) => b.text).join("").trim();
+      if (!rawText) throw upstreamError("Empty response from curation model");
+      if (anthropicData.stop_reason === "max_tokens") {
+        throw upstreamError("Curation response was truncated (max_tokens reached)");
+      }
+      return extractJson(rawText);
+    };
 
     if (isSingleDay) {
-      const day = curatedPlan.day;
-      const validIds = new Set(catalogSummary.map((g: any) => g.id));
-      const slots = ["top_id", "layer_id", "bottom_id", "footwear_id"];
-      if (!day || slots.some((s) => day[s] !== "" && !validIds.has(day[s]))) {
-        return new Response(JSON.stringify({ error: `Re-curation for ${target_day} returned an invalid outfit` }), {
-          status: 502,
-          headers: { ...corsHeaders, "Content-Type": "application/json" }
+      const validIds = new Set(catalogSummary.map((g: any) => String(g.id)));
+      const slots = Object.keys(SLOT_CATEGORY);
+      const repeatedSlots = (day: any) =>
+        forbiddenSlots.filter((s) => String(day[s]) === String(previous_outfit[s]));
+
+      console.log(`[curate-week] single-day request: target_day=${target_day} previous_outfit=${JSON.stringify(previous_outfit || null)} forbidden=${JSON.stringify(forbiddenSlots.map((s) => previous_outfit[s]))}`);
+
+      // One automatic retry if the model keeps a forbidden previous piece
+      let day: any = null;
+      let repeats: string[] = [];
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        const payload = attempt === 1 ? userPayload : JSON.stringify({
+          ...JSON.parse(userPayload),
+          rejected_attempt: {
+            reason: "These ids are forbidden by the STRICT NEGATIVE CONSTRAINT and were selected anyway. Replace them.",
+            repeated_ids: repeats.map((s) => previous_outfit[s])
+          }
         });
+        day = (await callModel(payload))?.day;
+
+        if (!day || slots.some((s) => day[s] !== "" && !validIds.has(String(day[s])))) {
+          throw upstreamError(`Re-curation for ${target_day} returned an invalid outfit`);
+        }
+        repeats = repeatedSlots(day);
+        console.log(`[curate-week] attempt ${attempt} for ${target_day}: chosen=${JSON.stringify(Object.fromEntries(slots.map((s) => [s, day[s]])))} repeated=${JSON.stringify(repeats)}`);
+        if (repeats.length === 0) break;
       }
-      // Reject an unchanged outfit unless the wardrobe offers no alternative in any slot
-      const slotCategories = ["Top", "Layer", "Bottom", "Footwear"] as const;
-      const isUnchanged = previous_outfit && slots.every((s) => day[s] === previous_outfit[s]);
-      const hasAlternative = slotCategories.some((c) => inventory[c] > 1);
-      if (isUnchanged && hasAlternative) {
-        return new Response(JSON.stringify({ error: `Re-curation for ${target_day} returned the same outfit; tap ↻ to try again` }), {
-          status: 502,
-          headers: { ...corsHeaders, "Content-Type": "application/json" }
-        });
+
+      if (repeats.length) {
+        throw upstreamError(`Re-curation for ${target_day} kept ${repeats.map((s) => SLOT_CATEGORY[s].toLowerCase()).join(", ")} from the previous outfit; tap ↻ to try again`);
       }
 
       return new Response(JSON.stringify({ target_day, day }), {
@@ -315,13 +337,15 @@ ${jsonRules}
       });
     }
 
+    const curatedPlan = await callModel(userPayload);
+
     return new Response(JSON.stringify(curatedPlan), {
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
 
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
+      status: err.status || 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }

@@ -862,10 +862,11 @@
 
     function renderDayCard(day) {
         const dayPlan = currentCuration?.days?.[day];
-        const topItem = wardrobe.find(g => g.id === dayPlan?.top_id);
-        const layerItem = wardrobe.find(g => g.id === dayPlan?.layer_id);
-        const bottomItem = wardrobe.find(g => g.id === dayPlan?.bottom_id);
-        const footItem = wardrobe.find(g => g.id === dayPlan?.footwear_id);
+        const findGarment = (id) => (id ? wardrobe.find(g => String(g.id) === String(id)) : undefined);
+        const topItem = findGarment(dayPlan?.top_id);
+        const layerItem = findGarment(dayPlan?.layer_id);
+        const bottomItem = findGarment(dayPlan?.bottom_id);
+        const footItem = findGarment(dayPlan?.footwear_id);
 
         const weatherText = dailyWeatherMap[day]?.summary || "Syncing weather...";
         const currentActivity = dailyActivities[day] || "Executive Casual / Office";
@@ -1024,15 +1025,21 @@
       replaceDayCard(day);
 
       try {
+        console.log(`[recurate] ${day} → sending previous_outfit`, previousOutfit, "activity:", dailyActivities[day]);
         const data = await requestCuration({
           target_day: day,
           locked_outfits: lockedOutfits,
           previous_outfit: previousOutfit
         });
-        if (dayRequestSeq[day] !== seq || curationVersion !== versionAtStart) return;
+        console.log(`[recurate] ${day} ← received`, data.day);
+        if (dayRequestSeq[day] !== seq || curationVersion !== versionAtStart) {
+          console.log(`[recurate] ${day} result discarded (superseded by a newer request)`);
+          return;
+        }
         if (!data.day) throw new Error("No outfit returned for this day. Is the latest curate-week deployed?");
         currentCuration.days[day] = data.day;
         saveCuration();
+        console.log(`[recurate] ${day} state updated; re-rendering card`);
       } catch (err) {
         if (dayRequestSeq[day] !== seq) return;
         console.error(`Re-curation failure (${day}):`, err);
