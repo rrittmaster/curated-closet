@@ -5,6 +5,69 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Escapes raw control characters and stray double quotes inside JSON string values.
+// A quote is treated as closing only when the next non-space character is , } ] or :
+function repairJsonStrings(json: string): string {
+  let out = "";
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < json.length; i++) {
+    const ch = json[i];
+    if (!inString) {
+      if (ch === '"') inString = true;
+      out += ch;
+      continue;
+    }
+    if (escaped) {
+      out += ch;
+      escaped = false;
+    } else if (ch === "\\") {
+      out += ch;
+      escaped = true;
+    } else if (ch === '"') {
+      let j = i + 1;
+      while (j < json.length && /\s/.test(json[j])) j++;
+      if (j >= json.length || ",}]:".includes(json[j])) {
+        inString = false;
+        out += ch;
+      } else {
+        out += '\\"';
+      }
+    } else if (ch === "\n") {
+      out += "\\n";
+    } else if (ch === "\r") {
+      out += "\\r";
+    } else if (ch === "\t") {
+      out += "\\t";
+    } else if (ch.charCodeAt(0) < 0x20) {
+      out += " ";
+    } else {
+      out += ch;
+    }
+  }
+  return out;
+}
+
+function extractJson(rawText: string): any {
+  const unfenced = rawText.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+  const firstBrace = unfenced.indexOf("{");
+  const lastBrace = unfenced.lastIndexOf("}");
+  if (firstBrace === -1 || lastBrace === -1) {
+    throw new Error("No JSON found in model output");
+  }
+  const candidate = unfenced.substring(firstBrace, lastBrace + 1);
+
+  try {
+    return JSON.parse(candidate);
+  } catch (firstErr) {
+    try {
+      return JSON.parse(repairJsonStrings(candidate));
+    } catch (_) {
+      throw new Error(`Curation JSON could not be parsed: ${(firstErr as Error).message}`);
+    }
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -84,7 +147,11 @@ STRICT RULES:
  * "Travel / Transit": Versatile stretch, comfortable layering.
 5. EXECUTIVE HARMONY: Anchor outfits in elevated neutrals (navy, charcoal, tobacco, olive, grey) with at most one textured statement piece per outfit.
 
-Return ONLY raw JSON matching this schema exactly: the same keys, all five day keys, no extra fields, no markdown fences, no commentary.
+OUTPUT FORMAT:
+- Return ONLY raw JSON matching this schema exactly: the same keys, all five day keys, no extra fields, no commentary.
+- Never wrap the JSON in markdown code fences (no \`\`\`json or \`\`\`). The first character must be { and the last must be }.
+- Never use unescaped double quotes inside string values (executiveBriefing, rationale). To quote a phrase or garment name, use single quotes ('quiet luxury'); for inch measurements write "in" instead of the " symbol.
+- Keep each string value on a single line with no line breaks.
 {
 "executiveBriefing": "2 sentences summarizing the weekly sartorial strategy, local weather shifts, and activity adaptability.",
 "days": {
@@ -138,14 +205,14 @@ Return ONLY raw JSON matching this schema exactly: the same keys, all five day k
       });
     }
 
-    const firstBrace = rawText.indexOf('{');
-    const lastBrace = rawText.lastIndexOf('}');
-    if (firstBrace === -1 || lastBrace === -1) {
-      throw new Error("No JSON found in model output");
+    if (anthropicData.stop_reason === "max_tokens") {
+      return new Response(JSON.stringify({ error: "Curation response was truncated (max_tokens reached)" }), {
+        status: 502,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
     }
 
-    const cleanJson = rawText.substring(firstBrace, lastBrace + 1);
-    const curatedPlan = JSON.parse(cleanJson);
+    const curatedPlan = extractJson(rawText);
 
     return new Response(JSON.stringify(curatedPlan), {
       headers: { ...corsHeaders, "Content-Type": "application/json" }

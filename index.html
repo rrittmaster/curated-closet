@@ -861,6 +861,22 @@
       }).join("");
     }
 
+    // Parses the curate-week response defensively: strips markdown fences and
+    // replaces raw control characters before JSON.parse, and reports non-JSON
+    // responses (e.g. gateway timeouts) with their HTTP status
+    function parseCurationResponse(text, status) {
+      const cleaned = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+      try {
+        return JSON.parse(cleaned);
+      } catch (err) {
+        try {
+          return JSON.parse(cleaned.replace(/[\u0000-\u001F]+/g, " "));
+        } catch (_) {
+          throw new Error(`Unreadable curation response (HTTP ${status}): ${cleaned.slice(0, 120) || err.message}`);
+        }
+      }
+    }
+
     async function invokeSloaneCuration() {
       const btn = document.getElementById("curate-button");
       const noticeBar = document.getElementById("engine-notice-bar");
@@ -897,7 +913,7 @@
           })
         });
 
-        const data = await res.json();
+        const data = parseCurationResponse(await res.text(), res.status);
         if (data.error) throw new Error(data.error);
 
         currentCuration = data;
