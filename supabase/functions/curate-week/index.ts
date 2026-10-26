@@ -76,7 +76,7 @@ serve(async (req) => {
   }
 
   try {
-    const { garments, heroAnchor, dailySchedules, locationName, target_day, locked_outfits } = await req.json();
+    const { garments, heroAnchor, dailySchedules, locationName, target_day, locked_outfits, previous_outfit } = await req.json();
 
     if (!garments || garments.length === 0) {
       return new Response(JSON.stringify({ error: "No garments provided" }), {
@@ -176,7 +176,8 @@ STRICT RULES:
 - If a piece repeats, say so in the rationale.
 2. HERO ANCHOR INTEGRITY: If the anchor's day is ${target_day}, you must use the anchor piece in its category. Otherwise never use the anchor piece.
 3. COMPLETE OUTFIT: Fill all four slots with ids from the wardrobe. Never return null or invent an id. Only if a category has zero pieces, use an empty string "".
-${styleRules}
+4. DIFFERENTIATION FROM PREVIOUS OUTFIT: The user is changing the activity or requesting a re-roll. You MUST select an outfit distinct from previous_outfit, adapting formality and comfort strictly to the new activity (e.g., Work From Home demands relaxed knits, casual bottoms, and sneakers rather than tailored trousers, blazers, or dress shoes). Replace every slot for which a suitable alternative exists; keep a previous piece only when its category has no other usable option.
+${styleRules.replace("4. ADAPTIVE", "5. ADAPTIVE").replace("5. EXECUTIVE", "6. EXECUTIVE")}
 
 OUTPUT FORMAT:
 - Return ONLY raw JSON matching this schema exactly, with no extra fields and no commentary.
@@ -196,7 +197,8 @@ ${jsonRules}
           anchor: heroAnchor || null,
           target_day,
           schedule: dailySchedules?.[target_day] || null,
-          locked_outfits: locked_outfits || {}
+          locked_outfits: locked_outfits || {},
+          previous_outfit: previous_outfit || null
         }
       : {
           location: locationName || "Minnetonka, MN",
@@ -259,6 +261,17 @@ ${jsonRules}
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       }
+      // Reject an unchanged outfit unless the wardrobe offers no alternative in any slot
+      const slotCategories = ["Top", "Layer", "Bottom", "Footwear"] as const;
+      const isUnchanged = previous_outfit && slots.every((s) => day[s] === previous_outfit[s]);
+      const hasAlternative = slotCategories.some((c) => inventory[c] > 1);
+      if (isUnchanged && hasAlternative) {
+        return new Response(JSON.stringify({ error: `Re-curation for ${target_day} returned the same outfit; tap ↻ to try again` }), {
+          status: 502,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
       return new Response(JSON.stringify({ target_day, day }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });

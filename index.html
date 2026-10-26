@@ -923,6 +923,37 @@
       }
     }
 
+    // Persists the curation with the Monday it was built for, so a stored board
+    // is discarded once the calendar rolls to a new workweek
+    const CURATION_STORAGE_KEY = "curated_closet_weekly_curation";
+
+    function saveCuration() {
+      localStorage.setItem(CURATION_STORAGE_KEY, JSON.stringify({
+        weekStart: workweekISODates.Monday,
+        curation: currentCuration
+      }));
+    }
+
+    function restoreCuration() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(CURATION_STORAGE_KEY));
+        if (stored?.curation?.days && stored.weekStart === workweekISODates.Monday) {
+          currentCuration = stored.curation;
+          showBriefing(currentCuration.executiveBriefing);
+        } else if (stored) {
+          localStorage.removeItem(CURATION_STORAGE_KEY);
+        }
+      } catch (err) {
+        localStorage.removeItem(CURATION_STORAGE_KEY);
+      }
+    }
+
+    function showBriefing(text) {
+      if (!text) return;
+      document.getElementById("briefing-box").style.display = "block";
+      document.getElementById("briefing-text-content").innerText = `"${text}"`;
+    }
+
     async function requestCuration(extraBody) {
       const dailySchedules = {};
       WORKWEEK_DAYS.forEach(day => {
@@ -981,14 +1012,27 @@
         }
       });
 
+      const current = currentCuration.days[day];
+      const previousOutfit = current ? {
+        top_id: current.top_id,
+        layer_id: current.layer_id,
+        bottom_id: current.bottom_id,
+        footwear_id: current.footwear_id
+      } : null;
+
       recuratingDays.add(day);
       replaceDayCard(day);
 
       try {
-        const data = await requestCuration({ target_day: day, locked_outfits: lockedOutfits });
+        const data = await requestCuration({
+          target_day: day,
+          locked_outfits: lockedOutfits,
+          previous_outfit: previousOutfit
+        });
         if (dayRequestSeq[day] !== seq || curationVersion !== versionAtStart) return;
         if (!data.day) throw new Error("No outfit returned for this day. Is the latest curate-week deployed?");
         currentCuration.days[day] = data.day;
+        saveCuration();
       } catch (err) {
         if (dayRequestSeq[day] !== seq) return;
         console.error(`Re-curation failure (${day}):`, err);
@@ -1020,11 +1064,8 @@
 
         currentCuration = data;
         curationVersion++;
-        
-        if (data.executiveBriefing) {
-          document.getElementById("briefing-box").style.display = "block";
-          document.getElementById("briefing-text-content").innerText = `"${data.executiveBriefing}"`;
-        }
+        saveCuration();
+        showBriefing(data.executiveBriefing);
 
         renderBoard();
 
@@ -1155,6 +1196,8 @@
     // --- 8. INITIALIZATION ---
     window.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("location-pill-label").innerText = currentLocation.name;
+      restoreCuration();
+      renderBoard();
       await fetchForecast(currentLocation.lat, currentLocation.lon);
       await loadWardrobe();
     });
