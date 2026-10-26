@@ -91,21 +91,7 @@ serve(async (req) => {
       });
     }
 
-    let activeModel = "claude-sonnet-5-5";
-    try {
-      const modelsRes = await fetch("https://api.anthropic.com/v1/models", {
-        headers: {
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01"
-        }
-      });
-      const modelsData = await modelsRes.json();
-      if (modelsData.data && Array.isArray(modelsData.data) && modelsData.data.length > 0) {
-        const sonnet = modelsData.data.find((m: any) => m.id.includes("sonnet"));
-        const haiku = modelsData.data.find((m: any) => m.id.includes("haiku"));
-        activeModel = (sonnet || haiku || modelsData.data[0]).id;
-      }
-    } catch (_) {}
+    const activeModel = "claude-sonnet-5-5";
 
     const catalogSummary = garments.map((g: any) => ({
       id: g.id,
@@ -152,14 +138,17 @@ OUTPUT FORMAT:
 - Never wrap the JSON in markdown code fences (no \`\`\`json or \`\`\`). The first character must be { and the last must be }.
 - Never use unescaped double quotes inside string values (executiveBriefing, rationale). To quote a phrase or garment name, use single quotes ('quiet luxury'); for inch measurements write "in" instead of the " symbol.
 - Keep each string value on a single line with no line breaks.
+- Keep the executiveBriefing to 2-3 concise sentences.
+- Keep each day's rationale strictly under 2 sentences, covering only the style intent and any repeated pieces.
+- Garment slots contain only the garment id. Do not add names, descriptions, or per-slot commentary.
 {
-"executiveBriefing": "2 sentences summarizing the weekly sartorial strategy, local weather shifts, and activity adaptability.",
+"executiveBriefing": "2-3 concise sentences on the weekly strategy, weather shifts, and activity adaptability.",
 "days": {
-"Monday": { "top_id": "UUID", "layer_id": "UUID", "bottom_id": "UUID", "footwear_id": "UUID", "rationale": "1 concise sentence explaining the pairing logic." },
-"Tuesday": { "top_id": "UUID", "layer_id": "UUID", "bottom_id": "UUID", "footwear_id": "UUID", "rationale": "1 concise sentence explaining the pairing logic." },
-"Wednesday": { "top_id": "UUID", "layer_id": "UUID", "bottom_id": "UUID", "footwear_id": "UUID", "rationale": "1 concise sentence explaining the pairing logic." },
-"Thursday": { "top_id": "UUID", "layer_id": "UUID", "bottom_id": "UUID", "footwear_id": "UUID", "rationale": "1 concise sentence explaining the pairing logic." },
-"Friday": { "top_id": "UUID", "layer_id": "UUID", "bottom_id": "UUID", "footwear_id": "UUID", "rationale": "1 concise sentence explaining the pairing logic." }
+"Monday": { "top_id": "UUID", "layer_id": "UUID", "bottom_id": "UUID", "footwear_id": "UUID", "rationale": "Under 2 sentences: style intent and any repeated pieces." },
+"Tuesday": { "top_id": "UUID", "layer_id": "UUID", "bottom_id": "UUID", "footwear_id": "UUID", "rationale": "Under 2 sentences: style intent and any repeated pieces." },
+"Wednesday": { "top_id": "UUID", "layer_id": "UUID", "bottom_id": "UUID", "footwear_id": "UUID", "rationale": "Under 2 sentences: style intent and any repeated pieces." },
+"Thursday": { "top_id": "UUID", "layer_id": "UUID", "bottom_id": "UUID", "footwear_id": "UUID", "rationale": "Under 2 sentences: style intent and any repeated pieces." },
+"Friday": { "top_id": "UUID", "layer_id": "UUID", "bottom_id": "UUID", "footwear_id": "UUID", "rationale": "Under 2 sentences: style intent and any repeated pieces." }
 }
 }`;
 
@@ -180,7 +169,7 @@ OUTPUT FORMAT:
       },
       body: JSON.stringify({
         model: activeModel,
-        max_tokens: 3500,
+        max_tokens: 6000,
         system: systemPrompt,
         messages: [{ role: "user", content: userPayload }]
       })
