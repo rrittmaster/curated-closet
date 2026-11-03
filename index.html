@@ -737,9 +737,10 @@
     }
 
     function setDayActivity(day, activity) {
+      console.log("[setDayActivity fired]", day, activity, "currentCuration:", currentCuration);
       dailyActivities[day] = activity;
       localStorage.setItem("curated_closet_activities", JSON.stringify(dailyActivities));
-      if (currentCuration?.days) recurateDay(day);
+      recurateDay(day);
     }
 
     // --- 4. WARDROBE LOADER & VISUAL GRID ---
@@ -872,7 +873,7 @@
         const currentActivity = dailyActivities[day] || "Executive Casual / Office";
         const dateLabel = workweekDates[day] || "";
         const isRecurating = recuratingDays.has(day);
-        const canRecurate = Boolean(currentCuration?.days) && !isRecurating;
+        const canRecurate = hasCuratedBoard() && !isRecurating;
 
         return `
           <div class="day-card${isRecurating ? ' is-recurating' : ''}" id="day-card-${day}">
@@ -990,11 +991,27 @@
     const recuratingDays = new Set();
     const dayRequestSeq = {};
 
-    async function recurateDay(day) {
-      if (!currentCuration?.days) return;
+    // True when the board has a curated week to re-curate against
+    function hasCuratedBoard() {
+      return Boolean(currentCuration?.days && Object.values(currentCuration.days).some(Boolean));
+    }
 
+    function showEngineNotice(message) {
       const noticeBar = document.getElementById("engine-notice-bar");
-      noticeBar.style.display = "none";
+      if (!noticeBar) return;
+      noticeBar.style.display = message ? "block" : "none";
+      noticeBar.innerText = message || "";
+    }
+
+    async function recurateDay(day) {
+      console.log(`[recurateDay] ${day} called; hasCuratedBoard:`, hasCuratedBoard(), "currentCuration:", currentCuration);
+      if (!hasCuratedBoard()) {
+        console.warn(`[recurateDay] ${day} skipped: no curated week on the board (currentCuration.days missing or empty)`);
+        showEngineNotice(`Sloane engine notice (${day}): curate the week first, then change activities to re-curate a single day.`);
+        return;
+      }
+
+      showEngineNotice("");
 
       const seq = (dayRequestSeq[day] || 0) + 1;
       dayRequestSeq[day] = seq;
@@ -1021,10 +1038,9 @@
         footwear_id: current.footwear_id
       } : null;
 
-      recuratingDays.add(day);
-      replaceDayCard(day);
-
       try {
+        recuratingDays.add(day);
+        replaceDayCard(day);
         console.log(`[recurate] ${day} → sending previous_outfit`, previousOutfit, "activity:", dailyActivities[day]);
         const data = await requestCuration({
           target_day: day,
@@ -1043,8 +1059,7 @@
       } catch (err) {
         if (dayRequestSeq[day] !== seq) return;
         console.error(`Re-curation failure (${day}):`, err);
-        noticeBar.style.display = "block";
-        noticeBar.innerText = `Sloane engine notice (${day}): ` + err.message;
+        showEngineNotice(`Sloane engine notice (${day}): ` + err.message);
       } finally {
         if (dayRequestSeq[day] === seq) {
           recuratingDays.delete(day);
