@@ -331,6 +331,15 @@
       text-overflow: ellipsis;
     }
 
+    .day-notice {
+      font-size: 12px;
+      color: #c9a978;
+      background: rgba(226, 186, 125, 0.08);
+      border-radius: 6px;
+      padding: 6px 10px;
+      margin-top: 8px;
+      line-height: 1.4;
+    }
     .day-rationale {
       font-size: 13px;
       color: #9ca3af;
@@ -905,6 +914,7 @@
             </div>
 
             ${dayPlan?.rationale ? `<div class="day-rationale">“${dayPlan.rationale}”</div>` : ''}
+            ${dayNotices[day] ? `<div class="day-notice">${dayNotices[day]}</div>` : ''}
           </div>
         `;
     }
@@ -990,6 +1000,8 @@
     let curationVersion = 0;
     const recuratingDays = new Set();
     const dayRequestSeq = {};
+    // Gentle per-day notes from the last re-curation (fallbacks, kept pieces)
+    const dayNotices = {};
 
     // True when the board has a curated week to re-curate against
     function hasCuratedBoard() {
@@ -1012,6 +1024,7 @@
       }
 
       showEngineNotice("");
+      delete dayNotices[day];
 
       const seq = (dayRequestSeq[day] || 0) + 1;
       dayRequestSeq[day] = seq;
@@ -1055,11 +1068,15 @@
         if (!data.day) throw new Error("No outfit returned for this day. Is the latest curate-week deployed?");
         currentCuration.days[day] = data.day;
         saveCuration();
+        if (data.warnings?.length) {
+          console.warn(`[recurate] ${day} warnings:`, data.warnings);
+          dayNotices[day] = "Sloane " + data.warnings.join("; ") + ".";
+        }
         console.log(`[recurate] ${day} state updated; re-rendering card`);
       } catch (err) {
         if (dayRequestSeq[day] !== seq) return;
         console.error(`Re-curation failure (${day}):`, err);
-        showEngineNotice(`Sloane engine notice (${day}): ` + err.message);
+        dayNotices[day] = `Couldn't re-curate just now (${err.message}); kept the current outfit. Tap ↻ to try again.`;
       } finally {
         if (dayRequestSeq[day] === seq) {
           recuratingDays.delete(day);

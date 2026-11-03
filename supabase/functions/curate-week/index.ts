@@ -307,32 +307,84 @@ ${jsonRules}
 
       console.log(`[curate-week] single-day request: target_day=${target_day} previous_outfit=${JSON.stringify(previous_outfit || null)} forbidden=${JSON.stringify(forbiddenSlots.map((s) => previous_outfit[s]))}`);
 
-      // One automatic retry if the model keeps a forbidden previous piece
-      let day: any = null;
-      let repeats: string[] = [];
+      // Accepts { day }, { days: { [target_day] } }, or a bare outfit object
+      const pickDay = (parsed: any) => {
+        if (!parsed || typeof parsed !== "object") return null;
+        const candidate = parsed.day || parsed.days?.[target_day] || (slots.some((s) => s in parsed) ? parsed : null);
+        return candidate && typeof candidate === "object" ? candidate : null;
+      };
+
+      // Repairs a returned outfit slot by slot: unknown or missing ids fall back
+      // to the previous piece in that slot, so the day is always wearable
+      const sanitizeDay = (raw: any, warnings: string[]) => {
+        const day: any = {};
+        for (const s of slots) {
+          const id = raw?.[s] == null ? "" : String(raw[s]);
+          if (id === "" || validIds.has(id)) {
+            day[s] = id;
+          } else if (previous_outfit?.[s] && validIds.has(String(previous_outfit[s]))) {
+            day[s] = String(previous_outfit[s]);
+            warnings.push(`kept the previous ${SLOT_CATEGORY[s].toLowerCase()} because the suggested piece was not in the wardrobe`);
+          } else {
+            day[s] = "";
+          }
+        }
+        day.rationale = typeof raw?.rationale === "string" && raw.rationale.trim()
+          ? raw.rationale.trim()
+          : `Restyled for ${dailySchedules?.[target_day]?.activity || "the updated activity"}.`;
+        return day;
+      };
+
+      // One automatic retry if the model keeps a forbidden piece or returns an
+      // unusable outfit; after that, the best attempt is accepted as-is
+      let best: { day: any; repeats: string[]; warnings: string[] } | null = null;
+      let lastError: string | null = null;
       for (let attempt = 1; attempt <= 2; attempt++) {
-        const payload = attempt === 1 ? userPayload : JSON.stringify({
+        const payload = attempt === 1 || !best ? userPayload : JSON.stringify({
           ...JSON.parse(userPayload),
           rejected_attempt: {
             reason: "These ids are forbidden by the STRICT NEGATIVE CONSTRAINT and were selected anyway. Replace them.",
-            repeated_ids: repeats.map((s) => previous_outfit[s])
+            repeated_ids: best.repeats.map((s) => previous_outfit[s])
           }
         });
-        day = (await callModel(payload))?.day;
 
-        if (!day || slots.some((s) => day[s] !== "" && !validIds.has(String(day[s])))) {
-          throw upstreamError(`Re-curation for ${target_day} returned an invalid outfit`);
+        let raw: any = null;
+        try {
+          raw = pickDay(await callModel(payload));
+        } catch (err) {
+          lastError = err.message;
+          console.warn(`[curate-week] attempt ${attempt} for ${target_day} failed: ${err.message}`);
+          continue;
         }
-        repeats = repeatedSlots(day);
-        console.log(`[curate-week] attempt ${attempt} for ${target_day}: chosen=${JSON.stringify(Object.fromEntries(slots.map((s) => [s, day[s]])))} repeated=${JSON.stringify(repeats)}`);
-        if (repeats.length === 0) break;
+        if (!raw) {
+          lastError = "response did not include an outfit";
+          console.warn(`[curate-week] attempt ${attempt} for ${target_day}: no outfit in response`);
+          continue;
+        }
+
+        const warnings: string[] = [];
+        const day = sanitizeDay(raw, warnings);
+        const repeats = repeatedSlots(day);
+        console.log(`[curate-week] attempt ${attempt} for ${target_day}: chosen=${JSON.stringify(Object.fromEntries(slots.map((s) => [s, day[s]])))} repeated=${JSON.stringify(repeats)} warnings=${JSON.stringify(warnings)}`);
+
+        const score = (c: { repeats: string[]; warnings: string[] }) => c.repeats.length + c.warnings.length;
+        if (!best || score({ repeats, warnings }) <= score(best)) best = { day, repeats, warnings };
+        if (repeats.length === 0 && warnings.length === 0) break;
       }
 
-      if (repeats.length) {
-        throw upstreamError(`Re-curation for ${target_day} kept ${repeats.map((s) => SLOT_CATEGORY[s].toLowerCase()).join(", ")} from the previous outfit; tap ↻ to try again`);
+      // Nothing usable came back: keep the previous outfit rather than failing
+      if (!best) {
+        const warnings = [`could not re-curate (${lastError}); kept the current outfit`];
+        const day = sanitizeDay(previous_outfit || {}, warnings);
+        day.rationale = previous_outfit?.rationale || `Kept the current outfit for ${target_day}.`;
+        best = { day, repeats: [], warnings };
       }
 
-      return new Response(JSON.stringify({ target_day, day }), {
+      if (best.repeats.length) {
+        best.warnings.push(`kept the ${best.repeats.map((s) => SLOT_CATEGORY[s].toLowerCase()).join(", ")} from the previous outfit; tap ↻ for another option`);
+      }
+
+      return new Response(JSON.stringify({ target_day, day: best.day, warnings: best.warnings }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
